@@ -1,0 +1,41 @@
+{
+  "name": "@ssheleg/agent-stack",
+  "version": "0.1.0",
+  "description": "Production patterns for AI agent orchestrators — tool-calling loops, multi-stage pipelines with checkpoints, LLM provider routing with fallback, four-layer memory with confidence decay — plus the wallet side of reselling LLM access. This package is the installer CLI.",
+  "bin": {
+    "agent-stack": "bin/agent-stack.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "bin",
+    "plugins",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "SECURITY.md"
+  ],
+  "repository": "github:ssheleg/agent-stack",
+  "homepage": "https://github.com/ssheleg/agent-stack",
+  "license": "MIT",
+  "author": {
+    "name": "ssheleg",
+    "url": "https://x.com/sshlg93"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "keywords": [
+    "agent",
+    "orchestrator",
+    "llm",
+    "tool-calling",
+    "multi-agent",
+    "openrouter",
+    "llm-billing",
+    "claude-code",
+    "cursor",
+    "skill"
+  ]
+}
