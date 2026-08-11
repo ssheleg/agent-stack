@@ -2,7 +2,7 @@
   "name": "agent-stack",
   "displayName": "Agent Stack",
   "description": "Production patterns for AI agent orchestrators: tool-calling loops, multi-stage pipelines with checkpoints, LLM provider routing with fallback, four-layer memory with confidence decay — plus the wallet side of reselling LLM access.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "ssheleg",
     "url": "https://x.com/sshlg93"

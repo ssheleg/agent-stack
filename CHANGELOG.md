@@ -4,6 +4,35 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] — 2026-08-11
+
+### Changed
+
+- **The body went 604 lines / 5361 tokens to 459 / 4146** — the caps are 500
+  and 5000, and it was the only skill in the family over both. Measured with
+  `cl100k`.
+
+  Sections 6 (provider routing) and 7 (memory layers) were carrying depth that
+  `references/llm-proxy-billing.md` and `references/patterns.md` already hold —
+  fallback chains and retry/backoff in the first, confidence management,
+  extraction heuristics, fuzzy deduplication and conflict resolution in the
+  second. The body keeps the shape of each (the four-layer table, the router's
+  contract) plus the traps, and points at the depth.
+
+  The traps stay inline because an agent cannot know to open a file about a
+  trap it does not know exists: a retry loop and a fallback chain **multiply**,
+  a health check that only runs on failure never recovers, model selection has
+  three levels and a silent precedence bug bills a cheap model at a premium
+  rate, and every memory layer competes for one context window — give layer 1 a
+  floor or old generalities crowd out what the user said a minute ago.
+
+- `references/patterns.md` gains the `## Contents` list the canon requires of a
+  reference over 100 lines: a partial read is what agents actually do, and
+  without the list it returns an arbitrary slice.
+
+- The description trimmed 975 → 937 chars, inside the 970 headroom, by dropping
+  two trigger phrases already covered by their neighbours.
+
 ## [0.1.0] — 2026-08-06
 
 First release. The skill is a port: it was written and used inside Cursor

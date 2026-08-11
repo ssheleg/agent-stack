@@ -10,8 +10,8 @@ description: >-
   when building agent systems, orchestrators, LLM-powered tools, chatbots with tool use, AI
   pipelines, or when metering and billing LLM usage. Triggers: "agent", "orchestrator", "tool
   calling", "sub-agent", "LLM router", "fallback chain", "human in the loop", "multi-stage
-  pipeline", "memory layer", "OpenRouter", "agentic workflow", "LLM billing", "spend tracking",
-  "budget limit", "loop detection", "token wallet".
+  pipeline", "memory layer", "OpenRouter", "LLM billing", "spend tracking",
+  "budget limit", "token wallet".
 ---
 
 # Agent Orchestrator — Production Best Practices
@@ -283,191 +283,46 @@ async def resume_pipeline(resume_info, context):
 
 ## 6. LLM Provider Routing
 
-### Multi-Provider Router with Fallback
+A router in front of the providers, not a provider client in front of the app:
+attempt in order, fall through on failure, and surface one error hierarchy
+upward so the caller cannot tell which vendor answered.
 
-```python
-PROVIDER_REGISTRY = {"openai": OpenAIAdapter, "anthropic": AnthropicAdapter,
-                     "openrouter": OpenRouterAdapter}
+Read `references/llm-proxy-billing.md` → **Model routing and fallbacks** for the
+fallback chain and per-provider retry with exponential backoff, and its
+**Guardrails** section for budgets, loop detection and auto-pause.
 
-class LLMRouter:
-    def _get_fallback_chain(self, preferred):
-        primary = preferred or settings.default_llm_provider
-        chain = [primary] + [p for p in self._fallback_order if p != primary]
-        return [p for p in chain
-                if has_api_key(p) and not is_unhealthy(p)]
+**Three traps that cost real money:**
 
-    async def complete(self, messages, tools, model, preferred_provider):
-        for provider_name in self._get_fallback_chain(preferred_provider):
-            try:
-                return await self._call_with_retry(provider_name, messages, tools, model)
-            except LLMAuthError:
-                break  # don't try other providers for auth errors
-            except LLMTokenLimitError:
-                continue  # next provider might have bigger context
-            except retryable_error:
-                self.mark_unhealthy(provider_name)
-                continue
-        raise LLMAllProvidersFailedError(...)
-```
-
-### Per-Provider Retry with Exponential Backoff
-
-```python
-MAX_RETRIES = 3
-BASE_BACKOFF = 2.0
-MULTIPLIER = 2.0
-
-for attempt in range(1, MAX_RETRIES + 1):
-    try:
-        return await provider.complete(messages, tools, model, temperature, max_tokens)
-    except NON_RETRYABLE_ERRORS:  # LLMAuthError, LLMTokenLimitError
-        raise  # fail immediately
-    except RETRYABLE_ERRORS as exc:  # rate limit, server error, timeout
-        if attempt >= MAX_RETRIES: raise
-        wait = exc.retry_after_seconds or delay
-        await asyncio.sleep(wait)
-        delay *= MULTIPLIER
-```
-
-### Health Check Loop
-
-```python
-async def _health_loop(self):
-    while True:
-        await asyncio.sleep(60)
-        for name in list(self._unhealthy.keys()):
-            try:
-                await provider.complete([Message(role="user", content="hi")], max_tokens=1)
-                self.mark_healthy(name)  # re-enters fallback chain
-            except Exception:
-                pass  # still unhealthy, quarantined for 120s total
-```
-
-### Unified Error Hierarchy
-
-```
-LLMError (base, has user_message property)
-├── LLMRateLimitError       retryable  retry_after=5s   (429)
-├── LLMServerError          retryable  retry_after=2s   (5xx)
-├── LLMTimeoutError         retryable  retry_after=2s
-├── LLMConnectionError      retryable  retry_after=2s
-├── LLMAuthError            NOT retryable               (401/403)
-├── LLMTokenLimitError      NOT retryable               (context overflow)
-├── LLMContentFilterError   NOT retryable
-└── LLMAllProvidersFailedError  retryable (whole chain retry)
-```
-
-### OpenRouter Integration
-
-```python
-class OpenRouterAdapter(BaseLLMProvider):
-    BASE_URL = "https://openrouter.ai/api/v1"
-    def __init__(self):
-        self._client = httpx.AsyncClient(
-            base_url=self.BASE_URL,
-            headers={
-                "Authorization": f"Bearer {api_key}",
-                "HTTP-Referer": "https://yourapp.com",  # required by OpenRouter
-                "X-Title": "YourApp",                    # required by OpenRouter
-            },
-            timeout=120.0)
-
-    async def complete(self, messages, tools, model, temperature, max_tokens):
-        payload = {"model": model or "openai/gpt-4o", "messages": ..., "temperature": ...,
-                   "max_tokens": ...}
-        if tools: payload["tools"] = self._tools_to_schema(tools)
-        resp = await self._client.post("/chat/completions", json=payload)
-        # Map httpx errors: 429→RateLimit, 401→Auth, 400+"context length"→TokenLimit, 5xx→Server
-```
-
-### Model Selection — Three Levels
-
-1. **App defaults**: `settings.default_llm_provider` (env var)
-2. **Per-project**: `project.agent_llm_provider/model`, `project.sql_llm_provider/model`
-3. **Per-request**: `body.preferred_provider`, `body.model` (highest priority)
-
-Resolution: `request_override or project_default or app_default`
-
----
-
+- **A retry loop and a fallback chain multiply.** Three providers with three
+  retries each is nine calls for one prompt; cap the total attempts, not the
+  per-provider ones.
+- **Health checks that only run on failure never recover.** A provider marked
+  unhealthy needs a scheduled probe, or the chain permanently runs one provider
+  short and nobody sees it — the requests still succeed.
+- **Model selection has three levels** — the request, the tenant, the system
+  default — and a tenant override that silently loses to a request parameter is
+  how a cheap model ends up billed at a premium one's rate.
 ## 7. Multi-Layer Memory System
 
-### Layer 1: Chat History (per-session, minutes)
+Four layers, each with a different lifetime and a different reason to exist:
 
-```python
-# Enrich assistant messages with execution context for follow-ups
-for m in db_messages:
-    if m.role == "assistant" and m.metadata_json:
-        meta = json.loads(m.metadata_json)
-        context_parts = []
-        if meta.get("query"): context_parts.append(f"SQL: {meta['query']}")
-        if meta.get("viz_type"): context_parts.append(f"Viz: {meta['viz_type']}")
-        if meta.get("row_count"): context_parts.append(f"Rows: {meta['row_count']}")
-        content += "\n\n[Context: " + " | ".join(context_parts) + "]"
-```
+| Layer | Scope | Lives | Holds |
+|---|---|---|---|
+| 1 Chat history | per session | minutes | the turns, trimmed to a token budget |
+| 2 Working memory | per resource | days | what this task has established so far |
+| 3 Long-term learnings | per resource | months | what worked, with a confidence score |
+| 4 Insights | per project | permanent | conclusions that outlived their resource |
 
-**Trimming strategy:**
-- Condense tool results >500 chars to 8-line previews
-- Summarize older messages via LLM (or fallback to topic list)
-- In-loop: collapse assistant+tool pairs into one-liners at 80% capacity
-- Inject "wrap up" system message at 70% capacity
+Read `references/patterns.md` for the data models, **Confidence Management**
+(how a learning decays and when it is retired), **Learning Extraction
+Heuristics**, **Fuzzy Deduplication** and **Conflict Resolution** — the four
+mechanisms that decide what actually enters layers 3 and 4.
 
-### Layer 2: Working Memory (per-resource, days)
-
-Session notes — observations that persist across chat sessions:
-
-```python
-# Categories: data_observation, column_mapping, business_logic,
-#             calculation_note, user_preference, verified_benchmark
-# Fuzzy dedup: SequenceMatcher threshold 0.75
-# Compiled into prompt: "AGENT NOTES (from previous sessions):\n### Business Logic\n- ..."
-# Decay: unverified notes inactive 60+ days lose 0.1 confidence
-```
-
-### Layer 3: Long-Term Learnings (per-resource, months)
-
-Structured lessons extracted from query validation and user feedback:
-
-```python
-# Categories: table_preference, column_usage, data_format,
-#             query_pattern, schema_gotcha, performance_hint
-# Confidence lifecycle: create 0.6 → +0.1 confirmed → -0.02/month stale → deactivate <0.2
-# Conflict resolution: new learning deactivates contradicting old one (negation detection)
-# Cross-resource transfer: learnings from sibling resources (same project) shared
-# Global patterns: learnings seen on 2+ resources promoted everywhere
-# Compiled into prompt sorted by: confidence*0.4 + log(confirmations)*0.4 + log(applications)*0.2
-```
-
-### Layer 4: Insights (per-project, permanent)
-
-Higher-level findings with lifecycle and trust scoring:
-
-```python
-# Types: anomaly, opportunity, loss, trend, pattern, data_quality
-# Lifecycle: active → confirmed/dismissed/resolved/expired
-# Dedup: SequenceMatcher threshold 0.80 on titles
-# Decay: unconfirmed 30+ days → -0.05 confidence, expire below 0.15
-# Trust scoring: data freshness, source list, validation method, sample size
-```
-
-### Context Budget Allocation
-
-```python
-class ContextBudgetManager:
-    # Priority order (highest to lowest):
-    # 1. System prompt  — never truncated
-    # 2. Chat history   — 30% of total
-    # 3. Schema/tools   — 25% of total
-    # 4. Rules          — 10% of total
-    # 5. Learnings      — 8% of total
-    # 6. Overview       — remainder
-    def allocate(self, system_prompt, schema, rules, learnings, overview):
-        # Each lower-priority component gets min(remaining, budget_share)
-        # Truncated text gets "... (truncated to fit context budget)" suffix
-```
-
----
-
+**The trap is the budget, not the storage.** Every layer competes for the same
+context window, so allocation has to be decided per call rather than per layer:
+a session that trims chat history to fit a large set of learnings has quietly
+chosen old generalities over what the user said sixty seconds ago. Give layer 1
+a floor.
 ## 8. Self-Learning Feedback Loops
 
 ### Cycle 1: Automatic (Validation Loop)

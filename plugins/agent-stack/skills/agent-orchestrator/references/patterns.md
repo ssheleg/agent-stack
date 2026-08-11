@@ -2,6 +2,20 @@
 
 Extended patterns, data models, and implementation details.
 
+## Contents
+
+- [Data Models](#data-models)
+- [Pipeline Data Models](#pipeline-data-models)
+- [Validation Loop (SQL Execution)](#validation-loop-sql-execution)
+- [Context Window Sizes](#context-window-sizes)
+- [Learning Extraction Heuristics](#learning-extraction-heuristics)
+- [Confidence Management](#confidence-management)
+- [Fuzzy Deduplication Pattern](#fuzzy-deduplication-pattern)
+- [Conflict Resolution Pattern](#conflict-resolution-pattern)
+- [Cross-Resource Learning Transfer](#cross-resource-learning-transfer)
+- [Suggestion Engine (No LLM Cost)](#suggestion-engine-no-llm-cost)
+
+
 ## Data Models
 
 ### Message Protocol
