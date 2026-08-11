@@ -85,8 +85,11 @@ jobs:
           export HOME="$(mktemp -d)"
           cd "$(mktemp -d)"
           npx --yes "github:ssheleg/agent-stack#${{ steps.t.outputs.tag }}"
-          test -f "$HOME/.claude/skills/agent-stack/SKILL.md"
-          test -f "$HOME/.claude/commands/agent-stack.md"
+          # The skill is named for what it does, not for the repository that
+          # ships it, and this repository ships no commands — assert what the
+          # installer actually writes, which its own output names.
+          test -f "$HOME/.claude/skills/agent-orchestrator/SKILL.md"
+          test -d "$HOME/.claude/skills/agent-orchestrator/references"
           echo "OK: released ${{ steps.t.outputs.tag }} installs cleanly via npx"
 
   publish:
