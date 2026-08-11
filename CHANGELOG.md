@@ -4,6 +4,16 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] — 2026-08-12
+
+### Changed
+
+- **The description now opens with `Use when …` and carries paired Russian triggers.**
+  That has been the family canon since `super-ux` v0.20.0; this repository was created
+  after it and never adopted it, so the skill did not match a request written in
+  Russian — and a skill that does not match is a skill that is not there. 923/1024
+  chars, inside the 970 working limit that v0.2.0 had already brought it under.
+
 ## [0.2.0] — 2026-08-11
 
 ### Changed

@@ -1,17 +1,17 @@
 ---
 name: agent-orchestrator
 description: >-
-  Production patterns for AI agent orchestrators: tool-calling loops, multi-stage pipelines with
-  human-in-the-loop checkpoints, LLM provider routing with fallback and retry, four-layer memory
-  (chat history, working memory, long-term learnings, insights) with confidence decay, context
-  budget management, sub-agent coordination and error hierarchies. Also covers reselling LLM
-  access — tiered wallets, the single markup boundary, two-phase commit across a database and a
-  provider API, spend-delta polling, budget and loop guardrails, per-tenant key lifecycle. Use
-  when building agent systems, orchestrators, LLM-powered tools, chatbots with tool use, AI
-  pipelines, or when metering and billing LLM usage. Triggers: "agent", "orchestrator", "tool
-  calling", "sub-agent", "LLM router", "fallback chain", "human in the loop", "multi-stage
-  pipeline", "memory layer", "OpenRouter", "LLM billing", "spend tracking",
-  "budget limit", "token wallet".
+  Use when building an agent system — an orchestrator, an LLM-powered tool, a chatbot with tool
+  use, an AI pipeline — or when metering and billing the LLM access it burns. Covers tool-
+  calling loops, multi-stage pipelines with human checkpoints, provider routing with fallback
+  and retry, four-layer memory with confidence decay, context budgets, sub-agent coordination
+  and error hierarchies; for resale: tiered wallets, the single markup boundary, two-phase
+  commit across a database and a provider API, spend-delta polling, budget and loop guardrails,
+  per-tenant key lifecycle. Triggers - "agent", "orchestrator", "tool calling", "sub-agent",
+  "LLM router", "fallback chain", "human in the loop", "memory layer", "LLM billing", "token
+  wallet", "агент", "оркестратор", "суб-агент", "роутер моделей", "человек в цикле", "слой
+  памяти", "биллинг LLM", "лимит бюджета". Not for a single LLM call in a script, or for prompt
+  wording.
 ---
 
 # Agent Orchestrator — Production Best Practices
