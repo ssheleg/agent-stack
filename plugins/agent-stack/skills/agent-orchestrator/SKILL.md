@@ -137,6 +137,7 @@ else:
 - **In-loop trimming**: At ~80% capacity, collapse older assistant+tool pairs into one-liner summaries
 - **Token limit recovery**: On `LLMTokenLimitError`, compress to 60% and retry once. If still fails, return partial answer
 - **Max iterations guard**: Always have a hard limit. On exhaustion, compose best-effort answer from data gathered so far
+- **Iteration refund**: a recoverable provider error is not charged to that guard
 
 ---
 
@@ -323,6 +324,9 @@ context window, so allocation has to be decided per call rather than per layer:
 a session that trims chat history to fit a large set of learnings has quietly
 chosen old generalities over what the user said sixty seconds ago. Give layer 1
 a floor.
+
+**Layer 0 — carryover state.** Goal, artifacts, verified work and restrictive
+mode cross a compaction boundary as copied typed blocks, not prose (§12).
 ## 8. Self-Learning Feedback Loops
 
 ### Cycle 1: Automatic (Validation Loop)
@@ -436,6 +440,27 @@ async def handle_ask_user(tc, context, wf_id):
 
 ---
 
+## 12. Context Engineering
+
+**Compaction is a ladder, not a call.** Clear old tool results, collapse
+oversized blocks, condense messages, and only then pay a summarizer —
+re-measuring between rungs. Most pressure resolves before the first call.
+
+**Never orphan a `tool_use`.** Every truncation point lands *between* an
+assistant+tool pair, or the next request is a 400 in the middle of a task.
+
+**Carry state across the boundary as typed blocks, not prose** — goal,
+artifacts, verified work, restrictive mode. A summarizer keeps the discussion
+and drops the state, including the flag that said not to write anything.
+
+**Offload a large tool result to a file, keep the path.** Trimming history
+cannot save a window one tool output already filled.
+
+**A sub-agent's value is its own window**: it returns a typed summary, not a
+transcript.
+
+---
+
 ## Checklist — Building a New Orchestrator
 
 - [ ] Shared `AgentContext` dataclass with all sub-agents
@@ -459,6 +484,7 @@ async def handle_ask_user(tc, context, wf_id):
 - [ ] Multi-stage pipeline with checkpoints and resume
 - [ ] `ask_user` clarification mechanism
 - [ ] Graceful degradation (partial answers on context overflow or max iterations)
+- [ ] Compaction ladder, tool-pair-safe boundaries, typed carryover, output offload
 
 ---
 
@@ -470,4 +496,5 @@ are the territory.
 | File | Read it when |
 |---|---|
 | [`references/patterns.md`](references/patterns.md) | you need the **data models and algorithms**: message and result protocols, pipeline models, the SQL validation loop, context-window sizes and token estimation, learning-extraction heuristics, confidence lifecycle, fuzzy dedup, conflict resolution, cross-resource transfer, the no-LLM suggestion engine |
+| [`references/context-engineering.md`](references/context-engineering.md) | the loop is **running out of window**: the five-rung compaction ladder, the tool-pair boundary invariant, typed carryover attachments, tool-output offload, token estimation, the compaction circuit breaker, sub-agent isolation, and how to pick your own constants |
 | [`references/llm-proxy-billing.md`](references/llm-proxy-billing.md) | the product **resells LLM access**: tiered wallets and where markup applies, two-phase commit against a provider API with compensating transactions, advisory locking, optimistic concurrency for reclaims, spend-delta polling and its three cases, budget/loop/auto-pause guardrails, per-tenant key lifecycle and healing, the refund waterfall, model routing |

@@ -4,6 +4,39 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] — 2026-08-12
+
+### Added
+
+- **`references/context-engineering.md`** — what the loop gives up when the window
+  runs out, which the skill named a threshold for and never answered. The five-rung
+  compaction ladder, cheapest first, with a re-measure between rungs so a small
+  overage never buys a model call; the rung that exists only for the case where the
+  compaction request itself does not fit; the **tool-pair invariant** — one boundary
+  finder used by every rung, because a truncation that orphans a `tool_use` fails the
+  *next* request with a 400 in the middle of a task; **typed carryover blocks** copied
+  across the boundary rather than summarized, since a summarizer keeps the discussion
+  and drops the state, including the flag that said not to write; **tool-output
+  offload** to a file with the path left in context, because trimming history cannot
+  save a window one result already filled; token estimation and the direction it errs;
+  the compaction circuit breaker; sub-agent context isolation; the filesystem as
+  context; and how to pick constants for your own window.
+
+  Ladder structure and the attachment taxonomy are adapted from
+  [HKUDS/OpenHarness](https://github.com/HKUDS/OpenHarness) (MIT),
+  `services/compact/__init__.py` and `services/tool_outputs.py`. The constants are
+  deliberately ours — and deliberately absent, with anchors for choosing them, because
+  a threshold copied without its window is a number nobody can defend.
+
+### Changed
+
+- **§12 Context Engineering** in the body: five traps an agent cannot know to look up,
+  because it does not know they exist. **§7 gains Layer 0 — carryover state**, the one
+  memory layer whose survival is deterministic rather than a model's choice. §2 gains
+  the iteration refund. Body lands at 486 lines / ~4985 tokens against the 500 / 5000
+  budget — every insertion was cut twice to fit, and the depth is in the reference
+  where it belongs.
+
 ## [0.3.0] — 2026-08-12
 
 ### Changed
