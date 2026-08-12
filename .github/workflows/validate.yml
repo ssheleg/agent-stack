@@ -40,10 +40,25 @@ jobs:
         run: |
           set -eu
           cp -R . /tmp/desc-copy
+          # The plant is STRUCTURAL: it appends a continuation line to the folded
+          # `description:` scalar rather than searching for a phrase inside it.
+          #
+          # The previous version replaced the literal `"token wallet".`, and when
+          # the description was reworded to fit the token budget that phrase left
+          # the file. The replace silently no-oped, no defect was planted, the
+          # validator passed, and this step reported the validator as broken —
+          # every push red for a guard that was in fact fine. A plant anchored on
+          # prose has a shelf life; one anchored on the file's shape does not.
+          #
+          # It also asserts it actually planted something, so a future change to
+          # the front-matter layout fails HERE, saying so, instead of quietly
+          # testing nothing.
           python3 - <<'PY'
           p = "/tmp/desc-copy/plugins/agent-stack/skills/agent-orchestrator/SKILL.md"
           s = open(p, encoding="utf-8").read()
-          s = s.replace('"token wallet".', '"token wallet". ' + ("padding " * 40))
+          marker = "description: >-\n"
+          assert marker in s, "front matter no longer opens the description with a folded scalar"
+          s = s.replace(marker, marker + "  " + ("padding " * 40) + "\n", 1)
           open(p, "w", encoding="utf-8").write(s)
           PY
           if python3 /tmp/desc-copy/test/validate.py; then
