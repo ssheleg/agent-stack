@@ -4,6 +4,50 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] — 2026-08-12
+
+### Added
+
+- **`references/runtime.md`** — the layer most orchestrators assume rather than
+  specify, and the one this skill was quietly missing. **Checkpoint every iteration,
+  not just the stages a human reviews**: the multi-stage path persisted and could
+  resume, the simple tool-calling path persisted nothing, so a crash lost the run that
+  executes most often — an asymmetry, not a design. Then one interrupt/resume contract
+  instead of the two mechanisms the body had for one idea (`ask_user` and a stage
+  checkpoint); the four double-texting policies and why interrupt and rollback differ
+  in what the transcript looks like afterwards; streaming with event ids so a dropped
+  connection rejoins instead of watching nothing for ninety seconds; forking a past
+  checkpoint, which debugs through the real loop rather than a reconstruction that may
+  not share the bug; stateful versus stateless schedules; and the seven cross-cutting
+  concerns welded into the loop pulled out as ordered interceptors — where **order is
+  semantics**, because redaction after summarisation redacts a summary that already
+  leaked.
+
+- **`references/governance.md`** — permission, where `llm-proxy-billing.md` is cost.
+  **The greatest risk is usually not what the model says but what the agent can do**,
+  so the four boundaries get four control sets: model call, tool call, external server,
+  and agent-to-agent — the last being the one designs miss, since a sub-agent
+  inheriting its caller's authority silently widens every permission. The guardrail
+  taxonomy in order of reliability, and its honest limit: every content check is
+  probabilistic, so anything consequential takes a deterministic limit or a human, never
+  a classifier's confidence. Why an audit row without a **policy version** cannot prove
+  a control was applied. Cost attribution as a hierarchy, because "which team's agent
+  did this" is unanswerable from a flat tenant id. Failover that must be
+  policy-equivalent rather than merely available — a chain that silently fails into
+  another jurisdiction does it precisely when nobody is reading logs. Fail-open versus
+  fail-closed per workload. And blast radius: a sandbox protects the host, not the
+  sandbox, and credentials never enter it.
+
+### Changed
+
+- **The References table is an index again.** Each reference now opens with its own
+  `Load this when` line, so the trigger has exactly one home and the table cannot drift
+  from the files it points at. Compressing it returned ~100 tokens of body budget, which
+  is what paid for two new rows: the body sits at 489 lines / ~4883 tokens against
+  500 / 5000.
+- README describes two skills and five references, and its trigger section covers the
+  evals skill and the permission surface, not only the orchestrator and the wallet.
+
 ## [0.5.0] — 2026-08-12
 
 ### Added

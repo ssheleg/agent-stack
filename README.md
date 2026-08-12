@@ -10,7 +10,7 @@ Part of the [ssheleg skill family](https://github.com/ssheleg/sshlg-skills).
 ## What is in here
 
 Two skills — `agent-orchestrator` for building one, `agent-evals` for proving it
-behaves — and three references the first loads on demand.
+behaves — and five references the first loads on demand.
 
 **The orchestrator** (`SKILL.md`) — what the agent reads first:
 
@@ -46,6 +46,23 @@ boundary rather than summarized, tool-output offload to a file, token estimation
 and the direction it errs, the compaction circuit breaker, sub-agent context
 isolation, and how to choose constants for your own window.
 
+**`references/runtime.md`** — what keeps an agent alive between requests, which
+most orchestrators assume rather than specify: checkpointing every iteration and
+not just the stages a human reviews, one interrupt/resume contract instead of two
+mechanisms for one idea, the four double-texting policies, streaming a dropped
+connection can rejoin, forking a past checkpoint to debug through the real loop,
+stateful versus stateless schedules, and the seven cross-cutting concerns pulled
+out of the loop into ordered interceptors — where order is semantics.
+
+**`references/governance.md`** — permission rather than cost. The four boundaries
+an agent crosses (model, tool, external server, agent-to-agent), each with its own
+control set; the guardrail taxonomy and its honest limit — every content check is
+probabilistic, so anything consequential gets a deterministic limit or a human;
+why an audit row without a policy version cannot prove a control was applied;
+cost attribution as a hierarchy; failover that must land somewhere approved rather
+than merely available; fail-open versus fail-closed as a per-workload decision;
+and blast radius — a sandbox protects the host, not the sandbox.
+
 **`references/patterns.md`** — the data models and algorithms underneath:
 message and result protocols, pipeline models, the SQL validation loop,
 context-window sizes and token estimation, learning-extraction heuristics,
@@ -71,7 +88,7 @@ waterfall, and model-routing precedence.
 /plugin install agent-stack@agent-stack
 ```
 
-**npm installer** — copies the skill into `~/.claude/skills/`:
+**npm installer** — copies both skills into `~/.claude/skills/`:
 
 ```bash
 npx @ssheleg/agent-stack
@@ -95,13 +112,19 @@ Restart your agent afterwards — skills load at session start.
 
 ## When it triggers
 
-Building an agent system, an orchestrator, an LLM-powered tool, a chatbot with
-tool use, or an AI pipeline. Also when the work is the money side: metering
-usage, per-tenant keys, spend tracking, budget limits, loop detection.
+`agent-orchestrator`: building an agent system, an orchestrator, an LLM-powered
+tool, a chatbot with tool use, or an AI pipeline. Also the money side — metering
+usage, per-tenant keys, spend tracking, budget limits, loop detection — and the
+permission side: what a tool may reach, what leaves the boundary, and what an
+audit row has to carry to prove a control was on.
 
-It does **not** trigger for a single LLM call in a script, or for prompt
-wording — that is not an orchestrator, and pulling 1200 lines of doctrine for it
-is how a skill teaches you to route around it.
+`agent-evals`: measuring whether the result behaves. Building a suite, judging a
+trajectory rather than a final answer, turning a production failure into a
+permanent fixture, calibrating a judge, gating a release on offline evals.
+
+Neither triggers for a single LLM call in a script or for prompt wording — that
+is not an orchestrator, and pulling this much doctrine for it is how a skill
+teaches you to route around it.
 
 ---
 

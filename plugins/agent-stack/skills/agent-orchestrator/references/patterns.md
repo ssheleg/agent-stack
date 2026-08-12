@@ -1,6 +1,10 @@
 # Agent Orchestrator — Reference Guide
 
-Extended patterns, data models, and implementation details.
+**Load this when** you need the data models and algorithms under the body: message
+and result protocols, pipeline models, the SQL validation loop, context-window sizes
+and token estimation, learning-extraction heuristics, the confidence lifecycle, fuzzy
+deduplication, conflict resolution, cross-resource transfer, and the suggestion engine
+that costs no LLM call.
 
 ## Contents
 

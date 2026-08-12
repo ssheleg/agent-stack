@@ -1,5 +1,12 @@
 # Reselling LLM access — metering, wallets and guardrails
 
+**Load this when** the product resells LLM access: tiered wallets and the single
+boundary where markup applies, two-phase commit across a database and a provider API
+with compensating transactions, advisory locking, optimistic concurrency for reclaims,
+spend-delta polling and its three cases, budget / loop / auto-pause guardrails,
+per-tenant key lifecycle and healing, the refund waterfall, and model-routing
+precedence.
+
 When your product gives users LLM access and bills for it, you are running a
 proxy with a wallet behind it. The failure modes are not model failures: they
 are **double-credited transfers**, **spend you discovered after it happened**,

@@ -490,11 +490,14 @@ transcript.
 
 ## References
 
-Load these when the task reaches them — the checklist above is the map, these
-are the territory.
+The checklist above is the map, these are the territory. Each file opens with its
+own **Load this when** line — the authoritative trigger lives there, so this table
+stays an index and the two cannot drift apart.
 
 | File | Read it when |
 |---|---|
-| [`references/patterns.md`](references/patterns.md) | you need the **data models and algorithms**: message and result protocols, pipeline models, the SQL validation loop, context-window sizes and token estimation, learning-extraction heuristics, confidence lifecycle, fuzzy dedup, conflict resolution, cross-resource transfer, the no-LLM suggestion engine |
-| [`references/context-engineering.md`](references/context-engineering.md) | the loop is **running out of window**: the five-rung compaction ladder, the tool-pair boundary invariant, typed carryover attachments, tool-output offload, token estimation, the compaction circuit breaker, sub-agent isolation, and how to pick your own constants |
-| [`references/llm-proxy-billing.md`](references/llm-proxy-billing.md) | the product **resells LLM access**: tiered wallets and where markup applies, two-phase commit against a provider API with compensating transactions, advisory locking, optimistic concurrency for reclaims, spend-delta polling and its three cases, budget/loop/auto-pause guardrails, per-tenant key lifecycle and healing, the refund waterfall, model routing |
+| [`references/patterns.md`](references/patterns.md) | you need the **data models and algorithms** under the body |
+| [`references/context-engineering.md`](references/context-engineering.md) | the loop is **running out of window** |
+| [`references/runtime.md`](references/runtime.md) | the agent must **survive a crash, a pause, a second message or a schedule** |
+| [`references/governance.md`](references/governance.md) | the question is **permission, not cost** — what it may do, and how you prove it |
+| [`references/llm-proxy-billing.md`](references/llm-proxy-billing.md) | the product **resells LLM access** |
