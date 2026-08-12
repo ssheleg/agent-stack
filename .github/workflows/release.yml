@@ -90,6 +90,7 @@ jobs:
           # installer actually writes, which its own output names.
           test -f "$HOME/.claude/skills/agent-orchestrator/SKILL.md"
           test -d "$HOME/.claude/skills/agent-orchestrator/references"
+          test -f "$HOME/.claude/skills/agent-evals/SKILL.md"
           echo "OK: released ${{ steps.t.outputs.tag }} installs cleanly via npx"
 
   publish:

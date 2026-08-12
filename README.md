@@ -9,7 +9,8 @@ Part of the [ssheleg skill family](https://github.com/ssheleg/sshlg-skills).
 
 ## What is in here
 
-One skill, `agent-orchestrator`, and two references it loads on demand.
+Two skills — `agent-orchestrator` for building one, `agent-evals` for proving it
+behaves — and three references the first loads on demand.
 
 **The orchestrator** (`SKILL.md`) — what the agent reads first:
 
@@ -28,6 +29,22 @@ One skill, `agent-orchestrator`, and two references it loads on demand.
   decay, plus conflict resolution when a new learning contradicts an old one
 - context budget allocation by priority
 - self-learning feedback loops
+
+**The evals skill** (`agent-evals/SKILL.md`) — how you know any of it works. An
+agent's behaviour is not in its source, so the artifact under test is the
+execution record: three primitives (run, trace, thread) crossed with three
+granularities (single-step, full-turn, multi-turn), the offline/online/ad-hoc
+timing axis, pass-fail rubrics instead of scalar scores that name no fix, cheap
+code checks before model judges, judges calibrated against human labels before
+they are trusted, and a corpus grown from production failures rather than
+authored up front — where every fixed failure stays a fixture permanently.
+
+**`references/context-engineering.md`** — what the loop gives up when the window
+runs out: the five-rung compaction ladder and why to re-measure between rungs,
+the tool-pair boundary invariant, typed carryover blocks copied across the
+boundary rather than summarized, tool-output offload to a file, token estimation
+and the direction it errs, the compaction circuit breaker, sub-agent context
+isolation, and how to choose constants for your own window.
 
 **`references/patterns.md`** — the data models and algorithms underneath:
 message and result protocols, pipeline models, the SQL validation loop,

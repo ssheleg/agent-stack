@@ -2,7 +2,7 @@
 /*
  * agent-stack installer CLI.
  *
- * Installs the agent-orchestrator skill into ~/.claude/skills/agent-orchestrator
+ * Installs every skill this plugin ships into ~/.claude/skills/<name>
  * (same layout as install.sh). Idempotent: an existing install is skipped unless
  * --force. Zero dependencies.
  *
@@ -21,7 +21,7 @@ function usage() {
   console.log(`agent-stack installer
 
 Usage:
-  npx @ssheleg/agent-stack [--force]   install the agent-orchestrator skill
+  npx @ssheleg/agent-stack [--force]   install every skill this plugin ships
                                        into ~/.claude (skip existing unless --force)
   npx @ssheleg/agent-stack --help
 
@@ -67,20 +67,34 @@ function main(argv) {
     return 2;
   }
 
-  const skillSrc = path.join(ROOT, 'plugins/agent-stack/skills/agent-orchestrator');
-  if (!fs.existsSync(skillSrc)) {
-    console.error(`error: skill sources missing at ${skillSrc} — corrupted package?`);
+  const skillRoot = path.join(ROOT, 'plugins/agent-stack/skills');
+  if (!fs.existsSync(skillRoot)) {
+    console.error(`error: skill sources missing at ${skillRoot} — corrupted package?`);
+    return 1;
+  }
+
+  // Iterate rather than name one skill: a skill added to the plugin must not
+  // require an installer change to reach anybody.
+  const names = fs
+    .readdirSync(skillRoot, { withFileTypes: true })
+    .filter((e) => e.isDirectory())
+    .map((e) => e.name)
+    .sort();
+  if (!names.length) {
+    console.error(`error: no skills found under ${skillRoot} — corrupted package?`);
     return 1;
   }
 
   const home = os.homedir();
-  installOne(
-    'agent-orchestrator skill',
-    skillSrc,
-    path.join(home, '.claude', 'skills', 'agent-orchestrator'),
-    true,
-    force
-  );
+  for (const name of names) {
+    installOne(
+      `${name} skill`,
+      path.join(skillRoot, name),
+      path.join(home, '.claude', 'skills', name),
+      true,
+      force
+    );
+  }
   return 0;
 }
 

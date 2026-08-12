@@ -4,6 +4,46 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] — 2026-08-12
+
+### Added
+
+- **A second skill: `agent-evals`** — how you know the thing built by
+  `agent-orchestrator` actually behaves. There was no evaluation doctrine anywhere in
+  this family; `grep -ril "llm-as-judge\|eval dataset\|regression fixture\|trace id"`
+  across four plugins returned nothing.
+
+  An agent's behaviour is not in its source — the code says what it is allowed to do,
+  only a run says what it did — so the artifact under test is the execution record.
+  Three primitives (run, trace, thread) crossed with three granularities (single-step,
+  full-turn, multi-turn), each with its own fixture shape and its own precondition:
+  step assertions need a stable architecture or they die at the next refactor; turn
+  assertions cover trajectory **and** response **and** state change, because an agent
+  that says it saved the preference and did not passes two axes out of three; thread
+  scripts checkpoint after every turn and fail fast, or turn 3 derails and turns 4–10
+  assert nothing while still reporting a result.
+
+  Then the parts that decide whether any of it is trustworthy: the offline/online/ad-hoc
+  timing axis and why offline is necessary and not sufficient; pass-fail rubrics with
+  enumerated failure conditions instead of scalar scores that name no fix; code checks
+  before model judges; judging the trajectory, not just the answer; **calibrating a judge
+  against human labels before trusting it**, because an uncalibrated judge is an opinion
+  with a number attached; the classes of output no general judge can grade; a corpus
+  grown from production failures where every fixed failure stays a fixture permanently;
+  annotation queues with the two reviewer roles kept apart; and simulated users made
+  deliberately worse so offline results predict production.
+
+  Body 214 lines / ~2500 tokens; description 911/1024 with paired RU triggers.
+
+### Changed
+
+- **Both installers iterate over `skills/` instead of naming one skill.** `install.sh`
+  and `bin/agent-stack.js` each hardcoded `agent-orchestrator`, so a second skill would
+  have shipped in the package and reached nobody. Verified by running both against a
+  clean `HOME` and listing what arrived. The CI smoke test now asserts both skills.
+- README and both manifests describe two skills; the marketplace entry's description is
+  the manifest's, rather than a second one drifting beside it.
+
 ## [0.4.0] — 2026-08-12
 
 ### Added
