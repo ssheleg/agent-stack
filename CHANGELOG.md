@@ -4,6 +4,75 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] — 2026-08-14
+
+### Added
+
+- **`agent-interop`, a third skill — the protocol layer between processes.** The pack
+  could build an agent (`agent-orchestrator`) and prove it behaved (`agent-evals`), and
+  said nothing about how either talks to anything outside its own process. Six references:
+  MCP's wire surface, running many servers at once, shipping a server so a client can
+  actually reach it, the registry, A2A, and the gateway layer. It is its own skill rather
+  than a reference under `agent-orchestrator` because both existing descriptions sit at
+  ~91% of the 1024-character budget — measured, not estimated — and "write me an MCP
+  server" matches neither of their triggers.
+
+- **`references/mcp.md`** — MCP pinned at revision `2026-07-28`, written around the part
+  that breaks code written from memory: the protocol is now **stateless**, the `initialize`
+  handshake is gone in favour of `server/discover`, and version plus capabilities ride in
+  `_meta` on every request. The full deprecation register with migration paths —
+  **sampling, roots, logging and dynamic client registration are all on the way out**,
+  which is precisely the set an older model reaches for first. Plus notifications as opt-in
+  `subscriptions/listen` streams, `ttlMs` / `cacheScope` caching, and the fact that a
+  failed tool arrives as `isError: true` inside a 200.
+
+- **`references/mcp-scale.md`** — the two distinct costs of many servers and the pattern
+  for each: progressive discovery for *when* definitions enter context (with the published
+  1–5% threshold), programmatic tool calling for *how* tools are invoked. Includes the
+  interaction that turns a clever discovery scheme into a regression — most providers cache
+  the prompt prefix **including the `tools` array**, so mutating it mid-conversation can
+  cost more than the definitions it removed.
+
+- **`references/mcp-ship.md`** — mounting a server inside an existing app, transport-level
+  auth, client config in both forms, and the 404 that is really FastMCP's double path.
+  Relocated from `make-skill`, where it had been describing a protocol rather than a skill.
+
+- **`references/a2a.md`** — A2A 1.0 under the Linux Foundation: agent cards and the
+  `/.well-known/agent-card.json` path, the full `TASK_STATE_*` enum with terminal states
+  marked, three protocol bindings with their REST method mapping, and the v0.x→1.0 rename
+  spelled out so inherited code is recognisable on sight.
+
+- **`references/registry.md`** — `server.json`, reverse-DNS namespaces and the Ed25519
+  DNS/HTTP challenge that proves one, the publish flow with its three named failure modes,
+  and the registry's three refusals: no private servers, not for direct host consumption,
+  not designed for self-hosting.
+
+- **`references/gateway.md`** — what a gateway must do that an API gateway does not, stated
+  vendor-neutrally, with agentgateway as the named reference implementation. Includes the
+  federation trap that bites later: `prefixMode: conditional` renames every tool the day a
+  second target is added.
+
+### Changed
+
+- **The validator now enforces a revision stamp on protocol references** (`PROTOCOL_PINNED`
+  in `test/validate.py`). Prose about somebody else's specification ages silently — a
+  reader cannot tell last year's handshake from this year's, and a model writing code from
+  it is confidently wrong with no signal anywhere on the page. Every file under
+  `agent-interop/references/` must open with `**Spec pinned:** … · read YYYY-MM-DD`, and
+  the date must be a real one. Two negative self-tests, both anchored on the stamp's shape
+  and both asserting they planted something.
+
+- **`test/validate.py` no longer reads `other-skill/references/x.md` as a link of its own.**
+  A bare `references/x.md` means this skill's file; a path-qualified one is prose about a
+  sibling. Without the lookbehind, stating a boundary against another skill — which
+  `agent-interop` must do — failed the build over a file it never claimed. The existing
+  dangling-link plant proves the narrowed pattern still catches the real case, and a second
+  plant proves it inside the new skill.
+
+- **The installer functional test asserts every shipped skill installs**, by enumerating the
+  skills directory rather than naming files. `bin/agent-stack.js` already enumerated;
+  nothing proved it kept doing so.
+
 ## [0.6.0] — 2026-08-12
 
 ### Added

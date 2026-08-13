@@ -105,6 +105,50 @@ jobs:
             echo "OK: validator rejects a stray SKILL.md"
           fi
 
+      - name: Negative self-test (a protocol reference with no revision stamp must fail)
+        run: |
+          set -eu
+          cp -R . /tmp/stamp-copy
+          # STRUCTURAL plant: delete the stamp LINE by its marker, not by any wording
+          # around it. The stamp is a fixed shape (`**Spec pinned:** … · read DATE`),
+          # which is precisely why the validator can require it and this can remove it.
+          # Asserts it removed something, so a change to the stamp format fails HERE
+          # rather than quietly testing nothing.
+          python3 - <<'PY'
+          import pathlib, re
+          p = pathlib.Path("/tmp/stamp-copy/plugins/agent-stack/skills/agent-interop/references/mcp.md")
+          s = p.read_text(encoding="utf-8")
+          out = re.sub(r"^\*\*Spec pinned:\*\*.*\n", "", s, count=1, flags=re.M)
+          assert out != s, "no `**Spec pinned:**` line found -- the stamp format changed"
+          p.write_text(out, encoding="utf-8")
+          PY
+          if python3 /tmp/stamp-copy/test/validate.py; then
+            echo "ERROR: validator accepted protocol prose with no revision stamp"
+            exit 1
+          else
+            echo "OK: validator requires a revision stamp on protocol references"
+          fi
+
+      - name: Negative self-test (an unreal stamp date must fail)
+        run: |
+          set -eu
+          cp -R . /tmp/date-copy
+          python3 - <<'PY'
+          import pathlib, re
+          p = pathlib.Path("/tmp/date-copy/plugins/agent-stack/skills/agent-interop/references/a2a.md")
+          s = p.read_text(encoding="utf-8")
+          out = re.sub(r"(^\*\*Spec pinned:\*\*.*· read )\d{4}-\d{2}-\d{2}", r"\g<1>2026-02-30",
+                       s, count=1, flags=re.M)
+          assert out != s, "no `· read <date>` tail found -- the stamp format changed"
+          p.write_text(out, encoding="utf-8")
+          PY
+          if python3 /tmp/date-copy/test/validate.py; then
+            echo "ERROR: validator accepted 2026-02-30 as a stamp date"
+            exit 1
+          else
+            echo "OK: validator rejects a stamp date that never existed"
+          fi
+
       - name: Negative self-test (dropping the validator from CI must fail)
         run: |
           set -eu
@@ -129,6 +173,13 @@ jobs:
           test -f "$HOME/.claude/skills/agent-orchestrator/SKILL.md"
           test -f "$HOME/.claude/skills/agent-orchestrator/references/patterns.md"
           test -f "$HOME/.claude/skills/agent-orchestrator/references/llm-proxy-billing.md"
+          # Every skill the plugin ships must arrive. The installer ENUMERATES the skills
+          # directory rather than naming skills, so this asserts the enumeration works --
+          # a regression there would install a subset and report success.
+          for s in $(ls plugins/agent-stack/skills); do
+            test -f "$HOME/.claude/skills/$s/SKILL.md" || { echo "ERROR: $s did not install"; exit 1; }
+          done
+          test -f "$HOME/.claude/skills/agent-interop/references/mcp.md"
           node bin/agent-stack.js | grep -q '^skip:'
           node bin/agent-stack.js --force | grep -q '^Installed'
           if node bin/agent-stack.js --wat; then

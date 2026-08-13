@@ -9,8 +9,9 @@ Part of the [ssheleg skill family](https://github.com/ssheleg/sshlg-skills).
 
 ## What is in here
 
-Two skills — `agent-orchestrator` for building one, `agent-evals` for proving it
-behaves — and five references the first loads on demand.
+Three skills — `agent-orchestrator` for building one, `agent-evals` for proving it
+behaves, `agent-interop` for everything it talks to outside its own process — and
+eleven references they load on demand.
 
 **The orchestrator** (`SKILL.md`) — what the agent reads first:
 
@@ -38,6 +39,22 @@ timing axis, pass-fail rubrics instead of scalar scores that name no fix, cheap
 code checks before model judges, judges calibrated against human labels before
 they are trusted, and a corpus grown from production failures rather than
 authored up front — where every fixed failure stays a fixture permanently.
+
+**The interop skill** (`agent-interop/SKILL.md`) — the protocols an agent speaks
+outside its own process, and the one rule that governs all of them: a protocol claim
+without a date is a guess. Every one of these specifications moved in the last twelve
+months in a way that silently breaks older code — MCP replaced the `initialize`
+handshake with `server/discover` and went **stateless**, deprecated **sampling, roots
+and logging**; A2A renamed its wire surface between v0.x and 1.0; agentgateway
+deprecated `binds` while its own overview page still teaches it. So every reference
+carries a `**Spec pinned:** … · read <date>` line, and the validator fails the build
+without one. Six references: `mcp.md` (the wire and the full deprecation register),
+`mcp-scale.md` (progressive discovery, code mode, and the prompt-cache interaction that
+undoes both), `mcp-ship.md` (mounting, and the 404 that is really a double path),
+`registry.md` (`server.json`, namespace proof, the registry's three refusals),
+`a2a.md` (cards, task states, three bindings), `gateway.md` (what a gateway must do that
+an API gateway does not). Plus a link map, and a verdict on each neighbouring standard —
+ACP, AGNTCY, AP2, Agent Skills — so an agent stops guessing.
 
 **`references/context-engineering.md`** — what the loop gives up when the window
 runs out: the five-rung compaction ladder and why to re-measure between rungs,
@@ -122,8 +139,16 @@ audit row has to carry to prove a control was on.
 trajectory rather than a final answer, turning a production failure into a
 permanent fixture, calibrating a judge, gating a release on offline evals.
 
-Neither triggers for a single LLM call in a script or for prompt wording — that
-is not an orchestrator, and pulling this much doctrine for it is how a skill
+`agent-interop`: building or consuming an MCP server, exposing or calling another
+agent over A2A, publishing to the MCP Registry, or putting a gateway in front of
+agent traffic. Not for designing one server's tool set — that is a design problem,
+and Anthropic's `mcp-server-dev` plugin is built for it — and not for a skill's own
+construction, which is `make-skill`. That boundary runs both ways: `make-skill` keeps
+what changes *because you are writing a skill*, and the protocol itself is described
+here and nowhere else in the family.
+
+None of the three triggers for a single LLM call in a script or for prompt wording —
+that is not an orchestrator, and pulling this much doctrine for it is how a skill
 teaches you to route around it.
 
 ---
