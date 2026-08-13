@@ -4,6 +4,25 @@ All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] - 2026-08-14
+
+A red `validate` could not stop a publish anywhere in this family, and one member
+proved it: on 2026-08-12 `sheleg-dev` tagged v0.4.1 while its own validate run for that
+exact tag **failed**, and npm served 0.4.1 four minutes later.
+
+### Fixed
+
+- **The release now runs the whole validate suite before anything is published.**
+  `validate.yml` gained a `workflow_call` trigger and `release.yml` calls it with
+  `needs: validate` — the release runs *after* the real suite rather than beside a copy
+  of it. **Not one plant is duplicated:** each still has exactly one home.
+- **A guard keeps the connection there.** It fails when the trigger, the call, or the
+  `needs` goes missing — calling the suite without depending on it lets the jobs run in
+  parallel, which looks gated and is not. Watched failing against the planted removal.
+
+Proven end to end on `sheleg-dev` v0.4.3 before it reached here: the release run shows
+`validate / validate` completing first, then `release`, then `publish`.
+
 ## [0.7.0] — 2026-08-14
 
 ### Added
