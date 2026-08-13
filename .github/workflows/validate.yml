@@ -27,8 +27,19 @@ jobs:
         run: |
           set -eu
           cp -R . /tmp/drift-copy
-          sed -i 's/"version": "[0-9.]*"/"version": "0.0.0-corrupt"/' \
-            /tmp/drift-copy/plugins/agent-stack/.claude-plugin/plugin.json
+          python3 - <<'PY'
+          # Python, never `sed -i`: BSD sed needs an argument to -i, so this plant was a
+          # no-op on macOS and could only ever be exercised in CI. And it asserts it
+          # changed something, so a plant that stops landing says so instead of blaming
+          # the guard it can no longer disarm (instruction #6 and its corollary).
+          import json, re
+          p = "/tmp/drift-copy/plugins/agent-stack/.claude-plugin/plugin.json"
+          s = open(p, encoding="utf-8").read()
+          s2 = re.sub(r'"version":\s*"[0-9][0-9.]*"', '"version": "0.0.0-corrupt"', s, count=1)
+          assert s2 != s, "PLANT DID NOT LAND: no version field in this plugin.json"
+          open(p, "w", encoding="utf-8").write(s2)
+          assert json.load(open(p))["version"] == "0.0.0-corrupt", "PLANT DID NOT LAND"
+          PY
           if python3 /tmp/drift-copy/test/validate.py; then
             echo "ERROR: validator passed on a corrupted copy — it cannot fail"
             exit 1
@@ -153,7 +164,15 @@ jobs:
         run: |
           set -eu
           cp -R . /tmp/nogate-copy
-          sed -i 's|python3 test/validate.py|echo skipped|' /tmp/nogate-copy/.github/workflows/validate.yml
+          python3 - <<'PY'
+          p = "/tmp/nogate-copy/.github/workflows/validate.yml"
+          s = open(p, encoding="utf-8").read()
+          old = "python3 test/validate.py"
+          assert old in s, "PLANT DID NOT LAND: CI no longer calls the validator by this name"
+          s2 = s.replace(old, "echo skipped")
+          assert s2 != s, "PLANT DID NOT LAND"
+          open(p, "w", encoding="utf-8").write(s2)
+          PY
           if python3 /tmp/nogate-copy/test/validate.py; then
             echo "ERROR: validator passed while CI no longer calls it"
             exit 1

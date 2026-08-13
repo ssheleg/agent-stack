@@ -73,6 +73,26 @@ Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).
   skills directory rather than naming files. `bin/agent-stack.js` already enumerated;
   nothing proved it kept doing so.
 
+## v0.6.1 — 2026-08-13
+
+Two CI fixes that had been sitting on `main` unreleased ship here, and the half of
+standing instruction #6 that was missing arrives with them.
+
+### Fixed
+
+- **Two plants used `sed -i` and were no-ops on macOS.** BSD sed requires an argument to
+  `-i`, so they errored and changed nothing; they could only ever be exercised in CI.
+  Converted to Python — the rule `task-pipeline` has enforced on itself for months.
+- **Every plant now asserts that it changed the file.** The 2026-08-13 commit
+  *anchor the description plant on the file's shape, not its wording* applied one half of
+  instruction #6; this applies the corollary to the rest, so a plant that stops landing
+  says `PLANT DID NOT LAND: <why>` rather than reporting a healthy guard as broken.
+- Also shipping, previously merged and unreleased: *one CHANGELOG-extraction pattern for
+  the whole family* (B-11), which is why this release can be cut at all.
+
+All six plants verified by running them locally: each lands, and each makes the
+validator fail.
+
 ## [0.6.0] — 2026-08-12
 
 ### Added
