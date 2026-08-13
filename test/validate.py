@@ -12,6 +12,11 @@ House rules, each one written because it can actually break:
   * references/ and SKILL.md agree in BOTH directions: no link to a missing
     file, no file nobody links. The source this skill came from shipped a
     reference.md that nothing referenced.
+  * a skill that documents somebody else's wire protocol stamps the revision it
+    read (PROTOCOL_PINNED below). Prose about a protocol ages silently: the
+    reader cannot tell a description of last year's handshake from this year's,
+    and a model writing code from it is confidently wrong with no signal. The
+    stamp is the signal, so it is enforced rather than requested.
   * no stray SKILL.md outside plugins/*/skills/*/, no build artifacts in the
     shipped tree.
   * CI runs this file. A validator that CI stopped calling is decoration.
@@ -19,6 +24,7 @@ House rules, each one written because it can actually break:
 Exit code 0 = green. Anything else = a fail with a reason on stderr.
 """
 
+import datetime
 import json
 import os
 import re
@@ -26,6 +32,21 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FAILURES = []
+
+# Skills whose references describe an external specification somebody else
+# versions. Every reference under one of these MUST open with a revision stamp,
+# so a reader always knows which revision the prose was true against.
+#
+# Opting a skill in is a one-word change; leaving it out is the default, because
+# most references document this repository's own patterns, which carry no
+# upstream revision to drift from.
+PROTOCOL_PINNED = {"agent-interop"}
+
+# `**Spec pinned:** <what> · read YYYY-MM-DD`
+STAMP = re.compile(
+    r"^\*\*Spec pinned:\*\*\s+.+\s+·\s+read\s+(\d{4})-(\d{2})-(\d{2})\s*$", re.M
+)
+STAMP_HEAD_LINES = 15
 
 
 def fail(msg):
@@ -174,7 +195,11 @@ for name in skill_dirs:
     on_disk = set()
     if os.path.isdir(rdir):
         on_disk = {f for f in os.listdir(rdir) if f.endswith(".md")}
-    linked = set(re.findall(r"references/([A-Za-z0-9._-]+\.md)", text))
+    # A bare `references/x.md` means THIS skill's file. `other-skill/references/x.md`
+    # is prose about a sibling and must not be read as a link here -- without the
+    # lookbehind, naming another skill's reference (which a boundary statement has to
+    # do) fails the build for a file that was never claimed.
+    linked = set(re.findall(r"(?<![\w./-])references/([A-Za-z0-9._-]+\.md)", text))
 
     for missing in sorted(linked - on_disk):
         fail(f"{name}/SKILL.md links references/{missing}, which does not exist")
@@ -183,6 +208,25 @@ for name in skill_dirs:
             f"{name}/references/{orphan} exists but SKILL.md never links it "
             "-- an unreferenced reference is a file nobody loads"
         )
+
+    # revision stamps: only for skills that document somebody else's protocol
+    if name in PROTOCOL_PINNED:
+        for ref in sorted(on_disk):
+            rpath = os.path.join(rdir, ref)
+            with open(rpath, encoding="utf-8") as fh:
+                head = "".join(fh.readlines()[:STAMP_HEAD_LINES])
+            m = STAMP.search(head)
+            if not m:
+                fail(
+                    f"{name}/references/{ref}: no `**Spec pinned:** ... · read YYYY-MM-DD` "
+                    f"line in the first {STAMP_HEAD_LINES} lines -- protocol prose without a "
+                    "revision stamp cannot be told apart from prose that went stale"
+                )
+                continue
+            try:
+                datetime.date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+            except ValueError:
+                fail(f"{name}/references/{ref}: stamp date {m.group(0).strip()!r} is not a real date")
 
 # --------------------------------------------------------------- hygiene
 
