@@ -40,7 +40,7 @@ FAILURES = []
 # Opting a skill in is a one-word change; leaving it out is the default, because
 # most references document this repository's own patterns, which carry no
 # upstream revision to drift from.
-PROTOCOL_PINNED = {"agent-interop"}
+PROTOCOL_PINNED = {"agent-interop", "agent-harness"}
 
 # `**Spec pinned:** <what> · read YYYY-MM-DD`
 STAMP = re.compile(

@@ -219,6 +219,26 @@ jobs:
             echo "OK: the gate notices when it stops being a gate"
           fi
 
+      - name: Agent audit scanner — every detector must fire, and a clean file must not
+        run: |
+          set -eu
+          # The scanner ships to users, so its own plants run in CI. It plants each defect
+          # it claims to find, requires each to be found, and requires a clean file to stay
+          # silent — a detector nobody has watched fire is not evidence that it works, and a
+          # scanner with a false positive is discarded whole.
+          python3 plugins/agent-stack/skills/agent-harness/scripts/audit_agent.py --self-test
+
+      - name: Agent audit scanner — runs on a real tree and always discloses its blind spots
+        run: |
+          set -eu
+          out=$(python3 plugins/agent-stack/skills/agent-harness/scripts/audit_agent.py .)
+          echo "$out" | head -5
+          echo "$out" | grep -q "THIS PASS CANNOT SEE" || {
+            echo "ERROR: the scanner reported without disclosing what it cannot see"; exit 1; }
+          echo "$out" | grep -q "code files considered:" || {
+            echo "ERROR: no denominator — 'read: 1' alone reads as a broken pass"; exit 1; }
+          echo "OK: scanner discloses its blind spots and its denominator"
+
       - name: install.sh syntax check
         run: bash -n install.sh
 

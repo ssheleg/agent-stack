@@ -1,6 +1,6 @@
 {
   "name": "@ssheleg/agent-stack",
-  "version": "0.7.2",
+  "version": "0.8.0",
   "description": "Production patterns for AI agent orchestrators \u2014 tool-calling loops, multi-stage pipelines with checkpoints, LLM provider routing with fallback, four-layer memory with confidence decay \u2014 plus the wallet side of reselling LLM access. This package is the installer CLI.",
   "bin": {
     "agent-stack": "bin/agent-stack.js"
