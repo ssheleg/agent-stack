@@ -69,6 +69,13 @@ declined as before; graph not refreshed (B-24, family-wide).
 
 | # | What | Home |
 |---|---|---|
-| C-01 | `agent-orchestrator` body is past the working token budget (4761 / 4750) | board, after this run |
+| C-01 | `agent-orchestrator` body is past the working token budget (4761 / 4750) | board, after this run — **still open**; fixing it means evicting content, which is its own change |
 | C-02 | The umbrella pin for v0.8.0 is left to the neighbouring sweep | operator |
 | C-03 | `agent-sync` collision from the previous run (my 1.10.1 vs their uncommitted 1.11.0) is unresolved | operator |
+
+## Carry-over closed at stage 10
+
+| # | Outcome |
+|---|---|
+| C-02 | **closed as designed** — the umbrella pin was deliberately not moved (D-3). v0.8.0 is on npm; the neighbouring sweep carries the pin |
+| C-03 | **still the operator's** — the `agent-sync` 1.10.1 / 1.11.0 collision is unresolved and was not touched by this run |
