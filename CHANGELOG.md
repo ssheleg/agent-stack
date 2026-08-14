@@ -1,5 +1,34 @@
 # Changelog
 
+## v0.7.2 — the plants say whether they landed, and two of them were not
+
+Eight negative self-tests asserted inline, in Python, that their edit had happened —
+which works, and is the **fifth** careful copy of an idea this family already scripted.
+`plant_guard.py`'s own docstring was written against exactly that shape: five hand-written
+variants produced five different bugs, one of which reached a pull request.
+
+Adopting the shared implementation found two plants that were doing nothing at all.
+
+### Fixed
+
+- **`cp -R . /tmp/x` into an existing `/tmp/x` nests the tree instead of replacing it.**
+  The plant then edits a file left by the previous run, and `touch` on a file that already
+  exists changes neither content nor mode — so *a reference nobody links* and *stray
+  SKILL.md* both planted nothing, the validator honestly passed, and the step would have
+  reported a healthy guard as broken. CI is always fresh, so this was invisible there and
+  only ever bit the machine the plants were written on. Every copy is now `rm -rf`'d first.
+
+### Added
+
+- **`test/plant_guard.py` and its nine fixtures**, shared with `make-skill`, the umbrella
+  and `seo-aeo-audit`. It compares content **and permission bits**, because the variant
+  that shipped compared bytes against a plant whose whole effect was `chmod`.
+- **Every plant wrapped in `snap` / `verify`**, the description being the step's own name,
+  so a refusal names which plant died.
+- **A negative for the guard itself**: an unchanged copy must be reported, not passed.
+
+All eight plants were then watched landing on the machine they were written on.
+
 All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Versioning: [SemVer](https://semver.org/spec/v2.0.0.html).

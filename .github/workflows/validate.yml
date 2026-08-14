@@ -27,10 +27,30 @@ jobs:
       # Every negative self-test below plants a defect and REQUIRES a failure.
       # A validator nobody has watched fail is not evidence that it works.
 
+      - name: The plant guard itself (content AND mode, and the incident that named it)
+        run: python3 test/plant_guard_test.py
+
+      - name: Negative self-test (a plant that does nothing must be reported, not passed)
+        run: |
+          set -eu
+          rm -rf /tmp/noop-copy && cp -R . /tmp/noop-copy
+          python3 test/plant_guard.py snap /tmp/noop-copy
+          # No edit at all — the state a plant reaches when its anchor was reworded. Before
+          # 2026-08-14 this repository would have run its validator on an undamaged copy,
+          # seen it honestly pass, and printed "ERROR: validator accepted ..." about a
+          # guard it never disarmed. Two of its eight plants were already in that state.
+          if python3 test/plant_guard.py verify /tmp/noop-copy "a plant whose anchor moved"; then
+            echo "ERROR: an unchanged copy was accepted as a landed plant"
+            exit 1
+          else
+            echo "OK: a plant that did nothing is reported as such, by name"
+          fi
+
       - name: Negative self-test (version drift must fail)
         run: |
           set -eu
-          cp -R . /tmp/drift-copy
+          rm -rf /tmp/drift-copy && cp -R . /tmp/drift-copy
+          python3 test/plant_guard.py snap /tmp/drift-copy
           python3 - <<'PY'
           # Python, never `sed -i`: BSD sed needs an argument to -i, so this plant was a
           # no-op on macOS and could only ever be exercised in CI. And it asserts it
@@ -44,6 +64,7 @@ jobs:
           open(p, "w", encoding="utf-8").write(s2)
           assert json.load(open(p))["version"] == "0.0.0-corrupt", "PLANT DID NOT LAND"
           PY
+          python3 test/plant_guard.py verify /tmp/drift-copy "Negative self-test (version drift must fail)"
           if python3 /tmp/drift-copy/test/validate.py; then
             echo "ERROR: validator passed on a corrupted copy — it cannot fail"
             exit 1
@@ -54,7 +75,8 @@ jobs:
       - name: Negative self-test (over-long description must fail)
         run: |
           set -eu
-          cp -R . /tmp/desc-copy
+          rm -rf /tmp/desc-copy && cp -R . /tmp/desc-copy
+          python3 test/plant_guard.py snap /tmp/desc-copy
           # The plant is STRUCTURAL: it appends a continuation line to the folded
           # `description:` scalar rather than searching for a phrase inside it.
           #
@@ -76,6 +98,7 @@ jobs:
           s = s.replace(marker, marker + "  " + ("padding " * 40) + "\n", 1)
           open(p, "w", encoding="utf-8").write(s)
           PY
+          python3 test/plant_guard.py verify /tmp/desc-copy "Negative self-test (over-long description must fail)"
           if python3 /tmp/desc-copy/test/validate.py; then
             echo "ERROR: validator accepted a description past the 1024-char limit"
             exit 1
@@ -86,8 +109,10 @@ jobs:
       - name: Negative self-test (a reference nobody links must fail)
         run: |
           set -eu
-          cp -R . /tmp/orphan-copy
+          rm -rf /tmp/orphan-copy && cp -R . /tmp/orphan-copy
+          python3 test/plant_guard.py snap /tmp/orphan-copy
           touch /tmp/orphan-copy/plugins/agent-stack/skills/agent-orchestrator/references/nobody-loads-me.md
+          python3 test/plant_guard.py verify /tmp/orphan-copy "Negative self-test (a reference nobody links must fail)"
           if python3 /tmp/orphan-copy/test/validate.py; then
             echo "ERROR: validator accepted an unreferenced reference file"
             exit 1
@@ -98,8 +123,10 @@ jobs:
       - name: Negative self-test (a dangling reference link must fail)
         run: |
           set -eu
-          cp -R . /tmp/dangling-copy
+          rm -rf /tmp/dangling-copy && cp -R . /tmp/dangling-copy
+          python3 test/plant_guard.py snap /tmp/dangling-copy
           rm -f /tmp/dangling-copy/plugins/agent-stack/skills/agent-orchestrator/references/patterns.md
+          python3 test/plant_guard.py verify /tmp/dangling-copy "Negative self-test (a dangling reference link must fail)"
           if python3 /tmp/dangling-copy/test/validate.py; then
             echo "ERROR: validator passed with a linked reference missing"
             exit 1
@@ -110,9 +137,11 @@ jobs:
       - name: Negative self-test (stray SKILL.md must fail)
         run: |
           set -eu
-          cp -R . /tmp/stray-copy
+          rm -rf /tmp/stray-copy && cp -R . /tmp/stray-copy
+          python3 test/plant_guard.py snap /tmp/stray-copy
           cp /tmp/stray-copy/plugins/agent-stack/skills/agent-orchestrator/SKILL.md \
              /tmp/stray-copy/plugins/agent-stack/SKILL.md
+          python3 test/plant_guard.py verify /tmp/stray-copy "Negative self-test (stray SKILL.md must fail)"
           if python3 /tmp/stray-copy/test/validate.py; then
             echo "ERROR: validator passed with a stray SKILL.md outside plugins/*/skills/*/"
             exit 1
@@ -123,7 +152,8 @@ jobs:
       - name: Negative self-test (a protocol reference with no revision stamp must fail)
         run: |
           set -eu
-          cp -R . /tmp/stamp-copy
+          rm -rf /tmp/stamp-copy && cp -R . /tmp/stamp-copy
+          python3 test/plant_guard.py snap /tmp/stamp-copy
           # STRUCTURAL plant: delete the stamp LINE by its marker, not by any wording
           # around it. The stamp is a fixed shape (`**Spec pinned:** … · read DATE`),
           # which is precisely why the validator can require it and this can remove it.
@@ -137,6 +167,7 @@ jobs:
           assert out != s, "no `**Spec pinned:**` line found -- the stamp format changed"
           p.write_text(out, encoding="utf-8")
           PY
+          python3 test/plant_guard.py verify /tmp/stamp-copy "Negative self-test (a protocol reference with no revision stamp must fail)"
           if python3 /tmp/stamp-copy/test/validate.py; then
             echo "ERROR: validator accepted protocol prose with no revision stamp"
             exit 1
@@ -147,7 +178,8 @@ jobs:
       - name: Negative self-test (an unreal stamp date must fail)
         run: |
           set -eu
-          cp -R . /tmp/date-copy
+          rm -rf /tmp/date-copy && cp -R . /tmp/date-copy
+          python3 test/plant_guard.py snap /tmp/date-copy
           python3 - <<'PY'
           import pathlib, re
           p = pathlib.Path("/tmp/date-copy/plugins/agent-stack/skills/agent-interop/references/a2a.md")
@@ -157,6 +189,7 @@ jobs:
           assert out != s, "no `· read <date>` tail found -- the stamp format changed"
           p.write_text(out, encoding="utf-8")
           PY
+          python3 test/plant_guard.py verify /tmp/date-copy "Negative self-test (an unreal stamp date must fail)"
           if python3 /tmp/date-copy/test/validate.py; then
             echo "ERROR: validator accepted 2026-02-30 as a stamp date"
             exit 1
@@ -167,7 +200,8 @@ jobs:
       - name: Negative self-test (dropping the validator from CI must fail)
         run: |
           set -eu
-          cp -R . /tmp/nogate-copy
+          rm -rf /tmp/nogate-copy && cp -R . /tmp/nogate-copy
+          python3 test/plant_guard.py snap /tmp/nogate-copy
           python3 - <<'PY'
           p = "/tmp/nogate-copy/.github/workflows/validate.yml"
           s = open(p, encoding="utf-8").read()
@@ -177,6 +211,7 @@ jobs:
           assert s2 != s, "PLANT DID NOT LAND"
           open(p, "w", encoding="utf-8").write(s2)
           PY
+          python3 test/plant_guard.py verify /tmp/nogate-copy "Negative self-test (dropping the validator from CI must fail)"
           if python3 /tmp/nogate-copy/test/validate.py; then
             echo "ERROR: validator passed while CI no longer calls it"
             exit 1
