@@ -1,5 +1,71 @@
 # Changelog
 
+## [0.8.0] — 2026-08-14
+
+### Added
+
+- **`agent-harness`, a fourth skill — the layer between the loop and the model.** The pack
+  could wire an agent (`agent-orchestrator`), prove it behaved (`agent-evals`) and connect
+  it to other processes (`agent-interop`), and said nothing about **what the agent is
+  told**. Five references and a scanner. It runs in both directions: building a harness and
+  auditing somebody else's are the same checklist read forwards and backwards, which is why
+  the audit lives here rather than in a sixth skill.
+
+  It is a fourth skill rather than a section because `agent-orchestrator`'s body is
+  **489 lines / ~4761 tokens** — already past the 4750 working limit — and could not absorb
+  a paragraph, let alone a layer.
+
+- **`references/system-prompt.md`** — the right altitude (hardcoded branches on one side,
+  vague hope on the other), what actually belongs in a system prompt in order of behaviour
+  bought, **enumerating the vocabulary** so an agent stops inventing `pending` and `to-do` in
+  the same run, injecting what the model cannot know, and flexible-while-learning versus
+  strict-in-production. Plus the three things reasoning models changed: **do not add
+  chain-of-thought** (it can degrade instruction-following), give goals rather than
+  procedures, and treat reasoning effort as a per-stage dial.
+
+- **`references/tools.md`** — the agent–computer interface. Fewer tools than instinct
+  suggests, namespacing, and the description as the product: a worked before/after where the
+  strong version names *when*, *what it costs*, *how to narrow*, and **the neighbouring tool
+  it is confused with** — the highest-value sentence in a tool definition and the one almost
+  nobody writes. Then meaning over identifiers, token efficiency as a correctness issue,
+  errors that teach, and **poka-yoke** — changing the interface so the wrong call cannot be
+  made.
+
+- **`references/techniques.md`** — fifteen techniques with a **verdict each for a production
+  loop**, not a benchmark score. ReAct is the agent loop and its under-quoted failure is that
+  non-informative results derail it; reflection is strong exactly where a cheap objective
+  signal exists and is a second opinion from the same source where it does not; Tree of
+  Thoughts is almost never worth its combinatorics. Ends with an ordered five-question
+  chooser.
+
+- **`references/layers.md`** — the question that resolves most framework arguments (*which
+  layer am I working at*), what a harness owns, and the design position that **permission
+  boundaries usually belong to the environment**: a harness that also claims to be a sandbox
+  is claiming a guarantee it cannot keep from inside the same process.
+
+- **`references/audit.md`** — seven tracks, three evidence tiers (**measured / documented /
+  judgement**, never inflated), computed priority, and a report shape that ends in a plan
+  rather than a score. The finding that ends most audits early is stated first: no evals
+  makes everything downstream unfalsifiable, including the audit.
+
+- **`scripts/audit_agent.py`** — the mechanical half. Five conservative detectors
+  (unbounded loop, empty tool description, swallowed error, missing timeout, duplicated
+  model literal), each requiring the file to show **two** independent signs of an agent, each
+  finding carrying `file:line`. It always prints **what it cannot see** and a **denominator**,
+  because `read: 1` alone looks like a broken pass while `1 of 4261` is itself a finding.
+  Virtualenvs are skipped by their `pyvenv.cfg` marker rather than by name — a real
+  repository met during testing kept 4249 of its 4261 files in `myenv/`, and was excluded
+  only because `site-packages` happened to be listed too.
+
+### Changed
+
+- **`PROTOCOL_PINNED` now covers `agent-harness`.** Its references document guidance that
+  moves, so each carries `**Spec pinned:** … · read <date>` and the build fails without it.
+- **CI runs the scanner's own self-test**, and asserts that a real-tree run discloses both
+  its blind-spot list and its denominator — a scanner that could stop disclosing would be a
+  scanner nobody could calibrate.
+
+
 ## v0.7.2 — the plants say whether they landed, and two of them were not
 
 Eight negative self-tests asserted inline, in Python, that their edit had happened —

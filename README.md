@@ -9,9 +9,10 @@ Part of the [ssheleg skill family](https://github.com/ssheleg/sshlg-skills).
 
 ## What is in here
 
-Three skills — `agent-orchestrator` for building one, `agent-evals` for proving it
-behaves, `agent-interop` for everything it talks to outside its own process — and
-eleven references they load on demand.
+Four skills — `agent-orchestrator` for wiring the loop, `agent-evals` for proving it
+behaves, `agent-interop` for everything it talks to outside its own process,
+`agent-harness` for what it is **told** — and sixteen references they load on demand,
+plus one scanner.
 
 **The orchestrator** (`SKILL.md`) — what the agent reads first:
 
@@ -55,6 +56,23 @@ undoes both), `mcp-ship.md` (mounting, and the 404 that is really a double path)
 `a2a.md` (cards, task states, three bindings), `gateway.md` (what a gateway must do that
 an API gateway does not). Plus a link map, and a verdict on each neighbouring standard —
 ACP, AGNTCY, AP2, Agent Skills — so an agent stops guessing.
+
+**The harness skill** (`agent-harness/SKILL.md`) — the layer between the loop and the
+model, and the one where most agent bugs actually live: *the biggest performance
+improvements often come from clearly explaining tool usage in the system prompt*, and *even
+small refinements to tool descriptions can yield dramatic improvements*. Before adding a
+retry or a sub-agent, it asks four questions about the text. Five references —
+`system-prompt.md` (right altitude, enumerated vocabulary, and the three things reasoning
+models changed — starting with **do not add chain-of-thought**), `tools.md` (the
+agent–computer interface, with a worked before/after and poka-yoke), `techniques.md`
+(fifteen techniques, a verdict each **for production** rather than a benchmark),
+`layers.md` (which layer you are building at, and why permission boundaries are usually the
+environment's job), `audit.md` (seven tracks, evidence tiers, a plan instead of a score).
+
+It runs in both directions: **building a harness and auditing somebody else's are one
+checklist read forwards and backwards.** `scripts/audit_agent.py` is the mechanical half —
+five conservative detectors, and it always prints what it *cannot* see plus a denominator,
+so its silence is never read as a pass.
 
 **`references/context-engineering.md`** — what the loop gives up when the window
 runs out: the five-rung compaction ladder and why to re-measure between rungs,
@@ -139,6 +157,10 @@ audit row has to carry to prove a control was on.
 trajectory rather than a final answer, turning a production failure into a
 permanent fixture, calibrating a judge, gating a release on offline evals.
 
+`agent-harness`: writing or fixing a system prompt, shaping tools so the model picks the
+right one, choosing between ReAct, reflection, planning and voting — or auditing an agent
+system somebody else built. Not the loop's plumbing, its evals, or its protocols.
+
 `agent-interop`: building or consuming an MCP server, exposing or calling another
 agent over A2A, publishing to the MCP Registry, or putting a gateway in front of
 agent traffic. Not for designing one server's tool set — that is a design problem,
@@ -147,7 +169,7 @@ construction, which is `make-skill`. That boundary runs both ways: `make-skill` 
 what changes *because you are writing a skill*, and the protocol itself is described
 here and nowhere else in the family.
 
-None of the three triggers for a single LLM call in a script or for prompt wording —
+None of the four triggers for a single LLM call in a script or for prompt wording —
 that is not an orchestrator, and pulling this much doctrine for it is how a skill
 teaches you to route around it.
 
