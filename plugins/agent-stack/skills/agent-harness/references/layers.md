@@ -62,6 +62,10 @@ surrounds it. Read as a weakness, it looks like a missing feature. Read as archi
 is a clear statement: *a harness that also claims to be a sandbox is claiming a guarantee it
 cannot keep*, because it runs in the same process as the code it would be confining.
 
+**Worked out in full in `pi.md` and `pi-sdk.md`** — the kernel layer read end to end, with
+each mechanism matched to the rule it implements and its divergences named. Use it as the
+concrete example when this file's abstractions need a body.
+
 Two consequences worth stating plainly:
 
 - **A harness advertising "safe tool execution" without an OS-level or container boundary is

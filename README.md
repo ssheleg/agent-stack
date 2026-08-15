@@ -11,7 +11,7 @@ Part of the [ssheleg skill family](https://github.com/ssheleg/sshlg-skills).
 
 Four skills — `agent-orchestrator` for wiring the loop, `agent-evals` for proving it
 behaves, `agent-interop` for everything it talks to outside its own process,
-`agent-harness` for what it is **told** — and sixteen references they load on demand,
+`agent-harness` for what it is **told** — and eighteen references they load on demand,
 plus one scanner.
 
 **The orchestrator** (`SKILL.md`) — what the agent reads first:
@@ -61,13 +61,16 @@ ACP, AGNTCY, AP2, Agent Skills — so an agent stops guessing.
 model, and the one where most agent bugs actually live: *the biggest performance
 improvements often come from clearly explaining tool usage in the system prompt*, and *even
 small refinements to tool descriptions can yield dramatic improvements*. Before adding a
-retry or a sub-agent, it asks four questions about the text. Five references —
+retry or a sub-agent, it asks four questions about the text. Seven references —
 `system-prompt.md` (right altitude, enumerated vocabulary, and the three things reasoning
 models changed — starting with **do not add chain-of-thought**), `tools.md` (the
 agent–computer interface, with a worked before/after and poka-yoke), `techniques.md`
 (fifteen techniques, a verdict each **for production** rather than a benchmark),
 `layers.md` (which layer you are building at, and why permission boundaries are usually the
-environment's job), `audit.md` (seven tracks, evidence tiers, a plan instead of a score).
+environment's job), `audit.md` (seven tracks, evidence tiers, a plan instead of a score) —
+plus **`pi.md` and `pi-sdk.md`, the doctrine as a worked implementation**: Pi read end to
+end, each mechanism matched to the rule it instantiates, its divergences named, and the
+eight extension seams where a permission gate or a context rewrite can actually live.
 
 It runs in both directions: **building a harness and auditing somebody else's are one
 checklist read forwards and backwards.** `scripts/audit_agent.py` is the mechanical half —

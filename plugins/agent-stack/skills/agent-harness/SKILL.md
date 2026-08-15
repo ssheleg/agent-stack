@@ -2,15 +2,15 @@
 name: agent-harness
 description: >-
   Use when the question is what the agent is TOLD rather than how its loop is wired — writing
-  or fixing a system prompt, shaping tools so the model actually picks the right one,
-  deciding whether a job wants a workflow or an agent, or choosing between ReAct, reflection,
-  planning and voting. Also the audit direction: reviewing an agent system somebody else
-  built, with tracks, evidence tiers and a prioritized plan instead of a score, plus a
-  scanner for the defects that are mechanically visible. Triggers - "system prompt", "tool
-  description", "the agent picks the wrong tool", "agent loops forever", "prompt engineering",
-  "ReAct", "reflection", "workflow or agent", "audit this agent", "review our agent system",
-  "системный промпт", "агент не вызывает тул", "аудит агента", "воркфлоу или агент". Not for
-  the loop's plumbing, its evals, or the protocols it speaks — those are the sibling skills.
+  or fixing a system prompt, shaping tools so the model picks the right one, deciding whether
+  a job wants a workflow or an agent, or choosing between ReAct, reflection and voting. Also
+  auditing an agent system somebody else built: tracks, evidence tiers and a prioritized plan
+  instead of a score, plus a scanner. Carries Pi as a worked kernel implementation — SDK, RPC
+  and extension seams — for embedding or extending a harness. Triggers - "system prompt",
+  "tool description", "agent picks the wrong tool", "agent loops forever", "prompt
+  engineering", "ReAct", "workflow or agent", "audit this agent", "embed an agent", "agent
+  SDK", "Pi harness", "системный промпт", "агент не вызывает тул", "аудит агента", "встроить
+  агента". Not for the loop's plumbing, its evals, or its protocols — those are siblings.
 ---
 
 # Agent harness — what the agent is told, and how to audit what someone else told theirs
@@ -95,6 +95,8 @@ and `test/validate.py` fails the build on a reference that does not say when it 
 | [`references/techniques.md`](references/techniques.md) | you are choosing between **ReAct, reflection, voting, planning** and the rest — every entry carries a verdict for production, not a benchmark score |
 | [`references/layers.md`](references/layers.md) | deciding **what your harness owns** — kernel, workbench and product layers, and why permission boundaries are usually somebody else's job |
 | [`references/audit.md`](references/audit.md) | reviewing **an agent system you did not build** — seven tracks, evidence tiers, and a prioritized plan |
+| [`references/pi.md`](references/pi.md) | you want the doctrine above as a **worked implementation** — Pi's sessions, compaction, config, skills, trust and containerization, each matched to the rule it implements, and the places it deliberately disagrees |
+| [`references/pi-sdk.md`](references/pi-sdk.md) | you are **embedding or extending** a harness — the SDK, the RPC protocol, JSON mode, and the eight extension seams where a permission gate, a context rewrite or a cost hook can actually live |
 
 **`scripts/audit_agent.py`** — the mechanical half of the audit. It finds what is visible
 without understanding intent (an unbounded loop, a tool with no description, a swallowed

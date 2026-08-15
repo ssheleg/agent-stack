@@ -1,5 +1,59 @@
 # Changelog
 
+## [0.9.0] — 2026-08-15
+
+### Added
+
+- **`agent-harness/references/pi.md` and `pi-sdk.md` — the harness doctrine as a worked
+  implementation.** Every other reference in that skill states a rule; **Pi** is small enough
+  to read and complete enough to have made each of those decisions in public. So each section
+  says what Pi does and then **which rule it is an instance of** — the second half is the
+  point, and where Pi disagrees with this pack, that is said rather than smoothed over.
+
+  Read from `pi.dev/docs/latest` on 2026-08-15: sixteen doc pages plus the package source.
+  All sixteen verified reachable (`200`); the only non-resolving URLs in either file are the
+  two deliberate placeholders inside custom-provider examples.
+
+- **`pi.md`** — the four ways to run it; **sessions as a JSONL tree** (8-hex `id`, `parentId`,
+  version 3, `BranchSummaryEntry`) matched to *time travel and forking* in
+  `agent-orchestrator/references/runtime.md`; **compaction with the real numbers**
+  (`contextTokens > contextWindow - reserveTokens`, defaults 16,384 and 20,000, tool results
+  truncated to 2,000 chars while summarizing) matched to the compaction ladder, with what the
+  ladder adds that Pi leaves to you; settings precedence that **merges rather than replaces**;
+  skills, prompt templates and packages; and the trust model.
+
+  Its sharpest section is **the deliberate absence of a sandbox**, quoted: *"prompt injection
+  from repository files … is expected local-agent risk and cannot be reliably prevented by
+  pi."* That is `layers.md`'s delegation thesis stated by the project itself — and for an
+  audit it changes the finding, because "no permission model" here is a delegation, not a
+  defect. Three containerization patterns are compared by **where credentials end up**, which
+  is the question that actually decides between them.
+
+- **`pi-sdk.md`** — `createAgentSession()`, `ModelRuntime`, `SessionManager`, `defineTool()`,
+  `DefaultResourceLoader`; the RPC protocol with its command groups, its full event lifecycle
+  and the **`\n`-only JSONL framing warning**; JSON mode's delta-only records and why;
+  the `ExtensionAPI` surface; and **the eight seams** — `tool_call` (can block),
+  `tool_result` (a middleware chain), `context`, `before_agent_start`, the three provider
+  hooks, and the compaction pair — each matched to the doctrine it lets you implement.
+  `tool_call` blocking is called out as the single most important one for an audit: it is
+  where a per-tool, per-caller policy can actually live.
+
+- Noted with its evidence and its limit: **Pi discovers skills from `~/.agents/skills/`**,
+  which on this machine is the ssheleg hub — 72 entries, every family skill carrying the
+  `name` and `description` front matter Pi requires. Stated as a fact about the path and the
+  front matter, **not** as an observed load: Pi is not installed here. The reference also
+  names Pi's documented divergence from the Agent Skills standard (a skill name may differ
+  from its directory) and warns that `make-skill`'s validator enforces the strict rule.
+
+### Changed
+
+- `references/layers.md` points at the two new files as the worked example of the kernel
+  layer it describes abstractly.
+- `agent-harness`'s description gains the embedding triggers (`agent SDK`, `embed an agent`,
+  `Pi harness`, `встроить агента`) — 807/1024, inside the family's 970 working budget. The
+  repository's own front-matter gate caught a first draft at 1066 and refused the write.
+
+
 ## [0.8.0] — 2026-08-14
 
 ### Added
