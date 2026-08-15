@@ -10,6 +10,44 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Run 2026-08-15 — Pi as the worked implementation, v0.9.0
+
+Brief: `docs/evidence/specs/2026-08-15-pi-reference-brief.md`.
+Released: `@ssheleg/agent-stack@0.9.0`, tag `v0.9.0`, `main` at `d97a17d`, CI run `31878521750`,
+release run `31878555766` (selected **by tag**, not by recency).
+
+| REQ | Verified by | Result | Status |
+|---|---|---|---|
+| 001 | `validate.py`; stamp audit | `OK: … (10 checks, 4 skill(s), v0.9.0)`; 7 of 7 references carry `**Spec pinned:**` | **verified** |
+| 002 | read both files | sessions→`runtime.md`, compaction→the ladder, trust→`layers.md`, seams→`governance.md`/`tools.md` — each stated in the text, not implied | **verified** |
+| 003 | read `pi-sdk.md` | `createAgentSession`, `ModelRuntime`, `SessionManager`, `defineTool`, `DefaultResourceLoader`, RPC command groups + lifecycle, JSON delta-only, `ExtensionAPI`, custom providers | **verified** |
+| 004 | table in `pi-sdk.md` | 8 seams, each with the doctrine it implements; `tool_call` called out as the audit's most important | **verified** |
+| 005 | *Where Pi and this pack's doctrine differ* | 4 divergences named: no iteration guard, no sub-agents, skill-name leniency, one-rung compaction | **verified** |
+| 006 | `curl -o /dev/null -w '%{http_code}' -L` per page | **16 of 16 → `200`**. The only non-2xx are `api.my-llm.com` and `proxy.example.com` — deliberate placeholders inside custom-provider examples, recorded rather than rounded away | **verified** |
+| 007 | `ls ~/.agents/skills` + front-matter check | 72 entries; `agent-harness`, `agent-orchestrator`, `agent-evals`, `agent-interop`, `make-skill`, `task-pipeline` all present, `name` and `description` present | **verified, with its limit written into the reference** |
+| 008 | token/char count | body 150 ln / ~2235 tok (limits 500 / 4750); description 807/1024 (canon ≤970) | **verified** |
+| 009 | local plants | 3 watched failing: stamp removal in `pi.md`, in `pi-sdk.md`, and a dangling link | **verified** |
+| 010 | `npm view`; `npm pack` + `tar tzf`; `installed_plugins.json`; hub listing | npm `0.9.0`; tarball carries both files with stamps intact; installed plugin `v0.9.0` with all 7 references; **the same 7 present in `~/.agents/skills`, the directory Pi reads**; shadow check clean | **verified** |
+
+**10 of 10 verified. 0 at `never`.**
+
+### What the checks did *not* cover
+
+- **Pi was never run.** Everything here is read from its documentation and its published
+  package layout. The `~/.agents/skills` claim is about a path and front matter, not an
+  observed load, and the reference says so in its own text.
+- **The doctrine-mapping is an argument, not a measurement.** That Pi's session tree
+  *implements* time-travel-and-forking is a reading; it is labelled as one.
+- **Pi moves.** The stamp is `2026-08-15`; the mechanical guard proves a date is present,
+  never that the prose still matches.
+- **One process error, recorded:** `git add -A` in the umbrella swept in a neighbouring
+  session's uncommitted brief (`docs/evidence/briefs/2026-08-15-graph-engineering.md`).
+  Caught on reading the commit's own file list, removed with `git rm --cached` and
+  `--amend` before merge; the file returned to untracked, intact, 85 lines. The commit that
+  merged touches 3 files.
+
+---
+
 ## Run 2026-08-14 (second) — `agent-harness`, v0.8.0
 
 Brief: `docs/evidence/specs/2026-08-14-agent-harness-brief.md`.
