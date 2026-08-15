@@ -6,7 +6,8 @@ placing a check between a parallel layer and the node that consumes it, or decid
 whether the structure may be discovered while it runs.
 
 **Spec pinned:** *Graph Engineering with Claude*, `https://x.com/Mahaximus_/status/2082442856417956173`
-(published 2026-07-29); Claude Code `CHANGELOG.md` v2.1.154 – v2.1.229 · read 2026-08-15
+(published 2026-07-29); Claude Code `CHANGELOG.md` v2.1.154 – v2.1.229, and the Workflow
+tool contract as presented in-session at CLI **2.1.223** · read 2026-08-15
 
 `SKILL.md` §2 owns the tool-calling loop and §5 the multi-stage pipeline. Both assume
 the shape is already decided. **This file is how it gets decided**, and it is upstream of
@@ -251,7 +252,10 @@ authors and executes a **script** whose primitives are the real contract:
 | `isolation: "worktree"` | a private checkout per agent | the only safe way to fan out writers |
 
 Concurrency is capped at `min(16, cores − 2)` per run, and a run's total agents at 1000.
-Passing 100 items is fine — they queue.
+Passing 100 items is fine — they queue. **Those two numbers and the primitive table come
+from the tool contract the host presents to the agent, not from the changelog** — a
+different source with a different lifetime, which is why the stamp above names both. Read
+them back from the running host before relying on them.
 
 **Why this matters for the model above:** the article's diamond is `parallel()`, and the
 next section is the distinction it does not draw.
