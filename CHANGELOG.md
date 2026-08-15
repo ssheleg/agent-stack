@@ -1,5 +1,83 @@
 # Changelog
 
+## [0.10.0] — 2026-08-15
+
+### Added
+
+- **`agent-orchestrator/references/graph-engineering.md` — deciding the shape of the work
+  before doing it.** The pack could wire a loop, prove it behaved, connect it and tell it
+  what to do, and had nothing to say about the question that comes before all four: *does
+  this actually have to happen in a line?* Node and edge, the fake-edge test, the diamond,
+  the two ways a diamond fails silently, the checker node, static versus dynamic, and the
+  cost table that says when a graph is not worth building.
+
+  Sourced from *Graph Engineering with Claude*
+  (`https://x.com/Mahaximus_/status/2082442856417956173`, published 2026-07-29), and the
+  link is kept so the original can be re-read rather than remembered through the summary.
+  Four sections are **this pack's** and are marked as such in the file: what the host
+  actually runs, the barrier distinction, what a checker costs, and auditability as a hard
+  rule rather than a preference.
+
+- **What Claude Code actually executes, with version evidence.** The source's one
+  operational claim aged out six weeks after publication: the `workflow` keyword it names
+  was renamed to `ultracode` in **v2.1.160**, and the YAML it shows is a way of describing
+  a graph in a prompt rather than a syntax the host parses — the execution contract is a
+  script whose primitives are `agent()`, `parallel()` (a barrier) and `pipeline()` (none).
+  Every claim in that section carries the `v2.1.x` changelog entry that establishes it,
+  which is why the correction reads as a dated fact rather than as an error by the author.
+
+- **`agent-harness` — *Static or dynamic, the second question*.** The workflow-versus-agent
+  table decided one thing and left the other open. Six rows, and one of them is hard: a run
+  that has to be auditable is static, because a graph that picks its own next nodes produces
+  a shape nobody drew, and then *"here is the design"* and *"here is what happened"* stop
+  being the same document.
+
+- **`agent-evals` §5a — the checker node as an evaluator that runs inside the graph.** Its
+  five catches split three code checks and two judge calls, so §5's *cheap checks first*
+  applies to a position in the graph rather than to a suite. And the part that makes it eval
+  work: **a checker that has never rejected anything is a finding, not a reassurance** — its
+  verdicts are scores with a source, and its rejection rate belongs on the same dashboard as
+  its pass rate.
+
+- **A sixth scanner detector, `unguarded-fanout`.** `asyncio.gather` with no
+  `return_exceptions=True`, or `Promise.all` with no `allSettled` and no per-branch
+  `.catch`: the first sibling to fail cancels the batch, the others' completed work is
+  discarded, and the node consuming the results cannot tell a failed branch from an empty
+  one. Conservative like the rest — the capturing form anywhere in the file silences it.
+
+### Changed
+
+- **The self-test proves silence as well as noise.** `PLANTS` and `CLEAN` replaced the
+  single dict, because one detector now reads two languages and needed a plant in each, and
+  because a detector that fires on the defect *and* on its fix has no discriminating power.
+  A fan-out that **does** capture its branches is now a fixture the pass must stay silent
+  on. `self-test: 6/6` → **`9/9`** (seven plants, two clean fixtures), counted by running it.
+
+- **`agent-orchestrator` §5 no longer contradicts its own data model.** `PlanStage` declared
+  `depends_on` and the executor beside it walked `plan.stages` in list order — a plan that
+  went to the trouble of saying it need not be serialised, serialised. It now executes in
+  dependency layers (Kahn), gates a layer of more than one on the checker before anything
+  consumes it, and `ExecutionPlan` grows the `layers()` that makes the declaration mean
+  something. A cycle fails the plan rather than deadlocking the run.
+
+### Removed
+
+- **The hardcoded context-window table.** `references/patterns.md` carried nine vendor model
+  ids with their windows and a `DEFAULT_CONTEXT_WINDOW` of 16 000. Every number was correct
+  when written and none survived: ids were renamed, long-context variants shipped under the
+  same family name, and a system reading that table would size its budget for a window an
+  order of magnitude smaller than the one it was given. Replaced by the resolution order —
+  configuration, then the provider, then a conservative floor **with a loud log line** — and
+  the check is mechanical: no vendor model id remains anywhere in the shipped skill text.
+  Two illustrative ones in `SKILL.md` and `llm-proxy-billing.md` went with it, because a
+  class fixed in one place and left in two others is not fixed.
+
+- **Two duplicated homes.** §8's learning tables and §10's prompt-assembly snippet restated
+  what `references/patterns.md` and `agent-harness/references/system-prompt.md` already own.
+  Both now state the decision and point at the home. `SKILL.md` is **502 lines / 5670
+  tokens** against a 4750 working budget — the number is counted, it is over, and the next
+  addition to this body should split rather than absorb.
+
 ## [0.9.0] — 2026-08-15
 
 ### Added

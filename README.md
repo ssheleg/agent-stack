@@ -11,7 +11,7 @@ Part of the [ssheleg skill family](https://github.com/ssheleg/sshlg-skills).
 
 Four skills — `agent-orchestrator` for wiring the loop, `agent-evals` for proving it
 behaves, `agent-interop` for everything it talks to outside its own process,
-`agent-harness` for what it is **told** — and eighteen references they load on demand,
+`agent-harness` for what it is **told** — and nineteen references they load on demand,
 plus one scanner.
 
 **The orchestrator** (`SKILL.md`) — what the agent reads first:
@@ -31,6 +31,10 @@ plus one scanner.
   decay, plus conflict resolution when a new learning contradicts an old one
 - context budget allocation by priority
 - self-learning feedback loops
+- **the shape of the work, decided before the work**: an edge that carries no data is
+  no edge, a plan that declares `depends_on` is executed in dependency layers rather
+  than in list order, and a parallel layer gets a checker before the node that
+  consumes it
 
 **The evals skill** (`agent-evals/SKILL.md`) — how you know any of it works. An
 agent's behaviour is not in its source, so the artifact under test is the
@@ -74,8 +78,15 @@ eight extension seams where a permission gate or a context rewrite can actually 
 
 It runs in both directions: **building a harness and auditing somebody else's are one
 checklist read forwards and backwards.** `scripts/audit_agent.py` is the mechanical half —
-five conservative detectors, and it always prints what it *cannot* see plus a denominator,
+six conservative detectors, and it always prints what it *cannot* see plus a denominator,
 so its silence is never read as a pass.
+
+**`references/graph-engineering.md`** — deciding the shape of the work before
+doing it: node and edge, the fake-edge test, the diamond and the two ways it
+fails silently, the checker node and what it costs, static versus dynamic with
+auditability as the hard rule, when a graph is not worth building, and what a
+host actually executes when it fans out — with the version evidence, because the
+keyword the source named was renamed six weeks after it was published.
 
 **`references/context-engineering.md`** — what the loop gives up when the window
 runs out: the five-rung compaction ladder and why to re-measure between rungs,

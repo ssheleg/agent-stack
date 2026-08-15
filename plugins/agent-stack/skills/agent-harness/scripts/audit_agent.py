@@ -158,14 +158,50 @@ def check_hardcoded_model(rel, text, lines):
             "tenant, system default — is the shape that bills correctly")
 
 
+def check_unguarded_fanout(rel, text, lines):
+    """A fan-out whose siblings' failures are not captured.
+
+    `asyncio.gather` without `return_exceptions=True` cancels the whole batch on the first
+    exception: every other branch's completed work is discarded, and the node that consumes
+    the results cannot tell a branch that FAILED from one that returned nothing. `Promise.all`
+    has the identical shape. That is the failure a checker node between a parallel layer and
+    its convergence exists to stop, and it is invisible in a green test run because the happy
+    path never exercises it.
+
+    Conservative twice over, like every detector here: the file must already look
+    agent-related, and the capturing form must be absent from the WHOLE file — one
+    `return_exceptions` or `allSettled` anywhere is taken as evidence the author knows the
+    distinction, and this pass says nothing.
+    """
+    if re.search(r"return_exceptions|allSettled", text):
+        return
+    for i, l in enumerate(lines, 1):
+        if re.search(r"\basyncio\.gather\s*\(", l):
+            add("unguarded-fanout", rel, i,
+                "`asyncio.gather` with no `return_exceptions=True` — the first sibling to "
+                "raise cancels the batch and throws away what the others already produced",
+                "Capture each branch's outcome, then gate the convergence on a checker that "
+                "can tell a failed branch from an empty one")
+        if re.search(r"\bPromise\.all\s*\(", l) and ".catch" not in l:
+            add("unguarded-fanout", rel, i,
+                "`Promise.all` with no `allSettled` and no per-branch `.catch` — one "
+                "rejection discards every other branch's completed result",
+                "Use `Promise.allSettled` or catch per branch, then gate the convergence on "
+                "a checker that can see which branch failed")
+
+
 CHECKS = [check_unbounded_loop, check_tool_without_description, check_swallowed_error,
-          check_no_timeout, check_hardcoded_model]
+          check_no_timeout, check_hardcoded_model, check_unguarded_fanout]
 
 # What no static pass can reach. Printed every run, never suppressed.
 BLIND = [
     "whether the SYSTEM PROMPT is at the right altitude — or whether it is in this repo at all",
     "whether two tool descriptions actually distinguish themselves to a model",
     "whether the workflow/agent choice was made deliberately or defaulted to an agent",
+    "whether a fan-out has a CHECKER between it and the node that consumes it — this pass "
+    "sees an unguarded gather, never a missing gate",
+    "whether a declared dependency graph is actually executed in dependency order, or in "
+    "the order the stages happen to be listed in",
     "whether retries and fallbacks MULTIPLY (three providers x three retries is nine calls)",
     "whether compaction preserves decisions and open questions, or keeps the discussion",
     "whether tool output is treated as untrusted input",
@@ -217,54 +253,86 @@ def report_text(root, seen, considered):
     return "\n".join(out)
 
 
+PY_HEADER = ("import requests\n"
+             "system_prompt = 'x'\n"
+             "tools = [{'name': 't', 'description': 'does a thing'}]\n"
+             "messages = []\n")
+JS_HEADER = ("const system_prompt = 'x';\n"
+             "const tools = [{name: 't', description: 'does a thing'}];\n"
+             "const messages = [];\n")
+
+# (label, the check that MUST fire, filename, body)
+PLANTS = [
+    ("unbounded-loop", "unbounded-loop", "agent.py",
+     PY_HEADER + "while True:\n    pass\n"),
+    ("tool-no-description", "tool-no-description", "agent.py",
+     PY_HEADER + "T = [{'name': 'a', 'description': ''}]\n"),
+    ("swallowed-error", "swallowed-error", "agent.py",
+     PY_HEADER + "try:\n    x = 1\nexcept Exception:\n    pass\n"),
+    ("no-timeout", "no-timeout", "agent.py",
+     PY_HEADER + "r = requests.get('https://example.com')\n"),
+    ("hardcoded-model", "hardcoded-model", "agent.py",
+     PY_HEADER + "a = 'claude-opus-4'\nb = 'claude-opus-4'\n"),
+    ("unguarded-fanout (asyncio)", "unguarded-fanout", "agent.py",
+     PY_HEADER + "out = await asyncio.gather(*(run(t) for t in tasks))\n"),
+    ("unguarded-fanout (promise)", "unguarded-fanout", "agent.js",
+     JS_HEADER + "const out = await Promise.all(tasks.map(t => run(t)));\n"),
+]
+
+# A detector that fires on the defect AND on its fix has no discriminating power. Each
+# clean fixture is the half of the evidence that says which one this is.
+CLEAN = [
+    ("the ordinary correct file", "agent.py",
+     PY_HEADER + "for _ in range(10):\n    pass\n"
+     "r = requests.get('https://example.com', timeout=5)\n"),
+    ("a fan-out that DOES capture its branches", "agent.py",
+     PY_HEADER + "for _ in range(10):\n    pass\n"
+     "out = await asyncio.gather(*(run(t) for t in tasks), return_exceptions=True)\n"),
+]
+
+
 def self_test():
     """Plant each defect and require the matching check to fire.
 
     A detector nobody has watched fire is not evidence that it works, and every plant
     asserts it changed something so a reworded fixture fails HERE rather than reporting a
     healthy checker as broken.
+
+    Two things the shape of this function is deliberate about. A detector that reads two
+    languages gets a plant in **each** — one passing shape is not evidence about the
+    other. And every run also asserts silence on the CORRECT shape of the same defect,
+    which is what separates a detector from a keyword search.
     """
     import tempfile
-    header = ("import requests\n"
-              "system_prompt = 'x'\n"
-              "tools = [{'name': 't', 'description': 'does a thing'}]\n"
-              "messages = []\n")
-    cases = {
-        "unbounded-loop": header + "while True:\n    pass\n",
-        "tool-no-description": header + "T = [{'name': 'a', 'description': ''}]\n",
-        "swallowed-error": header + "try:\n    x = 1\nexcept Exception:\n    pass\n",
-        "no-timeout": header + "r = requests.get('https://example.com')\n",
-        "hardcoded-model": header + "a = 'claude-opus-4'\nb = 'claude-opus-4'\n",
-    }
     failures = 0
-    for kind, body in cases.items():
+    for label, kind, fname, body in PLANTS:
         FINDINGS.clear()
         with tempfile.TemporaryDirectory() as d:
-            p = os.path.join(d, "agent.py")
-            with open(p, "w", encoding="utf-8") as fh:
+            with open(os.path.join(d, fname), "w", encoding="utf-8") as fh:
                 fh.write(body)
-            assert agentish(body), f"PLANT DID NOT LAND: fixture for {kind} is not agent-related"
+            assert agentish(body), f"PLANT DID NOT LAND: fixture for {label} is not agent-related"
             scan(d)
         got = {f["check"] for f in FINDINGS}
         if kind in got:
-            print(f"  OK   {kind}: detected")
+            print(f"  OK   {label}: detected")
         else:
-            print(f"  FAIL {kind}: NOT detected (found {sorted(got) or 'nothing'})")
+            print(f"  FAIL {label}: NOT detected (found {sorted(got) or 'nothing'})")
             failures += 1
-    # and a clean file must produce nothing, or every finding above is noise
-    FINDINGS.clear()
-    with tempfile.TemporaryDirectory() as d:
-        with open(os.path.join(d, "agent.py"), "w", encoding="utf-8") as fh:
-            fh.write(header + "for _ in range(10):\n    pass\n"
-                     "r = requests.get('https://example.com', timeout=5)\n")
-        scan(d)
-    if FINDINGS:
-        print(f"  FAIL clean file produced {len(FINDINGS)} finding(s): "
-              f"{[f['check'] for f in FINDINGS]}")
-        failures += 1
-    else:
-        print("  OK   clean file: silent")
-    print(f"\nself-test: {len(cases) + 1 - failures}/{len(cases) + 1} passed")
+    for label, fname, body in CLEAN:
+        FINDINGS.clear()
+        with tempfile.TemporaryDirectory() as d:
+            with open(os.path.join(d, fname), "w", encoding="utf-8") as fh:
+                fh.write(body)
+            assert agentish(body), f"CLEAN FIXTURE NOT READ: {label} is not agent-related"
+            scan(d)
+        if FINDINGS:
+            print(f"  FAIL {label}: produced {len(FINDINGS)} finding(s): "
+                  f"{[f['check'] for f in FINDINGS]}")
+            failures += 1
+        else:
+            print(f"  OK   {label}: silent")
+    total = len(PLANTS) + len(CLEAN)
+    print(f"\nself-test: {total - failures}/{total} passed")
     return 1 if failures else 0
 
 

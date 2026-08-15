@@ -5,13 +5,14 @@ description: >-
   use, an AI pipeline — or when metering and billing the LLM access it burns. Covers tool-
   calling loops, multi-stage pipelines with human checkpoints, provider routing with fallback
   and retry, four-layer memory with confidence decay, context budgets, sub-agent coordination
-  and error hierarchies; for resale: tiered wallets, the single markup boundary, two-phase
-  commit across a database and a provider API, spend-delta polling, budget and loop guardrails,
+  and error hierarchies; the work as a graph — parallel layers, fake edges, a checker before
+  a convergence; for resale: tiered wallets, the single markup boundary, two-phase commit
+  across a database and a provider API, spend-delta polling, budget and loop guardrails,
   per-tenant key lifecycle. Triggers - "agent", "orchestrator", "tool calling", "sub-agent",
   "LLM router", "fallback chain", "human in the loop", "memory layer", "LLM billing", "token
-  wallet", "агент", "оркестратор", "суб-агент", "роутер моделей", "человек в цикле", "слой
-  памяти", "биллинг LLM", "лимит бюджета". Not for a single LLM call in a script, or for prompt
-  wording.
+  wallet", "checker node", "агент", "оркестратор", "суб-агент", "роутер моделей", "человек в
+  цикле", "слой памяти", "биллинг LLM", "граф задач". Not for a single LLM call in a script,
+  or for prompt wording.
 ---
 
 # Agent Orchestrator — Production Best Practices
@@ -59,7 +60,7 @@ class AgentContext:
     connection_config: ... | None   # external resource config
     user_id: str | None
     preferred_provider: str | None  # e.g. "openrouter"
-    model: str | None               # e.g. "openai/gpt-4o"
+    model: str | None               # e.g. "<provider>/<model-id>"
     extra: dict[str, Any]           # pipeline_action, flags, overrides
 ```
 
@@ -143,39 +144,27 @@ else:
 
 ## 3. Meta-Tools (Orchestrator-Level)
 
-Define tools that **delegate to sub-agents**, not execute directly:
-
-```python
-QUERY_DATABASE_TOOL = Tool(
-    name="query_database",
-    description="Query the connected database. Handles SQL generation, validation, execution.",
-    parameters=[ToolParameter(name="question", type="string", description="Data question")]
-)
-ASK_USER_TOOL = Tool(
-    name="ask_user",
-    description="Ask the user a structured clarification question.",
-    parameters=[
-        ToolParameter(name="question", type="string", ...),
-        ToolParameter(name="question_type", type="string",
-                      enum=["yes_no", "multiple_choice", "free_text"]),
-        ToolParameter(name="options", type="string", required=False),
-    ]
-)
-```
-
-**Assemble tools dynamically** based on available capabilities:
+The orchestrator's tools **delegate to sub-agents** rather than execute:
+`query_database` takes a question in natural language and the SQL agent behind it owns
+generation, validation and execution. One parameter, one responsibility, and the caller
+never learns the sub-agent exists.
 
 ```python
 def get_tools(*, has_db=False, has_kb=False, has_mcp=False) -> list[Tool]:
+    """Assembled per request from the same capability flags that build the prompt (§10)."""
     tools = []
-    if has_db:
-        tools.extend([QUERY_DB, PROCESS_DATA, MANAGE_RULES, ASK_USER])
-    if has_kb:
-        tools.append(SEARCH_CODEBASE)
-    if has_mcp:
-        tools.append(QUERY_MCP)
+    if has_db:  tools.extend([QUERY_DB, PROCESS_DATA, MANAGE_RULES, ASK_USER])
+    if has_kb:  tools.append(SEARCH_CODEBASE)
+    if has_mcp: tools.append(QUERY_MCP)
     return tools
 ```
+
+Two rules that are this layer's and not the prompt's: **a capability the request does not
+have contributes no tool**, and every enum a tool accepts is closed at the schema
+(`ask_user`'s `question_type` is `yes_no | multiple_choice | free_text`, never free
+prose). How to *describe* a tool so the model picks the right one — the sentence naming
+when to use it, and the neighbour it is confused with — is
+`agent-harness/references/tools.md`.
 
 ---
 
@@ -240,8 +229,8 @@ async def detect_complexity_adaptive(question, llm, history) -> bool:
 ### Pipeline Components
 
 ```
-QueryPlanner   → (single LLM call) → ExecutionPlan (ordered stages)
-StageExecutor  → runs stages sequentially with validation + retry
+QueryPlanner   → (single LLM call) → ExecutionPlan (stages + their depends_on)
+StageExecutor  → runs stages in DEPENDENCY LAYERS with validation + retry (§13)
 StageValidator → checks data shape, row bounds, cross-stage consistency
 StageContext   → in-memory state (plan, results per stage, user feedback)
 PipelineRun    → DB-persisted state for resume/retry across requests
@@ -250,21 +239,27 @@ PipelineRun    → DB-persisted state for resume/retry across requests
 ### Checkpoint Pattern (Human-in-the-Loop)
 
 ```python
-for idx, stage in enumerate(plan.stages):
-    result = await execute_with_retries(stage, context)
-    validation = validator.validate(stage, result, stage_ctx)
+for layer in plan.layers():                       # Kahn over depends_on — never list order
+    results = await run_layer(layer, context)     # execute_with_retries per stage, together
 
-    if not validation.passed:
-        retried = await retry_failed_validation(stage, context, validation)
-        if retried is None:
-            return StageFailedResult(stage, validation)  # ask user
-        result = retried
+    for i, (stage, result) in enumerate(zip(layer, results)):
+        validation = validator.validate(stage, result, stage_ctx)
+        if not validation.passed:
+            results[i] = await retry_failed_validation(stage, context, validation)
+            if results[i] is None:
+                return StageFailedResult(stage, validation)   # ask user
 
-    stage_ctx.set_result(stage.id, result)
+    if len(layer) > 1:                            # cheap per-stage checks ran first; this
+        verdict = checker.check(results)          # one is the cross-item gate (§13)
+        if not verdict.passed:
+            return StageFailedResult(layer, verdict)  # nothing converges on a flagged output
 
-    if stage.checkpoint:
+    for stage, result in zip(layer, results):
+        stage_ctx.set_result(stage.id, result)
+
+    if any(s.checkpoint for s in layer):
         persist_to_db(pipeline_run_id, stage_ctx)
-        return CheckpointResult(stage, result)  # pause for user review
+        return CheckpointResult(layer, results)   # pause for user review
         # User responds: "continue" | "modify" | "retry"
 ```
 
@@ -329,37 +324,22 @@ a floor.
 mode cross a compaction boundary as copied typed blocks, not prose (§12).
 ## 8. Self-Learning Feedback Loops
 
-### Cycle 1: Automatic (Validation Loop)
+Three cycles feed layers 3 and 4, and they differ by what supplies the signal:
 
-After every SQL execution cycle, heuristic extractors analyze the attempt sequence:
+| Cycle | Signal | Produces |
+|---|---|---|
+| **Validation** | the attempt sequence of a call that failed and was then fixed | a learning, extracted by heuristic — the wrong table, a renamed column, a unit divisor, a soft-delete filter, a missing `LIMIT`. Deep LLM analysis only past 3 attempts, on a cooldown |
+| **User feedback** | a thumbs-down, or a data verdict of confirmed / approximate / rejected | a benchmark, a session note with the deviation, or a learning plus a flag on the now-stale benchmark |
+| **Lifecycle** | time, and contradiction | decay, conflict resolution by negation flip, and promotion of a pattern seen on two independent resources |
 
-| Extractor | Detects | Creates |
-|-----------|---------|---------|
-| Table preference | Wrong table A fixed to B | "Use `B` instead of `A`" |
-| Column correction | column_not_found → suggested col | "Use `full_name` not `user_name`" |
-| Format discovery | Division by 100/1000 added | "Amounts in cents, divide by 100" |
-| Schema gotcha | `deleted_at IS NULL` added | "Soft-delete: filter active records" |
-| Performance hint | Timeout fixed by LIMIT/date filter | "Always add LIMIT to this table" |
+The extractors, the exact confidence arithmetic and the promotion query live in
+`references/patterns.md` — **Learning Extraction Heuristics**, **Confidence Management**
+and **Cross-Resource Learning Transfer** — and not here, because a decay rate is a
+constant to tune and a constant with two homes is one that will disagree with itself.
 
-LLM-based deep analysis (3+ attempts, 1hr cooldown) for cross-query patterns.
-
-### Cycle 2: User Feedback
-
-```python
-# Thumbs down → analyze_negative_feedback() → learning
-# Data validation:
-#   confirmed  → store benchmark
-#   approximate → benchmark + session note (deviation details)
-#   rejected   → learning + note + flag stale benchmark
-#     Categorize rejection: currency/format → data_format, filter → schema_gotcha,
-#                           table → table_preference, join → schema_gotcha
-```
-
-### Cycle 3: Knowledge Lifecycle
-
-- **Decay**: stale learnings -0.02/month, notes -0.1/60 days, insights -0.05/30 days
-- **Conflict resolution**: negation flips deactivate old conflicting lessons
-- **Global promotion**: patterns on 2+ resources promoted project-wide
+**The rule the whole section exists for:** a learning is written from a **contrast** — the
+attempt that failed beside the attempt that worked — never from a single successful run.
+A system that learns from its successes learns its own habits.
 
 ---
 
@@ -383,39 +363,26 @@ class WorkflowTracker:
 # orchestrator:sql_agent, orchestrator:llm_retry, orchestrator:warning
 ```
 
-Stream final answer text in chunks for typing effect:
-
-```python
-async def stream_tokens(wf_id, text, chunk_size=12):
-    for i in range(0, len(text), chunk_size):
-        await tracker.emit(wf_id, "token", "streaming", text[i:i+chunk_size])
-```
+The final answer streams in chunks as `token` events on the same bus — a typing effect is
+a chunked emit, not a second mechanism. What makes the feed reliable rather than decorative
+is in `references/runtime.md`: a monotonic id per event so a reconnecting client can resume,
+and the feed being a **view over the durable trace** rather than the record itself.
 
 ---
 
 ## 10. Dynamic System Prompts
 
-Build system prompts dynamically based on available capabilities:
+**Assemble the prompt from the capabilities that are actually present**, in the same pass
+that assembles the tools (§3): one section naming each live capability, the resource map
+if there is one, the current learnings, then the guidelines. A prompt that describes a
+tool the agent was not given is how a model spends a turn calling something that is not
+there.
 
-```python
-def build_system_prompt(*, project_name, db_type, has_connection, has_kb, table_map,
-                        project_overview, recent_learnings):
-    sections = [f"You are an AI data assistant for '{project_name}'."]
-    sections.append("AVAILABLE CAPABILITIES:")
-    if has_connection:
-        sections.append("- query_database: ... SQL agent handles everything")
-        sections.append("- process_data: ... enrich/aggregate/filter")
-        sections.append("- manage_rules: ... CRUD project rules")
-    if has_kb:
-        sections.append("- search_codebase: ... RAG over indexed code")
-
-    if table_map:
-        sections.append(f"DATABASE TABLES: {table_map}")
-    if recent_learnings:
-        sections.append(recent_learnings)  # "AGENT LEARNINGS: ..."
-    sections.append("GUIDELINES: ...")  # routing rules, verification protocol
-    return "\n".join(sections)
-```
+What belongs in that text, at what altitude, and how to enumerate the vocabulary so the
+agent stops inventing status values is the **`agent-harness`** skill's
+`agent-harness/references/system-prompt.md` — one home, and it is not this one. What is *this* skill's
+is the wiring: the prompt is rebuilt per request from the same capability flags the tool
+list is built from, so the two can never disagree.
 
 **Data Verification Protocol** (inject when DB connected):
 - First-time metrics: ask user "Do these numbers match expectations?"
@@ -461,6 +428,33 @@ transcript.
 
 ---
 
+## 13. The Work as a Graph
+
+Before the loop, the pipeline or the sub-agents: **decide the shape.** A node is one unit
+of work; an edge is a dependency, and an edge carries data. The full model, the source it
+comes from, and what this host actually executes are in
+[`references/graph-engineering.md`](references/graph-engineering.md).
+
+Four rules, and these are the ones that change code:
+
+- **Label every edge with what crosses it. No payload, no edge.** Run the fake-edge test
+  over any chain you inherited: write the steps as boxes, ask of each arrow whether data
+  from A actually enters B, and delete the arrows that only encode the order somebody
+  typed. Two or three per workflow is the normal yield.
+- **`depends_on` is a claim, so execute by layer.** §5's executor walked `plan.stages` in
+  list order beside a model that declared its dependencies — which serialises a plan that
+  went to the trouble of saying it need not be. Kahn the graph; a cycle fails the plan
+  rather than deadlocking the run.
+- **A parallel layer needs a checker before its convergence.** Three branches run, one
+  returns a hallucination, and the synthesis node cannot tell: it combines all three and
+  answers confidently. The checker decides *usable / not usable* and nothing else, and
+  the convergence depends on **the checker**, never directly on a branch.
+- **Static unless you can name what forces dynamic.** A graph that picks its own next
+  nodes cannot be audited afterwards, because the shape that ran is not the shape anyone
+  drew. Where a run has to be explainable, that settles it.
+
+---
+
 ## Checklist — Building a New Orchestrator
 
 - [ ] Shared `AgentContext` dataclass with all sub-agents
@@ -485,6 +479,10 @@ transcript.
 - [ ] `ask_user` clarification mechanism
 - [ ] Graceful degradation (partial answers on context overflow or max iterations)
 - [ ] Compaction ladder, tool-pair-safe boundaries, typed carryover, output offload
+- [ ] Every declared dependency names the data it carries — the fake-edge test run once
+- [ ] Plans executed in dependency layers, not in the order the stages were listed
+- [ ] A checker between every parallel layer and the node that consumes it, and that
+      checker watched refusing a planted bad input at least once
 
 ---
 
@@ -496,6 +494,7 @@ stays an index and the two cannot drift apart.
 
 | File | Read it when |
 |---|---|
+| [`references/graph-engineering.md`](references/graph-engineering.md) | you are deciding the **shape of the work** — the fake-edge test, the diamond, the checker node, static versus dynamic, and what the host actually runs |
 | [`references/patterns.md`](references/patterns.md) | you need the **data models and algorithms** under the body |
 | [`references/context-engineering.md`](references/context-engineering.md) | the loop is **running out of window** |
 | [`references/runtime.md`](references/runtime.md) | the agent must **survive a crash, a pause, a second message or a schedule** |

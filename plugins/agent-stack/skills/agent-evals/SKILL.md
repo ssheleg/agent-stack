@@ -7,9 +7,10 @@ description: >-
   evals. Covers the three observability primitives (run, trace, thread) crossed with three
   eval granularities (single-step, full-turn, multi-turn), the offline/online/ad-hoc
   timing axis, pass-fail rubrics over scalar scores, cheap code checks before model
-  judges, simulated users with adversarial personas, annotation queues, and what to
-  instrument so any of it is possible. Triggers - "agent eval", "eval suite", "LLM judge",
-  "regression fixture", "trajectory eval", "is the agent getting better", "эвалы агента",
+  judges, the checker node as an evaluator running inside the graph, simulated users with
+  adversarial personas, annotation queues, and what to instrument so any of it is
+  possible. Triggers - "agent eval", "eval suite", "LLM judge", "regression fixture",
+  "trajectory eval", "checker node", "is the agent getting better", "эвалы агента",
   "оценка агента", "LLM-судья", "регрессионный набор", "как проверить агента". Not for
   unit tests of ordinary code, or for benchmarking a model.
 license: MIT
@@ -159,6 +160,44 @@ domain expert and accept that this tier stays human.
 
 ---
 
+## 5a. The checker node — an evaluator that runs inside the graph
+
+Everything above evaluates a run *afterwards*. One evaluator runs **during** it, and it is
+the one most systems are missing: a **checker node** sitting between a parallel layer and
+the node that consumes it. Its only job is *usable / not usable*, and the convergence
+depends on **it** rather than on the branches — otherwise the gate has a bypass.
+
+It matters here because it is the same machinery as §5, positioned differently:
+
+| It catches | Decided by |
+|---|---|
+| an empty or null output | a code check |
+| a confidence signal below the downstream bar | a code check |
+| a shape that will break the consumer's parsing | a code check |
+| two outputs that cannot both be true | a judge |
+| an output answering a different question than the one asked | a judge |
+
+Three of five are free. Run them first — §5's *cheap checks first*, applied to a position
+in the graph rather than to a suite.
+
+**A checker is a node, so it can be wrong, and its failure mode is silent approval.** A
+model checker that has never been shown a bad input passes everything, and a graph with a
+checker that always says yes is **worse** than one with none: the missing checkpoint has
+been replaced by a false one that everything downstream now trusts. Three consequences,
+and they are eval work rather than orchestration work:
+
+- **Watch it refuse a planted bad output** before trusting it, exactly as §5 requires of
+  any judge before it scores unattended.
+- **Record every verdict as a score bound to the run**, with `source: code_check` or
+  `llm_judge` (§7). A checker whose verdicts are not stored cannot be asked afterwards how
+  often it fired, which means it cannot be calibrated.
+- **A checker that has never rejected anything is a finding, not a reassurance.** Put the
+  rejection rate on the same dashboard as the pass rate; a rate of zero is either a
+  perfect upstream or a broken gate, and only the stored verdicts can tell you which.
+
+Where the checker sits in the shape, and why the convergence needs one at all:
+`agent-orchestrator/references/graph-engineering.md`.
+
 ## 6. The corpus grows from production
 
 Never author the suite up front. Every production failure and every thumbs-down becomes a
@@ -215,6 +254,8 @@ None of the above runs without these, and they are the part people skip:
 - [ ] Pass/fail rubrics with enumerated failure conditions, written with behaviour owners
 - [ ] Code checks before model judges
 - [ ] Judge calibrated against human labels before it is trusted
+- [ ] Every checker node watched refusing a planted output, its verdicts stored as scores,
+      and its rejection rate on the dashboard — a checker at zero rejections is a finding
 - [ ] Domain-expert review for output a general judge cannot grade
 - [ ] Every production failure minimised into a permanent fixture
 - [ ] Annotation queue with filters, and the two reviewer roles kept separate

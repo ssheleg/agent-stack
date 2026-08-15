@@ -10,6 +10,41 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Run 2026-08-15 (second) — graph engineering, v0.10.0
+
+Brief: `sshlg-skills/docs/evidence/briefs/2026-08-15-graph-engineering.md`.
+Spec: `sshlg-skills/docs/evidence/specs/2026-08-15-graph-engineering-design.md`.
+
+| REQ | Verified by | Result | Status |
+|---|---|---|---|
+| 001 | the file exists; `grep -c 'x.com/Mahaximus_'`; the stamp inside the first 15 lines | `references/graph-engineering.md` present, source URL and publication date carried, `**Spec pinned:** … · read 2026-08-15` on **line 8** | **verified** |
+| 002 | read each Claude Code claim against `anthropics/claude-code` `CHANGELOG.md` | five claims, five version entries — v2.1.154, v2.1.160, v2.1.178, v2.1.219, v2.1.229 — each quoted from the changelog and each resolving in it | **verified** |
+| 003 | read §9 and *Where this file disagrees with its source* | the source's `workflow` keyword is stated, the v2.1.160 rename is stated beside it, and the correction is framed as a dated fact rather than an error by the author | **verified** |
+| 004 | `python3 test/validate.py` | `OK: agent-stack structurally valid (10 checks, 4 skill(s), v0.10.0)`. The orphan branch was **watched failing** first: with the reference written and `SKILL.md` not yet linking it, the validator printed *"exists but SKILL.md never links it"* | **verified** |
+| 005 | read `SKILL.md` §5 | the component line says *dependency layers*, the checkpoint loop iterates `plan.layers()`, a layer of more than one is gated on the checker, and `ExecutionPlan.layers()` is in `patterns.md` | **verified** |
+| 006 | `grep -nE 'gpt-4\|gpt-3\|claude-3-\|claude-sonnet-4' references/patterns.md` | 6 matching lines before, **no output (exit 1) after**. A widened sweep across all of `plugins/` then found two more illustrative ids — `SKILL.md:62` and `llm-proxy-billing.md:251` — and both went with it | **verified** |
+| 007 | read `agent-harness/SKILL.md`; front-matter measured | *Static or dynamic* present with six rows and the audit rule; `description` **807 → 884** chars against the 1024 limit. The orchestrator's own went to **996** and tripped the repo-gate hook at 1048 on the way — the limit is enforced at edit time here, which is how the overshoot was caught in the same minute it was written | **verified** |
+| 008 | `audit_agent.py --self-test`, watched both ways | with the plants and no detector: `FAIL unguarded-fanout (asyncio)` and `(promise)`, `7/9`. With the detector: **`self-test: 9/9 passed`**. Run against two real repositories: 0 `unguarded-fanout` findings, so the new detector is silent on real code as well as on its clean fixture | **verified** |
+| 009 | read `agent-evals/SKILL.md` §5a | the position in the graph, the five catches split 3 code / 2 judge, and the three consequences — planted refusal, verdicts as scores with a source, zero rejections as a finding | **verified** |
+
+**9 of 9 verified. 0 at `never`.**
+
+### What the checks did not cover
+
+- **The methodichka has not been used to design a real graph yet.** Everything above
+  confirms the text says what it should; none of it confirms the model changes a decision.
+  The first orchestrator built with it is the evidence this ledger cannot supply.
+- **`unguarded-fanout` has two shapes and a language does not have two.** Python and
+  JavaScript are covered; a `Task.WhenAll` or an `errgroup` is the same defect and this pass
+  is blind to both. Recorded as a known floor, not a survey.
+- **The token budget went the wrong way and the number is stated rather than smoothed.**
+  `agent-orchestrator/SKILL.md` is 502 lines / **5670 tokens** against a 4750 working
+  budget, up from 5009 — measured with `cl100k_base`, not estimated. Two duplicated
+  sections were compressed to offset it and did not. The next addition to that body should
+  split rather than absorb.
+- **The four diagrams are described, never reproduced.** Whether the descriptions carry the
+  same information as the images is a judgement, and it is the author's own.
+
 ## Run 2026-08-15 — Pi as the worked implementation, v0.9.0
 
 Brief: `docs/evidence/specs/2026-08-15-pi-reference-brief.md`.

@@ -8,9 +8,10 @@ description: >-
   instead of a score, plus a scanner. Carries Pi as a worked kernel implementation — SDK, RPC
   and extension seams — for embedding or extending a harness. Triggers - "system prompt",
   "tool description", "agent picks the wrong tool", "agent loops forever", "prompt
-  engineering", "ReAct", "workflow or agent", "audit this agent", "embed an agent", "agent
-  SDK", "Pi harness", "системный промпт", "агент не вызывает тул", "аудит агента", "встроить
-  агента". Not for the loop's plumbing, its evals, or its protocols — those are siblings.
+  engineering", "ReAct", "workflow or agent", "static or dynamic", "audit this agent",
+  "embed an agent", "agent SDK", "Pi harness", "системный промпт", "агент не вызывает тул",
+  "аудит агента", "встроить агента". Not for the loop's plumbing, its evals, or its
+  protocols — those are siblings.
 ---
 
 # Agent harness — what the agent is told, and how to audit what someone else told theirs
@@ -80,6 +81,30 @@ that only where a fixed path genuinely cannot be written.
 **Orchestrator–workers versus routing is the distinction people get wrong.** Routing picks
 from a known set. Orchestration invents the set per request. If you can enumerate the
 branches, you wanted routing and it is cheaper.
+
+### Static or dynamic — the second question, and it is not the same one
+
+Having chosen a workflow, one thing is still open: **is its shape known before it runs?**
+A **static** graph has every node and edge decided up front. A **dynamic** one grows — a
+node finishes, reads what it found, and decides what comes next.
+
+| Reach for | When |
+|---|---|
+| **static** | the task repeats and the structure is the same every time |
+| **static** | predictability and speed matter more than flexibility |
+| **static** | **always first** — go dynamic only after the static version hits a wall you can name |
+| dynamic | the scope of the work depends on what is discovered along the way |
+| dynamic | a node must choose its successors from its own output |
+| **never dynamic** | **the run has to be auditable** — see below |
+
+**The audit rule is hard, not a preference.** A dynamic graph's executed shape is not the
+shape anybody drew, so *"here is the design"* and *"here is what happened"* stop being the
+same document and every claim about the run becomes unfalsifiable from outside. Most
+workflows that feel like they need a dynamic graph need a better static one.
+
+The rest of the model — the fake-edge test, the diamond, the checker node before a
+convergence, and what a host actually executes when it fans out — is
+`agent-orchestrator/references/graph-engineering.md`.
 
 ---
 
@@ -151,6 +176,7 @@ prompt.
 ## Checklist — a harness worth shipping
 
 - [ ] Workflow-versus-agent decided deliberately, and the simpler option was actually tried
+- [ ] Static-versus-dynamic decided too, and a run that must be auditable is static
 - [ ] System prompt at the **right altitude** — heuristics, not hardcoded branches, not vague hope
 - [ ] Every status, category and enum the agent must produce is **enumerated in the prompt**
 - [ ] Today's date, and any other volatile context, injected rather than assumed

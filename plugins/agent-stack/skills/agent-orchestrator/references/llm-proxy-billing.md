@@ -248,7 +248,7 @@ Map your public model names to provider ids in **one** function, and give every
 provider a default and a fallback:
 
 ```
-toUpstreamModel(provider, model)   // "gpt-4o" → "openai/gpt-4o"
+toUpstreamModel(provider, model)   // "<public-name>" → "<provider>/<upstream-id>"
 getDefaultModel(provider)          // when the caller names none
 getFallbackModels(provider)        // ordered, tried on 5xx / overload
 ```

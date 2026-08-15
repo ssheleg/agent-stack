@@ -139,6 +139,10 @@ class ExecutionPlan:
     @classmethod
     def from_json(cls, raw: str) -> ExecutionPlan: ...
 
+    def layers(self) -> list[list[PlanStage]]:
+        """Kahn's algorithm over `depends_on`. Each returned list may run concurrently."""
+        ...
+
 @dataclass
 class StageResult:
     stage_id: str
@@ -148,6 +152,14 @@ class StageResult:
     answer: str | None = None
     error: str | None = None
 ```
+
+**`depends_on` is a claim the executor has to honour.** A plan that declares dependencies
+and is then executed in list order has serialised itself: `stages[3]` waits for
+`stages[2]` whether or not it consumes anything it produced. Execute by **layer** —
+everything whose dependencies are satisfied goes together — and the declaration starts
+paying for itself. Two rules come with it: a cycle is a plan defect and fails the plan
+rather than deadlocking the run, and a layer of more than one stage needs the convergence
+check in `graph-engineering.md` §6 before anything downstream consumes it.
 
 ---
 
@@ -187,21 +199,33 @@ for attempt in range(1, max_retries + 1):
 
 ## Context Window Sizes
 
-```python
-MODEL_CONTEXT_WINDOWS = {
-    "gpt-4o": 128_000,
-    "gpt-4o-mini": 128_000,
-    "gpt-4-turbo": 128_000,
-    "gpt-4": 8_192,
-    "gpt-3.5-turbo": 16_385,
-    "claude-sonnet-4-20250514": 200_000,
-    "claude-3-5-sonnet-20241022": 200_000,
-    "claude-3-haiku-20240307": 200_000,
-    "claude-3-opus-20240229": 200_000,
-}
-DEFAULT_CONTEXT_WINDOW = 16_000
+**Do not ship a table of model ids.** This file carried one until 2026-08-15 — nine
+vendor ids with their windows, and a `DEFAULT_CONTEXT_WINDOW` of 16 000. Every number in
+it was correct when written and none of it survived a year: generations shipped, ids were
+renamed, long-context variants appeared under the same family name, and a system reading
+that table would have sized its budget for a window an order of magnitude smaller than
+the one it was actually given. A lookup table of somebody else's identifiers is a cache
+with no invalidation.
 
-# Token estimation: tiktoken for OpenAI models, ~4 chars/token fallback
+**Resolve the window at one boundary instead**, in this order, and let every caller ask
+that boundary rather than a constant:
+
+1. **Configuration** — an explicit per-model entry the operator set. It outranks
+   everything, because it is the only source that can encode a limit you have chosen (a
+   budget cap below the real window, a provider tier).
+2. **The provider** — the model list or metadata endpoint most APIs expose. Fetched once
+   per process, cached with a TTL, refreshed on a miss.
+3. **A conservative floor** for a model nothing knows about, plus a **loud log line**
+   naming the model. A silent default is how a new model runs at a fraction of its
+   window for months with nobody noticing.
+
+The floor is a number to be small about, not accurate about: being early to compact costs
+one avoidable rung of the ladder, and being late costs the request.
+
+```python
+# Token estimation: a real tokenizer where one is available, ~4 chars/token otherwise.
+# The fallback runs LOW on code, JSON and non-Latin text — see context-engineering.md
+# → Estimating what you have left, and apply the padding factor described there.
 def estimate_tokens(text):
     try:
         import tiktoken
