@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.10.1] — 2026-08-15
+
+### Changed
+
+- **`graph-engineering.md`'s stamp names all three of its sources, and the two numbers that
+  come from the third say so.** The file pins an article and Claude Code's changelog, and
+  its execution section also states a concurrency cap and a lifetime agent cap that come
+  from **neither** — they are the Workflow tool contract the host presents at runtime, a
+  source with its own lifetime and no public changelog entry to check them against. A
+  revision stamp that names two sources for a file carrying three is the exact defect the
+  stamp exists to prevent, one level up. Both numbers now carry the instruction to read them
+  back from the running host.
+
 ## [0.10.0] — 2026-08-15
 
 ### Added
