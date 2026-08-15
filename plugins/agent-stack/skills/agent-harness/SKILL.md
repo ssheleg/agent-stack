@@ -85,27 +85,20 @@ branches, you wanted routing and it is cheaper.
 ### Static or dynamic — the second question, and it is not the same one
 
 Having chosen a workflow, one thing is still open: **is its shape known before it runs?**
-A **static** graph has every node and edge decided up front. A **dynamic** one grows — a
-node finishes, reads what it found, and decides what comes next.
+A **static** graph has every node and edge decided up front; a **dynamic** one grows as
+nodes read their own output and decide what comes next.
 
-| Reach for | When |
-|---|---|
-| **static** | the task repeats and the structure is the same every time |
-| **static** | predictability and speed matter more than flexibility |
-| **static** | **always first** — go dynamic only after the static version hits a wall you can name |
-| dynamic | the scope of the work depends on what is discovered along the way |
-| dynamic | a node must choose its successors from its own output |
-| **never dynamic** | **the run has to be auditable** — see below |
+**Static first, always** — go dynamic only after the static version hits a wall you can
+name, because dynamic is more powerful and much harder to control. And one row of that
+decision is hard rather than preferential: **a run that has to be auditable is static.**
+A dynamic graph's executed shape is not the shape anybody drew, so *"here is the design"*
+and *"here is what happened"* stop being the same document, and every claim about the run
+becomes unfalsifiable from outside.
 
-**The audit rule is hard, not a preference.** A dynamic graph's executed shape is not the
-shape anybody drew, so *"here is the design"* and *"here is what happened"* stop being the
-same document and every claim about the run becomes unfalsifiable from outside. Most
-workflows that feel like they need a dynamic graph need a better static one.
-
-The rest of the model — the fake-edge test, the diamond, the checker node before a
-convergence, and what a host actually executes when it fans out — is
-`agent-orchestrator/references/graph-engineering.md`.
-
+The six-row table, the rest of the model — the fake-edge test, the diamond, the checker
+node before a convergence — and what a host actually executes when it fans out are one
+home away: `agent-orchestrator/references/graph-engineering.md`. It is not restated here,
+because a decision table with two homes is one that will disagree with itself.
 ---
 
 ## References

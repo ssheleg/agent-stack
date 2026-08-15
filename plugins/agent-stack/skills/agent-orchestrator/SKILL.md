@@ -17,30 +17,24 @@ description: >-
 
 # Agent Orchestrator — Production Best Practices
 
-Battle-tested patterns from a production multi-agent system. Apply these when building any agent
-orchestrator, LLM-powered tool system, or agentic workflow.
+Patterns from a production multi-agent system. **The body is decisions; the mechanisms are
+one file away**, and it is held under a 4750-token budget — a body that grows absorbs the
+layer that should have been split, and this one did until 2026-08-16.
 
 ## Architecture Overview
 
 ```
 User Question
     ↓
-ConversationalAgent (thin wrapper, backward-compat)
-    ↓
 OrchestratorAgent.run(AgentContext)
-    ├─ Complexity check → simple (tool loop) or complex (pipeline)
-    ├─ Context loading (parallel: staleness, MCP sources, KB check)
-    ├─ History trimming
-    ├─ Context budget allocation
-    ├─ System prompt construction (dynamic, capability-aware)
-    └─ Execution:
-        ├─ SIMPLE: iterative LLM tool-calling loop
-        │    LLM → tool calls → sub-agent dispatch → results → LLM → ... → final text
-        └─ COMPLEX: multi-stage pipeline
-             QueryPlanner → ExecutionPlan → StageExecutor → checkpoints → final
+    ├─ Shape check → one loop, or a planned path (§5, references/pipeline.md)
+    ├─ Context loading (a parallel layer: staleness, sources, KB — §13)
+    ├─ History trimming, then context budget allocation
+    ├─ System prompt built from the live capabilities (§10)
+    └─ Execute:
+        ├─ SIMPLE: LLM → tools → sub-agents → results → LLM → … → answer   (§2)
+        └─ PLANNED: plan → dependency layers → checker → checkpoints → done (§5)
 ```
-
----
 
 ## 1. The Orchestrator Pattern
 
@@ -170,112 +164,42 @@ when to use it, and the neighbour it is confused with — is
 
 ## 4. Sub-Agent Retry and Validation
 
-Wrap every sub-agent call in retry + validation:
+Wrap every sub-agent call in retry **and** validation, and keep the two apart: a call that
+threw and a call that returned something unusable need different answers. Retry the first,
+re-prompt or fail the second.
 
-```python
-MAX_SUB_AGENT_RETRIES = 2
+Three decisions the rest follows from:
 
-for attempt in range(MAX_SUB_AGENT_RETRIES + 1):
-    try:
-        result = await sub_agent.run(context, question=q)
-        validation = validator.validate(result)
-        if validation.passed or attempt == MAX_SUB_AGENT_RETRIES:
-            return format_for_llm(result, validation.warnings), result
-        continue  # retry on validation failure
-    except AgentRetryableError:
-        if attempt < MAX_SUB_AGENT_RETRIES: continue
-        return "Failed after retries", None
-    except AgentFatalError as e:
-        return f"Fatal: {e}", None  # no retry
-```
+- **Split errors into retryable and fatal at the type level**, not at the call site. A bad
+  credential and an overloaded provider are both exceptions and only one is worth a second
+  attempt.
+- **Validate the result before it reaches the user**, against the shape the caller
+  expects — rows present, columns named, a citation attached. A confident wrong answer
+  passes every check that only looks for an exception.
+- **Cap the attempts and return the best partial**, because the alternative to a partial
+  answer is not a better answer, it is no answer and a spent budget.
 
-**Error hierarchy:**
-```
-AgentError (base)
-├── AgentRetryableError    → orchestrator retries with adjusted context
-├── AgentFatalError        → unrecoverable (bad config, auth failure)
-├── AgentTimeoutError      → retry with smaller context
-└── AgentValidationError   → sub-agent result failed quality checks
-```
-
-**Result validation** (check before returning to user):
-- SQL: query present? execution error? zero rows (warn)? slow query >30s (warn)?
-- Viz: valid chart type? appropriate for data shape? (pie with 100 slices → bar)
-- Knowledge: non-empty answer? source citations present?
-
----
+The hierarchy, the loop and the per-domain validators:
+[`references/patterns.md`](references/patterns.md).
 
 ## 5. Multi-Stage Pipeline (Complex Path)
 
-For complex queries requiring multiple data steps:
+When one loop is not the shape — several data steps that depend on each other, a person
+who has to approve something in the middle, a run that must survive the gap between two
+messages — the orchestrator plans first and executes stages instead of tools.
 
-### Complexity Detection
+Three decisions belong here; the mechanism is
+[`references/pipeline.md`](references/pipeline.md).
 
-Two-tier: fast heuristic + optional LLM check.
-
-```python
-COMPLEXITY_KEYWORDS = ["summary table", "pivot", "cross-reference", "compare",
-                       "for each", "step 1", "first find", "then"]
-
-def detect_complexity(question, history) -> bool:
-    return any(kw in question.lower() for kw in COMPLEXITY_KEYWORDS)
-
-async def detect_complexity_adaptive(question, llm, history) -> bool:
-    # Lightweight LLM call: "Is this simple or complex? Reply 'simple' or 'complex'."
-    resp = await llm.complete([...], max_tokens=10)
-    return "complex" in resp.content.lower()
-```
-
-### Pipeline Components
-
-```
-QueryPlanner   → (single LLM call) → ExecutionPlan (stages + their depends_on)
-StageExecutor  → runs stages in DEPENDENCY LAYERS with validation + retry (§13)
-StageValidator → checks data shape, row bounds, cross-stage consistency
-StageContext   → in-memory state (plan, results per stage, user feedback)
-PipelineRun    → DB-persisted state for resume/retry across requests
-```
-
-### Checkpoint Pattern (Human-in-the-Loop)
-
-```python
-for layer in plan.layers():                       # Kahn over depends_on — never list order
-    results = await run_layer(layer, context)     # execute_with_retries per stage, together
-
-    for i, (stage, result) in enumerate(zip(layer, results)):
-        validation = validator.validate(stage, result, stage_ctx)
-        if not validation.passed:
-            results[i] = await retry_failed_validation(stage, context, validation)
-            if results[i] is None:
-                return StageFailedResult(stage, validation)   # ask user
-
-    if len(layer) > 1:                            # cheap per-stage checks ran first; this
-        verdict = checker.check(results)          # one is the cross-item gate (§13)
-        if not verdict.passed:
-            return StageFailedResult(layer, verdict)  # nothing converges on a flagged output
-
-    for stage, result in zip(layer, results):
-        stage_ctx.set_result(stage.id, result)
-
-    if any(s.checkpoint for s in layer):
-        persist_to_db(pipeline_run_id, stage_ctx)
-        return CheckpointResult(layer, results)   # pause for user review
-        # User responds: "continue" | "modify" | "retry"
-```
-
-### Pipeline Resume
-
-```python
-async def resume_pipeline(resume_info, context):
-    pipeline_run = load_from_db(resume_info["pipeline_run_id"])
-    plan = ExecutionPlan.from_json(pipeline_run.plan_json)
-    stage_ctx = StageContext.from_persistence(...)
-
-    resume_from = current_idx + 1 if action == "continue" else current_idx
-    return await executor.execute(plan, context, resume_from=resume_from, stage_ctx=stage_ctx)
-```
-
----
+- **Detect complexity in two tiers**, cheap first: a keyword heuristic, then one small
+  model call only where the heuristic is unsure. Paying a model to classify every question
+  is a tax on the common case.
+- **Execute in dependency layers, never in list order** (§13). A plan that declares
+  `depends_on` and is then walked down the list has serialised itself, and a layer of more
+  than one stage gets a checker before anything consumes it.
+- **A checkpoint is a pause that frees the worker.** If waiting for a human costs a
+  process, long approvals get quietly designed out — which is how a human-in-the-loop
+  system stops having one.
 
 ## 6. LLM Provider Routing
 
@@ -324,51 +248,24 @@ a floor.
 mode cross a compaction boundary as copied typed blocks, not prose (§12).
 ## 8. Self-Learning Feedback Loops
 
-Three cycles feed layers 3 and 4, and they differ by what supplies the signal:
-
-| Cycle | Signal | Produces |
-|---|---|---|
-| **Validation** | the attempt sequence of a call that failed and was then fixed | a learning, extracted by heuristic — the wrong table, a renamed column, a unit divisor, a soft-delete filter, a missing `LIMIT`. Deep LLM analysis only past 3 attempts, on a cooldown |
-| **User feedback** | a thumbs-down, or a data verdict of confirmed / approximate / rejected | a benchmark, a session note with the deviation, or a learning plus a flag on the now-stale benchmark |
-| **Lifecycle** | time, and contradiction | decay, conflict resolution by negation flip, and promotion of a pattern seen on two independent resources |
-
-The extractors, the exact confidence arithmetic and the promotion query live in
-`references/patterns.md` — **Learning Extraction Heuristics**, **Confidence Management**
-and **Cross-Resource Learning Transfer** — and not here, because a decay rate is a
-constant to tune and a constant with two homes is one that will disagree with itself.
+Three cycles feed the memory layers, and they differ by what supplies the signal: a failed
+attempt that was then fixed, a user's verdict, and time.
 
 **The rule the whole section exists for:** a learning is written from a **contrast** — the
-attempt that failed beside the attempt that worked — never from a single successful run.
-A system that learns from its successes learns its own habits.
+attempt that failed beside the attempt that worked — never from a single successful run. A
+system that learns from its successes learns its own habits.
 
----
+The extractors, the confidence arithmetic and the promotion query:
+[`references/patterns.md`](references/patterns.md).
 
-## 9. Observability (SSE Event Streaming)
+## 9. Observability
 
-Real-time progress via `WorkflowTracker`:
-
-```python
-class WorkflowTracker:
-    # In-memory event bus with asyncio.Queue subscribers
-    async def begin(pipeline, context) -> workflow_id
-    async def emit(wf_id, step, status, detail)
-    async def end(wf_id, agent, status, detail)
-
-    @asynccontextmanager
-    async def step(wf_id, step_name, description):
-        # Emits started/completed/failed with elapsed_ms
-
-# Event types:
-# pipeline_start/end, thinking, token (streaming), orchestrator:llm_call,
-# orchestrator:sql_agent, orchestrator:llm_retry, orchestrator:warning
-```
-
-The final answer streams in chunks as `token` events on the same bus — a typing effect is
-a chunked emit, not a second mechanism. What makes the feed reliable rather than decorative
-is in `references/runtime.md`: a monotonic id per event so a reconnecting client can resume,
-and the feed being a **view over the durable trace** rather than the record itself.
-
----
+One bus, an event per step, and the answer streamed as chunks on the same bus. Two
+properties decide whether it is a feed or a decoration: every event carries a **monotonic
+id**, so a reconnecting client resumes rather than missing the run, and the feed is a
+**view over a durable trace**, never the record itself — a stream nobody stored is a run
+`agent-evals` cannot evaluate. The tracker's shape:
+[`references/runtime.md`](references/runtime.md).
 
 ## 10. Dynamic System Prompts
 
@@ -394,18 +291,8 @@ list is built from, so the two can never disagree.
 
 ## 11. Clarification Requests (ask_user)
 
-Interrupt the tool loop to ask the user:
-
-```python
-async def handle_ask_user(tc, context, wf_id):
-    payload = {"question": ..., "question_type": "multiple_choice",
-               "options": [...], "context": "why I'm asking"}
-    raise _ClarificationRequestError(json.dumps(payload))
-    # Caught in orchestrator.run() → returns AgentResponse(response_type="clarification_request")
-    # Frontend renders special UI, user responds, next message continues flow
-```
-
----
+Stopping to ask is the same suspend-and-resume as a checkpoint with a different caller —
+one contract, not two ([`references/pipeline.md`](references/pipeline.md)).
 
 ## 12. Context Engineering
 
@@ -457,44 +344,38 @@ Four rules, and these are the ones that change code:
 
 ## Checklist — Building a New Orchestrator
 
-- [ ] Shared `AgentContext` dataclass with all sub-agents
-- [ ] `BaseAgent` protocol with typed results + `accum_usage()`
-- [ ] Tool-calling loop with max iterations guard
-- [ ] In-loop context trimming (80% compress, 70% wrap-up)
-- [ ] Parallel tool dispatch where independent, sequential where stateful
-- [ ] Sub-agent retry with validation (retryable vs fatal errors)
-- [ ] Multi-provider LLM router with fallback chain + health checks
-- [ ] Per-provider retry with exponential backoff (respect `retry_after`)
-- [ ] Unified LLM error hierarchy with `user_message` property
-- [ ] Context budget manager (priority-based allocation)
-- [ ] Dynamic system prompt (capability-aware, learning-injected)
-- [ ] Chat history trimming (tool condensing, LLM summarization)
-- [ ] Working memory (session notes, fuzzy dedup, confidence decay)
-- [ ] Long-term learnings (heuristic extraction, conflict resolution, global patterns)
-- [ ] Insight memory (lifecycle, trust scoring, decay)
-- [ ] Feedback pipeline (thumbs, data validation → learnings/notes/benchmarks)
-- [ ] SSE event streaming for real-time progress
-- [ ] Complexity detection (heuristic + adaptive LLM)
-- [ ] Multi-stage pipeline with checkpoints and resume
-- [ ] `ask_user` clarification mechanism
-- [ ] Graceful degradation (partial answers on context overflow or max iterations)
-- [ ] Compaction ladder, tool-pair-safe boundaries, typed carryover, output offload
-- [ ] Every declared dependency names the data it carries — the fake-edge test run once
-- [ ] Plans executed in dependency layers, not in the order the stages were listed
-- [ ] A checker between every parallel layer and the node that consumes it, and that
-      checker watched refusing a planted bad input at least once
+The sections above are the map. These are the items a reader **cannot** derive from a
+heading — the ones that were learned by getting them wrong:
 
----
+- [ ] In-loop trimming at ~80% of the window, wrap-up injected at ~70%, and a max-iteration
+      guard that composes a partial answer rather than returning nothing
+- [ ] A recoverable provider error **refunds** its iteration; a misconfiguration must not
+      spend the budget that exists to stop a runaway
+- [ ] Retries and fallbacks are capped **in total** — three providers × three retries is
+      nine calls for one prompt
+- [ ] A provider marked unhealthy is probed on a schedule; a health check that only runs on
+      failure never recovers, and the chain runs one short with nobody seeing it
+- [ ] Chat history has a **floor** — a session that trims it to fit old learnings has chosen
+      generalities over what the user said a minute ago
+- [ ] Every declared dependency names the data it carries; plans execute in layers, and a
+      layer of more than one gets a checker before anything consumes it (§13)
+- [ ] That checker has been watched refusing a planted bad input, and its verdicts are
+      stored as scores — one that has never rejected anything is a finding
+- [ ] Sub-agents return **distilled summaries**, not transcripts; a return value proportional
+      to the input is a function call wearing a costume
+- [ ] Model, window and price are resolved at one boundary from configuration or the
+      provider — never from a table of vendor ids in source
+- [ ] An eval exists before the prompt is tuned, or the tuning is folklore
 
 ## References
 
-The checklist above is the map, these are the territory. Each file opens with its
-own **Load this when** line — the authoritative trigger lives there, so this table
-stays an index and the two cannot drift apart.
+Each file opens with its own **Load this when** line — the authoritative trigger lives
+there, so this table stays an index and the two cannot drift apart.
 
 | File | Read it when |
 |---|---|
 | [`references/graph-engineering.md`](references/graph-engineering.md) | you are deciding the **shape of the work** — the fake-edge test, the diamond, the checker node, static versus dynamic, and what the host actually runs |
+| [`references/pipeline.md`](references/pipeline.md) | one loop is **not the shape** — the planned path, its checkpoints, resume, and the interrupt that asks a person |
 | [`references/patterns.md`](references/patterns.md) | you need the **data models and algorithms** under the body |
 | [`references/context-engineering.md`](references/context-engineering.md) | the loop is **running out of window** |
 | [`references/runtime.md`](references/runtime.md) | the agent must **survive a crash, a pause, a second message or a schedule** |

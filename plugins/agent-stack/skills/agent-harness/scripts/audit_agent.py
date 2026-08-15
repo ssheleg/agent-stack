@@ -190,8 +190,40 @@ def check_unguarded_fanout(rel, text, lines):
                 "a checker that can see which branch failed")
 
 
+def check_declared_deps_ignored(rel, text, lines):
+    """A plan that declares dependencies and is then walked in list order.
+
+    A model with a `depends_on` (or `dependsOn`, or `depends`) field has gone to the trouble
+    of saying which steps need which — and then a loop over the collection in the order it
+    happens to be stored serialises the whole thing anyway. The declaration is not wrong and
+    the loop is not wrong; together they are a plan that says it need not be serialised,
+    serialised. This pack shipped exactly that in its own reference until 2026-08-15.
+
+    Conservative: the file must declare a dependency field AND iterate the collection that
+    holds it, and it must contain no sign of a topological pass anywhere — `layers`, `kahn`,
+    `toposort`, `in_degree` or a `ready`/`runnable` set. Any of those and this says nothing.
+    """
+    if re.search(r"\b(layers?|kahn|toposort|topological|in_degree|indegree|runnable|ready_set)\b",
+                 text, re.I):
+        return
+    if not re.search(r"\bdepends?(_on|On)?\b\s*[:=]", text):
+        return
+    for i, l in enumerate(lines, 1):
+        m = re.search(r"for\s+\w+\s+in\s+(\w+)\.(stages|steps|nodes|tasks|plan)\b", l) or \
+            re.search(r"for\s+\w+\s+in\s+(plan|stages|steps|nodes|tasks)\b", l)
+        if m:
+            add("declared-deps-ignored", rel, i,
+                "a dependency field is declared and the collection is walked in list order — "
+                "the plan says it need not be serialised, and then is",
+                "Execute in dependency layers (Kahn over the declared edges); a cycle fails "
+                "the plan rather than deadlocking the run, and a layer of more than one gets "
+                "a checker before anything downstream consumes it")
+            return
+
+
 CHECKS = [check_unbounded_loop, check_tool_without_description, check_swallowed_error,
-          check_no_timeout, check_hardcoded_model, check_unguarded_fanout]
+          check_no_timeout, check_hardcoded_model, check_unguarded_fanout,
+          check_declared_deps_ignored]
 
 # What no static pass can reach. Printed every run, never suppressed.
 BLIND = [
@@ -200,8 +232,6 @@ BLIND = [
     "whether the workflow/agent choice was made deliberately or defaulted to an agent",
     "whether a fan-out has a CHECKER between it and the node that consumes it — this pass "
     "sees an unguarded gather, never a missing gate",
-    "whether a declared dependency graph is actually executed in dependency order, or in "
-    "the order the stages happen to be listed in",
     "whether retries and fallbacks MULTIPLY (three providers x three retries is nine calls)",
     "whether compaction preserves decisions and open questions, or keeps the discussion",
     "whether tool output is treated as untrusted input",
@@ -277,6 +307,9 @@ PLANTS = [
      PY_HEADER + "out = await asyncio.gather(*(run(t) for t in tasks))\n"),
     ("unguarded-fanout (promise)", "unguarded-fanout", "agent.js",
      JS_HEADER + "const out = await Promise.all(tasks.map(t => run(t)));\n"),
+    ("declared-deps-ignored", "declared-deps-ignored", "agent.py",
+     PY_HEADER + "class Stage:\n    depends_on = []\n"
+     "for stage in plan.stages:\n    run(stage)\n"),
 ]
 
 # A detector that fires on the defect AND on its fix has no discriminating power. Each
@@ -288,6 +321,10 @@ CLEAN = [
     ("a fan-out that DOES capture its branches", "agent.py",
      PY_HEADER + "for _ in range(10):\n    pass\n"
      "out = await asyncio.gather(*(run(t) for t in tasks), return_exceptions=True)\n"),
+    ("a plan that DOES execute in dependency layers", "agent.py",
+     PY_HEADER + "class Stage:\n    depends_on = []\n"
+     "for layer in plan.layers():\n    run_layer(layer)\n"
+     "r = requests.get('https://example.com', timeout=5)\n"),
 ]
 
 

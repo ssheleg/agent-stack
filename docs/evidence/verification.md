@@ -10,6 +10,28 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Run 2026-08-16 — the body under its budget, and one home per fact, v0.11.0
+
+Brief: `sshlg-skills/docs/evidence/briefs/2026-08-15-graph-backlog.md` (modules M7, M8).
+
+| REQ | Verified by | Result | Status |
+|---|---|---|---|
+| 001 | `cl100k_base` count of `agent-orchestrator/SKILL.md`, before and after | **5670 → 4728 tokens** against the 4750 budget — under it for the first time. Three layers moved: `references/pipeline.md` (new), observability into `runtime.md`, retry and the learning cycles into `patterns.md` | **verified** |
+| 002 | the duplication check, watched firing twice | Measured first: the largest overlap in the pack was **50 shared twelve-word runs** between `agent-harness/SKILL.md` and the graph reference — my own table in two homes. After removing it the honest maximum was 12, so the floor is 20. Then it **caught its own author**: moving two sections left one rule duplicated, 29 runs, refused at the gate | **verified** |
+| 003 | a planted restated section | 356 words of §6 copied into a sibling → `share 349 runs of 12 words — that is a restated section, not a citation` | **verified** |
+| 004 | `audit_agent.py --self-test`, and two real repositories | `9/9` → **`11/11`** with `declared-deps-ignored`, its plant and its clean fixture. **0 findings** of the new class on `sshlg-skills` and on an unrelated repo, so it is silent on real code as well as on its fixture | **verified** |
+| 005 | `python3 test/validate.py` | `OK: agent-stack structurally valid (10 checks, 4 skill(s), v0.11.0)` — the new reference is linked in both directions | **verified** |
+
+**5 of 5 verified. 0 at `never`.**
+
+### What the checks did not cover
+
+- **The split is measured in tokens, not in whether a reader finds things faster.** The
+  budget is a proxy for that and it is the only half that can be counted.
+- **The duplication floor is 20 because 12 was the measured maximum after one cleanup.**
+  A different pack would need its own measurement; the number is not a constant, and the
+  comment beside it says which day it was taken.
+
 ## Run 2026-08-15 (second) — graph engineering, v0.10.0 → v0.10.1
 
 Brief: `sshlg-skills/docs/evidence/briefs/2026-08-15-graph-engineering.md`.

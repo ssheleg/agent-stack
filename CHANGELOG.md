@@ -1,5 +1,50 @@
 # Changelog
 
+## [0.11.0] — 2026-08-16
+
+### Changed
+
+- **`agent-orchestrator`'s body is under its own budget for the first time: 5670 →
+  4728 tokens** against the 4750 the pack set itself, and by **splitting rather than
+  trimming**. Three layers moved to where they belong instead of every section losing a
+  sentence:
+
+  - **`references/pipeline.md`** is new — the planned path and the interrupt that asks a
+    person, which are one suspend-and-resume seen from two sides rather than two features.
+  - **Observability folded into `references/runtime.md`**, beside the streaming contract it
+    was the concrete half of. The body had the API and the reference had the two properties
+    that decide whether it is a feed or a decoration; they are one thing now.
+  - **Sub-agent retry and the learning cycles went to `references/patterns.md`**, whose
+    mechanisms they were the surface of.
+
+  The body keeps the decisions and the checklist keeps only what a heading cannot say. The
+  v0.8.0 notes had already made this argument to justify a fourth skill and then the body
+  absorbed a layer anyway; the budget is now stated in the file itself.
+
+### Added
+
+- **A check for one home per fact.** Every reference was checked for *existence* in both
+  directions and nothing checked whether two of them **say the same thing**. On 2026-08-15
+  the same six-row decision table was written into `agent-harness/SKILL.md` and into the
+  graph-engineering reference in one afternoon — 50 shared twelve-word runs, found by
+  measuring rather than by review. The floor is set above the legitimate maximum, measured
+  after that duplication was removed: 12 runs is a skill quoting the rule it defers to, and
+  20 leaves headroom for a longer citation while still catching a restated section.
+
+  **It caught its own author within the minute.** Moving two sections into `patterns.md`
+  left one rule in both homes; the gate refused, and the copy was deleted.
+
+- **A seventh scanner detector, `declared-deps-ignored`.** A model with a `depends_on`
+  field, and a loop over the collection in the order it happens to be stored: the plan says
+  it need not be serialised, and then is. This pack shipped exactly that in its own
+  reference until yesterday. Conservative — any sign of a topological pass anywhere in the
+  file (`layers`, `kahn`, `toposort`, `in_degree`, a `ready` set) and it says nothing. Its
+  entry in the blind-spot list is retired, because it is no longer blind.
+  `self-test: 9/9` → **`11/11`** (eight plants, three clean fixtures).
+
+- **`agent-harness` cites the static-versus-dynamic model instead of restating it.** The
+  six-row table has one home, and it is the reference.
+
 ## [0.10.1] — 2026-08-15
 
 ### Changed

@@ -12,6 +12,8 @@ that costs no LLM call.
 - [Pipeline Data Models](#pipeline-data-models)
 - [Validation Loop (SQL Execution)](#validation-loop-sql-execution)
 - [Context Window Sizes](#context-window-sizes)
+- [Sub-agent retry, and the error hierarchy under it](#sub-agent-retry-and-the-error-hierarchy-under-it)
+- [The three learning cycles, and what each one consumes](#the-three-learning-cycles-and-what-each-one-consumes)
 - [Learning Extraction Heuristics](#learning-extraction-heuristics)
 - [Confidence Management](#confidence-management)
 - [Fuzzy Deduplication Pattern](#fuzzy-deduplication-pattern)
@@ -391,3 +393,64 @@ def generate_followups(query, columns, row_count) -> list[str]:
     random.shuffle(pool)
     return pool[:3]
 ```
+
+## Sub-agent retry, and the error hierarchy under it
+
+Wrap every sub-agent call in retry + validation:
+
+```python
+MAX_SUB_AGENT_RETRIES = 2
+
+for attempt in range(MAX_SUB_AGENT_RETRIES + 1):
+    try:
+        result = await sub_agent.run(context, question=q)
+        validation = validator.validate(result)
+        if validation.passed or attempt == MAX_SUB_AGENT_RETRIES:
+            return format_for_llm(result, validation.warnings), result
+        continue  # retry on validation failure
+    except AgentRetryableError:
+        if attempt < MAX_SUB_AGENT_RETRIES: continue
+        return "Failed after retries", None
+    except AgentFatalError as e:
+        return f"Fatal: {e}", None  # no retry
+```
+
+**Error hierarchy:**
+```
+AgentError (base)
+├── AgentRetryableError    → orchestrator retries with adjusted context
+├── AgentFatalError        → unrecoverable (bad config, auth failure)
+├── AgentTimeoutError      → retry with smaller context
+└── AgentValidationError   → sub-agent result failed quality checks
+```
+
+**Result validation** (check before returning to user):
+- SQL: query present? execution error? zero rows (warn)? slow query >30s (warn)?
+- Viz: valid chart type? appropriate for data shape? (pie with 100 slices → bar)
+- Knowledge: non-empty answer? source citations present?
+
+---
+
+
+## The three learning cycles, and what each one consumes
+
+Three cycles feed layers 3 and 4, and they differ by what supplies the signal:
+
+| Cycle | Signal | Produces |
+|---|---|---|
+| **Validation** | the attempt sequence of a call that failed and was then fixed | a learning, extracted by heuristic — the wrong table, a renamed column, a unit divisor, a soft-delete filter, a missing `LIMIT`. Deep LLM analysis only past 3 attempts, on a cooldown |
+| **User feedback** | a thumbs-down, or a data verdict of confirmed / approximate / rejected | a benchmark, a session note with the deviation, or a learning plus a flag on the now-stale benchmark |
+| **Lifecycle** | time, and contradiction | decay, conflict resolution by negation flip, and promotion of a pattern seen on two independent resources |
+
+The extractors, the exact confidence arithmetic and the promotion query live in
+`references/patterns.md` — **Learning Extraction Heuristics**, **Confidence Management**
+and **Cross-Resource Learning Transfer** — and not here, because a decay rate is a
+constant to tune and a constant with two homes is one that will disagree with itself.
+
+
+---
+
+
+Both moved out of `SKILL.md` on 2026-08-16. The mechanisms they describe were already
+in this file — the validation loop, the extractors, the confidence arithmetic — so the
+body was holding a second copy of their surface. One home; the body keeps the decision.

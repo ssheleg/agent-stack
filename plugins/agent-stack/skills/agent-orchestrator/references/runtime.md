@@ -16,6 +16,7 @@ has only built the first one discovers the second in production.
 - The interrupt/resume contract
 - Double-texting: four policies
 - Streaming that survives a dropped connection
+- The tracker, concretely — what the feed above is made of
 - Time travel and forking
 - Scheduled and sleep-time work
 - Middleware: the seven concerns, unwelded
@@ -94,6 +95,38 @@ client can rely on:
 - **The feed is a view over the durable trace, not the record itself.** If the only copy
   of what happened is a stream nobody stored, evaluation is impossible — see the
   `agent-evals` skill, which cannot function without it.
+
+## The tracker, concretely — what the feed above is made of
+
+Real-time progress via `WorkflowTracker`:
+
+```python
+class WorkflowTracker:
+    # In-memory event bus with asyncio.Queue subscribers
+    async def begin(pipeline, context) -> workflow_id
+    async def emit(wf_id, step, status, detail)
+    async def end(wf_id, agent, status, detail)
+
+    @asynccontextmanager
+    async def step(wf_id, step_name, description):
+        # Emits started/completed/failed with elapsed_ms
+
+# Event types:
+# pipeline_start/end, thinking, token (streaming), orchestrator:llm_call,
+# orchestrator:sql_agent, orchestrator:llm_retry, orchestrator:warning
+```
+
+The final answer streams in chunks as `token` events on the same bus — a typing effect is
+a chunked emit, not a second mechanism. What makes the feed reliable rather than decorative
+is in `references/runtime.md`: a monotonic id per event so a reconnecting client can resume,
+and the feed being a **view over the durable trace** rather than the record itself.
+
+---
+
+This moved out of `SKILL.md` on 2026-08-16. It was the concrete half of the section
+two headings up, in a different file: *streaming that survives a dropped connection*
+stated the two properties that matter and the body stated the API without them. One
+home, and the properties now sit beside the thing they are properties of.
 
 ## Time travel and forking
 

@@ -228,6 +228,54 @@ for name in skill_dirs:
             except ValueError:
                 fail(f"{name}/references/{ref}: stamp date {m.group(0).strip()!r} is not a real date")
 
+# ------------------------------------------------------- one home per fact
+
+# Every reference is checked for EXISTENCE in both directions above. Nothing checked
+# whether two of them say the same thing, and on 2026-08-15 the same six-row decision
+# table was written into `agent-harness/SKILL.md` and into the graph-engineering
+# reference in one afternoon — 50 shared twelve-word runs, found by measuring rather than
+# by review. A table with two homes is one that will disagree with itself.
+#
+# The floor is set ABOVE the legitimate maximum, measured after that duplication was
+# removed: the largest honest overlap between any two documents was 12 runs — a skill
+# quoting the rule it defers to, which is exactly what citing looks like. 20 leaves
+# headroom for a longer citation and still catches a restated section.
+DUP_SHINGLE = 12          # words per run
+DUP_FLOOR = 20            # runs shared before it stops being a citation
+
+
+def _runs(text, n=DUP_SHINGLE):
+    words = re.findall(r"[a-z0-9']+", text.lower())
+    return {" ".join(words[i:i + n]) for i in range(max(0, len(words) - n + 1))}
+
+
+def check_one_home_per_fact():
+    import itertools
+    docs = {}
+    for _sk in sorted(os.listdir(SKILL_ROOT)) if os.path.isdir(SKILL_ROOT) else []:
+        _sd = os.path.join(SKILL_ROOT, _sk)
+        if not os.path.isdir(_sd):
+            continue
+        _s = os.path.join(_sd, "SKILL.md")
+        if os.path.isfile(_s):
+            docs[f"{_sk}/SKILL.md"] = open(_s, encoding="utf-8").read()
+        _rd = os.path.join(_sd, "references")
+        if os.path.isdir(_rd):
+            for _f in sorted(os.listdir(_rd)):
+                if _f.endswith(".md"):
+                    docs[f"{_sk}/{_f}"] = open(os.path.join(_rd, _f), encoding="utf-8").read()
+    shingled = {k: _runs(v) for k, v in docs.items()}
+    for a, b in itertools.combinations(sorted(shingled), 2):
+        shared = len(shingled[a] & shingled[b])
+        if shared >= DUP_FLOOR:
+            fail(f"{a} and {b} share {shared} runs of {DUP_SHINGLE} words — that is a "
+                 f"restated section, not a citation. One of them is the home; the other "
+                 f"names it and stops. A fact with two homes disagrees with itself on the "
+                 f"first edit, and nothing here would notice which one is now wrong")
+
+
+check_one_home_per_fact()
+
 # --------------------------------------------------------------- hygiene
 
 for dirpath, dirnames, filenames in os.walk(os.path.join(ROOT, "plugins")):

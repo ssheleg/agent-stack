@@ -11,7 +11,7 @@ Part of the [ssheleg skill family](https://github.com/ssheleg/sshlg-skills).
 
 Four skills — `agent-orchestrator` for wiring the loop, `agent-evals` for proving it
 behaves, `agent-interop` for everything it talks to outside its own process,
-`agent-harness` for what it is **told** — and nineteen references they load on demand,
+`agent-harness` for what it is **told** — and twenty references they load on demand,
 plus one scanner.
 
 **The orchestrator** (`SKILL.md`) — what the agent reads first:
@@ -78,7 +78,7 @@ eight extension seams where a permission gate or a context rewrite can actually 
 
 It runs in both directions: **building a harness and auditing somebody else's are one
 checklist read forwards and backwards.** `scripts/audit_agent.py` is the mechanical half —
-six conservative detectors, and it always prints what it *cannot* see plus a denominator,
+seven conservative detectors, and it always prints what it *cannot* see plus a denominator,
 so its silence is never read as a pass.
 
 **`references/graph-engineering.md`** — deciding the shape of the work before
