@@ -10,7 +10,7 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
-## Run 2026-08-15 (second) — graph engineering, v0.10.0
+## Run 2026-08-15 (second) — graph engineering, v0.10.0 → v0.10.1
 
 Brief: `sshlg-skills/docs/evidence/briefs/2026-08-15-graph-engineering.md`.
 Spec: `sshlg-skills/docs/evidence/specs/2026-08-15-graph-engineering-design.md`.
@@ -26,7 +26,6 @@ Spec: `sshlg-skills/docs/evidence/specs/2026-08-15-graph-engineering-design.md`.
 | 007 | read `agent-harness/SKILL.md`; front-matter measured | *Static or dynamic* present with six rows and the audit rule; `description` **807 → 884** chars against the 1024 limit. The orchestrator's own went to **996** and tripped the repo-gate hook at 1048 on the way — the limit is enforced at edit time here, which is how the overshoot was caught in the same minute it was written | **verified** |
 | 008 | `audit_agent.py --self-test`, watched both ways | with the plants and no detector: `FAIL unguarded-fanout (asyncio)` and `(promise)`, `7/9`. With the detector: **`self-test: 9/9 passed`**. Run against two real repositories: 0 `unguarded-fanout` findings, so the new detector is silent on real code as well as on its clean fixture | **verified** |
 | 009 | read `agent-evals/SKILL.md` §5a | the position in the graph, the five catches split 3 code / 2 judge, and the three consequences — planted refusal, verdicts as scores with a source, zero rejections as a finding | **verified** |
-
 | 010 | `npm pack @ssheleg/agent-stack@0.10.1`, extracted, **and the scanner run from the tarball** | the published package carries `references/graph-engineering.md` with the three-source stamp; `audit_agent.py --self-test` from the extracted package prints `9/9 passed`; `grep` for a vendor model id across the published orchestrator text returns nothing. `docs/evidence/` is not in the package, so this ledger can be corrected without a release | **verified** |
 
 **10 of 10 verified. 0 at `never`.** The registry was read for the content, not only for
