@@ -25,6 +25,7 @@ Exit code 0 = green. Anything else = a fail with a reason on stderr.
 """
 
 import datetime
+import subprocess
 import json
 import os
 import re
@@ -338,6 +339,42 @@ def check_release_gates_on_validate():
 
 
 check_release_gates_on_validate()
+
+def _disclose_routing(msg):
+    """A check that could not run, said out loud rather than counted as a pass."""
+    print(f"  unlooked: {msg}")
+
+
+def check_shipped_front_matter_survives_a_real_reader():
+    """Our own gates read front matter with a regex; an installer does not.
+
+    B-56: a sibling's `description` gained a colon-space inside an unquoted scalar, which
+    YAML reads as a nested mapping. Every check the family owns stayed green and the
+    skills CLI reported *No valid skills found* — the launcher exited 1 on that member and
+    twelve non-Claude-Code channels sat on the previous version for hours.
+
+    This member carries no routed triggers, which is exactly why it was the one place
+    nothing would have looked: the shared checker used to exit early here. It does not any
+    more, and the table it reads is not copied into this repository.
+    """
+    script = os.path.join(str(ROOT), "..", "..", "test", "advertised_check.js")
+    if not os.path.isfile(script):
+        _disclose_routing("front matter vs a strict reader — no sshlg-skills umbrella above this checkout")
+        return
+    try:
+        proc = subprocess.run(["node", script, "--member", "agent-stack", "--root", str(ROOT)],
+                              capture_output=True, text=True, timeout=60)
+    except (OSError, subprocess.SubprocessError) as exc:
+        _disclose_routing(f"front matter vs a strict reader — could not run the checker ({exc})")
+        return
+    if proc.returncode == 1:
+        fail((proc.stdout + proc.stderr).strip())
+    elif proc.returncode != 0:
+        _disclose_routing(f"front matter vs a strict reader — {(proc.stderr or 'the checker could not look').strip()}")
+
+
+check_shipped_front_matter_survives_a_real_reader()
+
 
 if FAILURES:
     print(f"FAIL: {len(FAILURES)} problem(s)", file=sys.stderr)

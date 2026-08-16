@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.11.1 — 2026-08-16
+
+**This pack was the one place nothing was looking.** The family umbrella's shared checker
+had an early exit for a member carrying no routed triggers, and `agent-stack` is that
+member — so when a sibling's front matter turned out to be invalid YAML (B-56: a
+colon-space inside an unquoted scalar, which every regex-based gate in the family reads
+happily and a real parser refuses), nothing here would have caught the same mistake.
+
+`test/validate.py` now asks that checker, which no longer exits early: it validates the
+shipped front matter of every skill first, and only then the routed triggers a member may
+or may not have. The table it reads is not copied here, so there is nothing to drift.
+Watched refusing a planted `Broken: now a nested mapping.` in `agent-orchestrator`'s
+description, and green after restore.
+
 ## [0.11.0] — 2026-08-16
 
 ### Changed
