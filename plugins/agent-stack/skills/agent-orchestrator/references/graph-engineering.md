@@ -49,10 +49,55 @@ Four things are **this pack's**, not the source's, and each is marked where it a
 
 ## 1. Node and edge
 
-**A node is one unit of work.** One input, one output, one job. Not *"research the topic,
-summarise it, and check the sources"* — that is three nodes wearing one name. The
-smaller and more defined the job, the more useful the node, because a node is also the
-unit you retry, cache, review and replace.
+**A node is one unit of work, and it has five fields.** One input, one job, one output,
+**one owner**, and **its own completion test**. Not *"research the topic, summarise it,
+and check the sources"* — that is three nodes wearing one name. The smaller and more
+defined the job, the more useful the node, because a node is also the unit you retry,
+cache, review and replace.
+
+<!-- node-contract: input, job, output, owner, check -->
+
+The first three get drawn every time. The last two are the ones a graph is usually drawn
+without — this file shipped without them until 2026-08-19 — and each has a failure that
+surfaces only at the convergence, where it is cheapest to mistake for success.
+
+**One owner — exactly one node is answerable for a given artifact.** Not one *agent*: the
+same subagent may own several nodes, and a node owned by a person is still a node. The
+unit of ownership is the artifact, and the assignment is made when the layer is built, not
+discovered when the writes come back.
+
+**Ownership is not what `isolation: "worktree"` gives you, and the two are complementary
+rather than alternatives.** §9's primitive table calls a private checkout the only safe way
+to fan out writers, and against a *race* that is true. Isolation answers **when**: two
+writers cannot corrupt one file, because neither can see the other's copy while it runs.
+Ownership answers **whose**: which node's version is authoritative once the branches
+return. Take isolation without ownership and nothing is lost during the run — the loss
+moves to the merge, which is the quieter place for it, because a convergence that silently
+takes one side is indistinguishable from a convergence that only ever had one answer. §4's
+first rule is the *detection* half of this: two independent workers writing one file are
+one node with a race in it. Ownership is the *assignment* half, and it is what makes
+fanning writers out decidable rather than merely survivable.
+
+**Its own completion test — the node names what will close it, before it runs.** One
+string: a command a verifier can run, or a named judgement standing in where no command
+can, with the judge named and the verdict recorded *as* judgement. Whatever it prints is
+that node's evidence row.
+
+The field's name across this family is **`check`** — `task-pipeline`'s node schema
+(`graph.schema.json`) carries it as one required string per node and exempts only a
+`parked` one, the single node nobody intends to close. Same name and same meaning here,
+one string and never a list, because a node needing two unrelated checks is a node doing
+two jobs and the answer is to split it. One gate built from two commands is `a && b`,
+which is still one gate.
+
+**A completion test is not a checker node, and carrying both is not redundancy.** §6's
+checker sits between a parallel layer and its convergence and judges *arriving siblings*
+from the outside — including the two things no node can establish about itself: whether it
+contradicts a neighbour, and whether it answered the question the layer was actually
+asked. The completion test is the node's own gate on its own output, run by whoever owns
+it. Drop the per-node test and the checker becomes the only gate in the graph, which is how
+a convergence ends up re-deriving what each branch should have proved about itself; drop
+the checker and every branch can pass its own test and still disagree with its neighbour.
 
 **An edge is a dependency, and it carries data.** It exists when the second node
 genuinely consumes what the first produced. Not when the second merely *happens after*

@@ -413,6 +413,98 @@ def check_checker_contract_is_one_list_in_two_documents():
 
 check_checker_contract_is_one_list_in_two_documents()
 
+# ------------------------------------------------- the node contract's five fields
+#
+# Same mechanism as the checker contract above, deliberately: a machine-readable
+# declaration beside the prose, a floor that ratchets, and named keys that cannot leave in
+# silence. It is here because the same defect was found twice by the same audit. The
+# manifesto states a useful node as *one input, one job, one output, one owner, and its own
+# completion test* (`pod-manifesto/manifesto.md:156`); §1 of the graph reference shipped
+# three of the five — "One input, one output, one job" — while giving the manifesto's own
+# justification in nearly the manifesto's words, so nothing about the sentence read as
+# abridged. `grep -i owner` and `grep -i 'completion test'` over the file both exited 1.
+#
+# ONE home, not two. The checker contract needed a mirror check because it is stated in two
+# documents on purpose; this list is stated once, and `grep` confirms it (the only match for
+# "one input" in `plugins/` is that line). So this check compares the declaration against
+# its own prose rather than against a sibling, and no second home is created to police.
+NODE_CONTRACT_FLOOR = 5
+# Named individually because these two are the row: they are what the 2026-08-18 audit
+# measured as absent, and the three that were present were never at risk.
+NODE_CONTRACT_REQUIRED = {"owner", "check"}
+NODE_CONTRACT_DOC = ("agent-orchestrator/references/graph-engineering.md",
+                     "## 1. Node and edge")
+NODE_DECL = re.compile(r"<!--\s*node-contract:\s*([^>]+?)\s*-->")
+# The completion test's field name is `check` in `task-pipeline`'s graph schema. Requiring
+# the backticked name AND the pack that defines it is the guard against the family holding
+# two names for one field: doctrine can describe "its own completion test" forever, and a
+# reader implementing it then picks a name nobody else uses.
+NODE_CHECK_FIELD = "`check`"
+NODE_CHECK_OWNER_PACK = "task-pipeline"
+
+
+def check_node_contract_keeps_its_five_fields():
+    rel, heading = NODE_CONTRACT_DOC
+    path = os.path.join(SKILL_ROOT, *rel.split("/"))
+    if not os.path.isfile(path):
+        fail(f"{rel}: missing — it is the only home of the node contract")
+        return
+    body = _section(open(path, encoding="utf-8").read(), heading)
+    if body is None:
+        fail(f"{rel}: no section starting {heading!r} — the node contract lost its home")
+        return
+    m = NODE_DECL.search(body)
+    if not m:
+        fail(f"{rel}: {heading} has no `<!-- node-contract: … -->` declaration. The field "
+             "list is prose everywhere else, and prose is what dropped two of the five "
+             "fields for the whole life of this file without a single check noticing")
+        return
+    fields = [x.strip() for x in m.group(1).split(",") if x.strip()]
+    # Comments stripped before reading the prose, or the declaration itself would satisfy
+    # the requirement that the prose names each field — a guard that cannot fail.
+    prose = re.sub(r"<!--.*?-->", "", body, flags=re.S)
+
+    if len(fields) < NODE_CONTRACT_FLOOR:
+        fail(f"the node contract declares {len(fields)} fields, floor is "
+             f"{NODE_CONTRACT_FLOOR}: {fields}. The floor is a ratchet — a field may be "
+             "added, never quietly dropped. This file shipped at three of five and read "
+             "as complete, which is the whole reason the floor exists")
+
+    for key in sorted(NODE_CONTRACT_REQUIRED - set(fields)):
+        fail(f"the node contract no longer declares {key!r}. `owner` is *one owner* and "
+             "`check` is *its own completion test* — the two the 2026-08-18 conformance "
+             "audit measured as absent against the manifesto. Without `owner`, shared "
+             "mutation is answered by worktree isolation, which removes the race and not "
+             "the question of whose version wins; without `check`, no node states what "
+             "closes it and the convergence re-derives it or nobody does")
+
+    for key in fields:
+        if not re.search(rf"(?<![\w-]){re.escape(key)}(?![\w-])", prose, re.I):
+            fail(f"{rel}: the node contract declares {key!r} but the prose never names it "
+                 "— the declaration would then be the only place the field exists, and a "
+                 "reader of the document would never see it")
+
+    word = NUMBER_WORDS.get(len(fields))
+    if word and not re.search(rf"(?<![\w-]){word}(?![\w-])", prose, re.I):
+        fail(f"{rel}: the contract has {len(fields)} fields and the prose never says "
+             f"{word!r}. The sentence that lost two fields still counted correctly for the "
+             "three it kept; a spelled count nothing checks is how prose and list drift")
+
+    # The field name, not just the concept. Both halves, because either alone lets the
+    # family end up with two names for one field.
+    if NODE_CHECK_FIELD not in prose:
+        fail(f"{rel}: the node contract never names the field {NODE_CHECK_FIELD} in code "
+             "formatting. 'Its own completion test' is the requirement; `check` is what it "
+             "is called in this family, and doctrine that states only the first leaves the "
+             "next implementer to invent a third name for it")
+    if NODE_CHECK_OWNER_PACK not in prose:
+        fail(f"{rel}: the node contract names {NODE_CHECK_FIELD} without saying that "
+             f"{NODE_CHECK_OWNER_PACK} is where the field is defined. A shared field name "
+             "with no stated owner is a coincidence the next edit is free to break")
+
+
+check_node_contract_keeps_its_five_fields()
+
 # --------------------------------------------------------------- hygiene
 
 for dirpath, dirnames, filenames in os.walk(os.path.join(ROOT, "plugins")):
@@ -518,5 +610,5 @@ if FAILURES:
         print(f"  - {f}", file=sys.stderr)
     sys.exit(1)
 
-checks = 7 + len(skill_dirs)
+checks = 8 + len(skill_dirs)
 print(f"OK: agent-stack structurally valid ({checks} checks, {len(skill_dirs)} skill(s), v{version})")

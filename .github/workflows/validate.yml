@@ -310,6 +310,102 @@ jobs:
             echo "OK: the mirror must name the same items as its home"
           fi
 
+      - name: Negative self-test (the node contract must not shrink)
+        run: |
+          set -eu
+          rm -rf /tmp/node-copy && cp -R . /tmp/node-copy
+          python3 test/plant_guard.py snap /tmp/node-copy
+          # STRUCTURAL plant: drop the LAST field of the node contract, whatever it is
+          # called. The manifesto states a useful node as one input, one job, one output,
+          # one owner and its own completion test; §1 shipped three of the five — and gave
+          # the manifesto's own justification in nearly the manifesto's words, so the
+          # sentence never read as abridged. That is precisely the failure a floor catches
+          # and a reader does not.
+          python3 - <<'PY'
+          import pathlib, re
+          p = pathlib.Path("/tmp/node-copy/plugins/agent-stack/skills/agent-orchestrator"
+                           "/references/graph-engineering.md")
+          s = p.read_text(encoding="utf-8")
+          m = re.search(r"<!--\s*node-contract:\s*([^>]+?)\s*-->", s)
+          assert m, "PLANT DID NOT LAND: no node-contract declaration to shorten"
+          keys = [k.strip() for k in m.group(1).split(",") if k.strip()]
+          assert len(keys) > 1, "PLANT DID NOT LAND: nothing to drop"
+          out = s[:m.start(1)] + ", ".join(keys[:-1]) + s[m.end(1):]
+          assert out != s, "PLANT DID NOT LAND"
+          p.write_text(out, encoding="utf-8")
+          PY
+          python3 test/plant_guard.py verify /tmp/node-copy "Negative self-test (the node contract must not shrink)"
+          if python3 /tmp/node-copy/test/validate.py; then
+            echo "ERROR: validator accepted a node contract with a field deleted"
+            exit 1
+          else
+            echo "OK: the node contract cannot lose a field quietly"
+          fi
+
+      - name: Negative self-test (the node contract must keep its owner field)
+        run: |
+          set -eu
+          rm -rf /tmp/owner-copy && cp -R . /tmp/owner-copy
+          python3 test/plant_guard.py snap /tmp/owner-copy
+          # Anchored on the contract KEY. `owner` is the field with no mechanical substitute:
+          # `isolation: "worktree"` removes the race between two writers and answers nothing
+          # about whose version is authoritative when the branches converge, so a graph with
+          # isolation and no owner has moved the loss to the merge rather than removed it.
+          python3 - <<'PY'
+          import pathlib, re
+          p = pathlib.Path("/tmp/owner-copy/plugins/agent-stack/skills/agent-orchestrator"
+                           "/references/graph-engineering.md")
+          s = p.read_text(encoding="utf-8")
+          out = re.sub(r"(<!--\s*node-contract:[^>]*?)\bowner,\s*", r"\1", s, count=1)
+          assert out != s, "PLANT DID NOT LAND: no `owner` key in the node contract"
+          p.write_text(out, encoding="utf-8")
+          PY
+          python3 test/plant_guard.py verify /tmp/owner-copy "Negative self-test (the node contract must keep its owner field)"
+          if python3 /tmp/owner-copy/test/validate.py; then
+            echo "ERROR: validator accepted a node contract with no owner field"
+            exit 1
+          else
+            echo "OK: the owner field cannot be dropped from the node contract"
+          fi
+
+      - name: Negative self-test (the node contract's spelled count must track its declaration)
+        run: |
+          set -eu
+          rm -rf /tmp/nodecount-copy && cp -R . /tmp/nodecount-copy
+          python3 test/plant_guard.py snap /tmp/nodecount-copy
+          # COMPUTED plant, not a prose anchor: it reads the declaration, derives the number
+          # word from its length, and removes that word from §1 only. Add a sixth field and
+          # this plant removes "six" without being edited. It exercises the drift the
+          # original defect actually was — a sentence that counts correctly for the fields it
+          # kept and says nothing about the ones it lost.
+          python3 - <<'PY'
+          import pathlib, re
+          WORDS = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six",
+                   7: "seven", 8: "eight", 9: "nine", 10: "ten"}
+          p = pathlib.Path("/tmp/nodecount-copy/plugins/agent-stack/skills/agent-orchestrator"
+                           "/references/graph-engineering.md")
+          s = p.read_text(encoding="utf-8")
+          i = s.find("## 1. Node and edge")
+          assert i >= 0, "PLANT DID NOT LAND: no `## 1. Node and edge` section"
+          j = s.find("\n## ", i + len("## 1. Node and edge"))
+          assert j > i, "PLANT DID NOT LAND: section 1 has no following section"
+          m = re.search(r"<!--\s*node-contract:\s*([^>]+?)\s*-->", s[i:j])
+          assert m, "PLANT DID NOT LAND: no node-contract declaration in section 1"
+          n = len([k for k in m.group(1).split(",") if k.strip()])
+          word = WORDS.get(n)
+          assert word, f"PLANT DID NOT LAND: no number word for {n} fields"
+          body = re.sub(rf"(?<![\w-]){word}(?![\w-])", "N", s[i:j], flags=re.I)
+          assert body != s[i:j], f"PLANT DID NOT LAND: section 1 never spells {word!r}"
+          p.write_text(s[:i] + body + s[j:], encoding="utf-8")
+          PY
+          python3 test/plant_guard.py verify /tmp/nodecount-copy "Negative self-test (the node contract's spelled count must track its declaration)"
+          if python3 /tmp/nodecount-copy/test/validate.py; then
+            echo "ERROR: validator accepted a node contract whose prose never spells its count"
+            exit 1
+          else
+            echo "OK: the spelled count must match the declared field list"
+          fi
+
       - name: Agent audit scanner — every detector must fire, and a clean file must not
         run: |
           set -eu

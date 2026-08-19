@@ -10,6 +10,57 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Run 2026-08-19 (second) — a node says who owns it and what closes it (AG-02, unreleased)
+
+Row: `sshlg-skills/docs/evidence/manifesto-conformance.md` **AG-02**, manifesto requirement
+**M-22** (`~/DATA/pod-manifesto/manifesto.md:157`, under the heading *A node has one job* at
+`:156`). Local board: `docs/evidence/backlog.md`. **No release**: the version stays `0.11.1`
+and the CHANGELOG is untouched, so every row below is measured on the working tree rather
+than on a published artifact.
+
+| REQ | Verified by | Result | Status |
+|---|---|---|---|
+| 001 | confirmed the audit's reading before changing anything | Confirmed. `graph-engineering.md:52` (before) read *"**A node is one unit of work.** One input, one output, one job"* — three of the manifesto's five fields. `grep -i owner` and `grep -i 'completion test'` over the file each exited **1**: neither field appeared anywhere, not in §1 and not elsewhere. What made the omission conspicuous rather than incidental is also confirmed: both texts then give the same justification in nearly the same words — *nodes wearing one name* (`:53` vs `manifesto.md:157`) and the retry/cache/review/replace list (`:54-55` vs `:157`). The audit's reading was correct | **verified** |
+| 002 | the two substitutes the audit traced, measured at the commit it read (`2b3d45e^`) | Both confirmed. §4's first rule at `:121-122` — *"no shared mutable state. Two 'independent' workers writing one file are one node with a race in it"* — and §9's primitive table at `:252`, *"the only safe way to fan out writers"*. So the file did answer *how* to fan writers out and never *whose output wins*; and no per-node completion check existed at all | **verified** |
+| 003 | read `graph-engineering.md:52-100` after | Five fields declared in the lead sentence (`:52-53`), then `one owner` (`:64`) and `its own completion test` (`:81`) each written out. `grep -c -i owner` → **8**, `grep -c -i 'completion test'` → **4**, from 0 and 0 | **verified** |
+| 004 | read `:69-79` — the substantive half of this row | Ownership and worktree isolation are stated as **complementary, not alternatives**, and the distinction is named: isolation answers **when** (two writers cannot corrupt one file, neither can see the other's copy while it runs), ownership answers **whose** (which node's version is authoritative once the branches return). The consequence is written out — isolation without ownership loses nothing during the run and moves the loss to the merge, *"the quieter place for it, because a convergence that silently takes one side is indistinguishable from a convergence that only ever had one answer"* — and §4's rule is recast as the *detection* half against ownership's *assignment* half. §9's table is **cited, not restated**, so the host fact keeps one home | **verified** |
+| 005 | read `:93-100` | A completion test is distinguished from §6's checker node, in the direction that matters: the checker judges *arriving siblings from outside*, including the two things no node can establish about itself — whether it contradicts a neighbour, and whether it answered the question the layer was asked. Both are needed, and the text says what dropping either costs. Without this paragraph a reader could read AG-01's checker as the completion test M-22 asks for, which it is not | **verified** |
+| 006 | TP-01 alignment, read from `task-pipeline` at the commits that carry it | **Matched, and their work had landed before mine was written.** `8b7de18` *"feat(graph): a node says how it will be closed…"* and `d17ae27` add `check` to `graph.schema.json` — one string, `minLength: 1`, no newlines, required by an `allOf` branch on every node whose `status` is not `parked`. Their `references/work-graph.md:72` states *"**One node, one completion test.** `check` is a string rather than a list… one input, one job, one output, one owner, one completion test… one gate made of two commands is `a && b`, which is still one gate."* I shipped the same field name, the same one-string rule, the same `a && b` line and the same `parked` exemption (`graph-engineering.md:86-92`). **No third vocabulary was invented** | **verified** |
+| 007 | `python3 test/validate.py` | `OK: agent-stack structurally valid (12 checks, 4 skill(s), v0.11.1)` — 11 before; the new one is `check_node_contract_keeps_its_five_fields`. It is **AG-01's mechanism reused, not a second one**: a `<!-- node-contract: … -->` declaration beside the prose, a **floor of 5** as a ratchet, `owner` and `check` required by name, every declared field required to appear in the prose **with comments stripped first**, and the spelled count required to match. It adds two requirements AG-01's did not need — the backticked field name `` `check` `` and the pack that defines it — because the M-44 defect is a family holding two names for one field, and doctrine that states only *"its own completion test"* leaves the next implementer to name it themselves. **One home, not two**: this list is stated once (the only match for *"one input"* under `plugins/` is that line), so the check compares a declaration against its own prose rather than against a mirror, and no second home was created to police. Said so in the comment | **verified** |
+| 008 | three new negative self-tests in `validate.yml`, run locally from the YAML | Each was watched refusing, and `plant_guard.py verify` confirmed all three plants landed: **shrink** (drop the last declared field, whatever it is called) → *"declares 4 fields, floor is 5"*; **`owner` dropped by key** → *"no longer declares 'owner'"*; **spelled count** → *"the contract has 5 fields and the prose never says 'five'"*. The third plant is **computed, not prose-anchored**: it reads the declaration, derives the number word from its length and removes that word from §1 only, so adding a sixth field re-aims it without an edit | **verified** |
+| 009 | the whole negative suite, extracted from `validate.yml` and executed | **20 of 20** executable steps passed, 17 pre-existing + 3 new; runner exit **0**. Three steps were skipped as out of scope locally (global `npm install -g`, `pip install`, a fake `HOME`) and are named rather than counted as green. Four further plants were run by hand and also refused: the declaration comment deleted whole, the lead sentence reverted verbatim to *"One input, one output, one job"*, the backticked `` `check` `` removed from the prose, and `task-pipeline` removed as the field's defining pack | **verified** |
+| 010 | `npm test`; `python3 test/validate.py`; `audit_agent.py --self-test`; `yaml.safe_load` on the workflow | exit **0** / **0** / **0** / **0** — `PASS: plant_guard — 9 cases`, `self-test: 11/11 passed`, `workflow parses OK` | **verified** |
+| 011 | the duplication check, before and after | Repo maximum unchanged at **12** shared twelve-word runs (`agent-harness/SKILL.md` ↔ the graph reference), against the floor of 20. The file grew **356 → 401** lines and added no new overlap: the manifesto is paraphrased and `task-pipeline` is cited by field name rather than quoted at length | **verified** |
+
+**11 of 11 verified. 0 at `never`.**
+
+### What the checks did not cover
+
+- **The product hypothesis is unobserved, as on every run of this ledger.** Nothing above
+  shows a graph in which naming an owner prevented a merge from silently taking one side, or
+  a per-node `check` catching an output its author would have passed. The pack ships prose;
+  the first graph built with five fields instead of three is the evidence this ledger cannot
+  supply, and it does not exist yet.
+- **Ownership is stated as a discipline, and nothing here can enforce it.** The check proves
+  the *field is declared and described*; it cannot prove any node in any real graph has an
+  owner. Unlike `task-pipeline`, this pack ships no schema a node is validated against — so
+  on this side M-22 is doctrine with a documentation gate, not a mechanism.
+- **The alignment with TP-01 is a reading of their text, not a shared artifact.** Two
+  repositories now use `check` with the same stated meaning because I read their schema and
+  matched it. Nothing computes that the two definitions still agree, and either can be
+  edited without the other noticing — the M-44 defect is *narrowed* here, not closed. A
+  cross-repository check would be the mechanism, and it is not built.
+- **The `owner` semantics were not reconciled with `agent-sync`.** That pack answers *who is
+  holding this file right now* for agents editing a repository; M-22's owner is about a node
+  in a graph being built. The two are different questions and the text does not say so,
+  because saying it well needs the boundary written in both packs and this row owns only one.
+- **Nothing here ran in CI.** The three new steps were executed locally by extracting them
+  from `validate.yml`; GitHub has not run them, and no artifact was published.
+- **`agent-orchestrator/SKILL.md` was deliberately not touched**, for the reason AG-01 gave:
+  its body was already at 4728 tokens against the 4750 it set itself, so a summary of the
+  node contract there would buy a second home for the list and break the budget in one edit.
+  §1's five fields are reachable from the reference the SKILL.md already links (`:377`).
+
 ## Run 2026-08-19 — the checker asks what a branch can show, not how sure it is (AG-01, unreleased)
 
 Row: `sshlg-skills/docs/evidence/manifesto-conformance.md` **AG-01**, manifesto requirement
