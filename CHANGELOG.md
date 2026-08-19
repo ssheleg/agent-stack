@@ -1,5 +1,54 @@
 # Changelog
 
+## v0.12.0 — 2026-08-19
+
+Three places where this pack's own doctrine disagreed with the Proof of Done manifesto it
+is built on. Each was confirmed from *inside* the pack before anything was changed.
+
+### The gate before every convergence asked how sure a branch was, never what it could show
+
+The manifesto's checker contract is *arrived · matches its contract · **carries its
+evidence** · does not contradict a sibling*. This pack named five things and substituted
+**under-confident — a confidence signal below the bar** for the evidence item. In a family
+whose first value is Evidence over confidence, and whose own text says "an uncalibrated
+judge is an opinion with a number attached", the gate guarding every convergence never
+asked what a branch could show.
+
+Six mandatory items now, in run order, with `unevidenced` as item 3 — an assertion with no
+receipt, explicitly distinguished from *wrong*. **Arrival is a count**, not an accident: a
+never-returning branch is caught because it is missing, not because the host happened to
+null it. The confidence signal is kept and demoted to a hint: **low confidence flags,
+absent evidence blocks.**
+
+### A node was defined by three of its five fields, and read as whole
+
+`One input, one output, one job` — against the manifesto's five, which add **one owner** and
+**its own completion test**. Both texts then gave the same justification in nearly the same
+words, which is what let the abridged version read as complete.
+
+Worktree isolation answers **when** — two writers cannot corrupt one file. Ownership answers
+**whose** — which node's version is authoritative once the branches return. Isolation without
+ownership loses nothing during the run and moves the loss to the merge, where a silently
+one-sided merge is indistinguishable from a convergence that only ever had one answer. The
+`check` field matches `task-pipeline`'s exactly — same name, same one-string rule, same
+`parked` exemption — rather than inventing a second vocabulary for one idea.
+
+### The suite that could never be authored up front had to gate the first release
+
+`Never author the suite up front` read as an absolute because the pack had no word for the
+other tier: `grep -ci observable` and `grep -ci requirement` both returned **0**. Taken as
+written the rule made a first release ungateable — §3 names the offline suite "this is the
+gate", and a suite that may never be authored up front cannot exist before there is
+production to grow it from.
+
+Two clocks now. The **observable** is a criterion, written before the implementation. The
+**corpus** is a sample, grown from production. The original imperative survives word for
+word and gains only its subject: *"Never author the suite up front — the corpus, that is:
+the inputs."* Neither rule softens the other, because they govern different objects.
+
+Each contract is declared machine-readably with a floor and named keys, so an item cannot
+silently go missing again. Validator 10 → 13 checks; negative self-tests 15 → 19.
+
 ## v0.11.1 — 2026-08-16
 
 **This pack was the one place nothing was looking.** The family umbrella's shared checker
