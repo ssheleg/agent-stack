@@ -151,18 +151,43 @@ A node between the parallel layer and the convergence whose only job is to decid
 each output may proceed. It synthesises nothing and writes nothing. It answers *is this
 usable* and then passes, flags, retries or drops.
 
-Five things it must catch — the list is the contract, and a checker that cannot say which
-of the five it is asserting is not a checker:
+Six things it must catch — the list is the contract, and a checker that cannot say which
+of the six it is asserting is not a checker:
 
-1. **Empty or null** — the node returned nothing usable.
-2. **Mutually contradictory** — two outputs that cannot both be true.
-3. **Off-topic** — an output that answers a different question than the one asked.
-4. **Under-confident** — a confidence signal below the bar for the downstream decision.
-5. **Malformed** — a shape that will break the convergence node's parsing.
+<!-- checker-contract: missing, empty, unevidenced, malformed, contradictory, off-topic | optional: under-confident -->
 
-Three of the five are code checks (1, 4, 5) and cost nothing; only 2 and 3 need a model.
-Run them in that order — this is `agent-evals` §5's *cheap checks first*, applied to a
+1. **Missing** — a branch the split promised never came back at all. This item needs an
+   **arrival count**: the fan-out is fixed when the layer is built, so the checker is
+   handed the number of results to expect and compares it with the number it is holding.
+   Without that number a vanished branch is caught only when its slot happens to hold
+   nothing — item 2, by luck rather than by design, and only on a host that fills the slot
+   at all (§9's primitive table records what this one does with a thrower). A host that
+   simply drops it makes the gap invisible, and a short list looks like a complete one.
+2. **Empty or null** — the result arrived and carries nothing usable.
+3. **Unevidenced** — an assertion with no receipt: no citation, no tool result, no file
+   and line, nothing a later reader could re-check. Whether the claim is *wrong* is item 5
+   or 6's business; this item is about a claim nobody downstream can verify at all, and it
+   is the one most checkers are missing.
+4. **Malformed** — a shape that will break the convergence node's parsing.
+5. **Contradictory** — two results that cannot both be true, **including two that used
+   different words for one shared assumption**. The disagreement hides inside the
+   paraphrase, so comparing strings is not enough to find it.
+6. **Off-topic** — an output that answers a different question than the one asked.
+
+Four of the six are code checks (1–4) and cost nothing; only 5 and 6 need a model. Run
+them in that order — this is `agent-evals` §5's *cheap checks first*, applied to a
 position in the graph rather than to a test suite.
+
+**A confidence signal is optional, and it is not the evidence item.** *Under-confident*
+was item 4 of this list until 2026-08-19; it is kept, demoted to a hint. A branch's own
+number is worth carrying as exactly that — which result to retry first, which to hand to a
+person — and it is not a gate. It never stands in for item 3, and the argument is this
+pack's own, made twice already: *an uncalibrated judge is an opinion with a number
+attached* (`agent-evals` §5), and for anything consequential the control is a
+deterministic limit or a human, **never a classifier's confidence**
+(`references/governance.md`). A gate that asks a branch how sure it is and never asks
+what it can show has graded the run instead of measuring it. So: low confidence *flags*,
+absent evidence *blocks*.
 
 **What a checker costs, and how it turns into a rubber stamp — this pack's addition.** A
 checker is a node, so it has the failure mode of every node: it can be wrong. A model

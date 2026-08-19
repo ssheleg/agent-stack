@@ -169,16 +169,26 @@ depends on **it** rather than on the branches — otherwise the gate has a bypas
 
 It matters here because it is the same machinery as §5, positioned differently:
 
+<!-- checker-contract: missing, empty, unevidenced, malformed, contradictory, off-topic | optional: under-confident -->
+
 | It catches | Decided by |
 |---|---|
-| an empty or null output | a code check |
-| a confidence signal below the downstream bar | a code check |
-| a shape that will break the consumer's parsing | a code check |
-| two outputs that cannot both be true | a judge |
-| an output answering a different question than the one asked | a judge |
+| a **missing** branch — the arrival count falls short of the fan-out promised | a code check |
+| an **empty** or null result | a code check |
+| an **unevidenced** claim — nothing attached that a reader could re-check | a code check |
+| a **malformed** shape the consuming node cannot parse | a code check |
+| **contradictory** siblings, including two that paraphrased one shared assumption | a judge |
+| an **off-topic** answer to something nobody asked | a judge |
 
-Three of five are free. Run them first — §5's *cheap checks first*, applied to a position
+Four of six are free. Run them first — §5's *cheap checks first*, applied to a position
 in the graph rather than to a suite.
+
+**An under-confident branch is a hint, not a row: its own confidence number is optional
+and deliberately not one of the six.** §5 above is the reason: a score from an
+uncalibrated source is an opinion, so it may order retries and it may not open a gate.
+The gate asks for the third row instead — a receipt — which is the same reason this pack
+ranks evidence over confidence everywhere else. The contract's home, with the argument in
+full, is `agent-orchestrator/references/graph-engineering.md` §6.
 
 **A checker is a node, so it can be wrong, and its failure mode is silent approval.** A
 model checker that has never been shown a bad input passes everything, and a graph with a

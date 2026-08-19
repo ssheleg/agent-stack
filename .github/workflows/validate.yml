@@ -219,6 +219,97 @@ jobs:
             echo "OK: the gate notices when it stops being a gate"
           fi
 
+      - name: Negative self-test (the checker contract must not shrink)
+        run: |
+          set -eu
+          rm -rf /tmp/contract-copy && cp -R . /tmp/contract-copy
+          python3 test/plant_guard.py snap /tmp/contract-copy
+          # STRUCTURAL plant: delete the LAST numbered item of the checker contract,
+          # whatever its number and whatever it says. The list is the gate in front of
+          # every convergence this pack recommends, and it was short one from the day it was
+          # written: "carries its evidence" was absent while a confidence signal stood in
+          # its place, through every release that carried the reference. Nothing here could have noticed, because the two documents
+          # that carry the list are worded differently on purpose so the duplication check
+          # stays quiet. An item may be added; one may not leave in silence.
+          python3 - <<'PY'
+          import pathlib, re
+          p = pathlib.Path("/tmp/contract-copy/plugins/agent-stack/skills/agent-orchestrator"
+                           "/references/graph-engineering.md")
+          s = p.read_text(encoding="utf-8")
+          items = list(re.finditer(r"^\d+\. \*\*", s, re.M))
+          assert items, "PLANT DID NOT LAND: no numbered contract list to shorten"
+          start = items[-1].start()
+          end = s.index("\n\n", start) + 1
+          out = s[:start] + s[end:]
+          assert out != s, "PLANT DID NOT LAND"
+          p.write_text(out, encoding="utf-8")
+          PY
+          python3 test/plant_guard.py verify /tmp/contract-copy "Negative self-test (the checker contract must not shrink)"
+          if python3 /tmp/contract-copy/test/validate.py; then
+            echo "ERROR: validator accepted a checker contract with an item deleted"
+            exit 1
+          else
+            echo "OK: the contract cannot lose an item quietly"
+          fi
+
+      - name: Negative self-test (the checker contract must keep its evidence item)
+        run: |
+          set -eu
+          rm -rf /tmp/evidence-copy && cp -R . /tmp/evidence-copy
+          python3 test/plant_guard.py snap /tmp/evidence-copy
+          # Anchored on the contract KEY, not on prose: `unevidenced` is *carries its
+          # evidence* from the manifesto's checker requirement, and dropping it is the exact
+          # regression this repository shipped — a gate that asks a branch how sure it is and
+          # never asks what it can show, in the pack whose first value is the opposite.
+          # Both declarations are edited, so this tests the requirement rather than the
+          # mirror check below.
+          python3 - <<'PY'
+          import pathlib, re
+          for rel in ("agent-orchestrator/references/graph-engineering.md", "agent-evals/SKILL.md"):
+              p = pathlib.Path("/tmp/evidence-copy/plugins/agent-stack/skills") / rel
+              s = p.read_text(encoding="utf-8")
+              out = re.sub(r"(<!--\s*checker-contract:[^>]*?)\bunevidenced,\s*", r"\1", s, count=1)
+              assert out != s, f"PLANT DID NOT LAND: no `unevidenced` key in {rel}"
+              p.write_text(out, encoding="utf-8")
+          PY
+          python3 test/plant_guard.py verify /tmp/evidence-copy "Negative self-test (the checker contract must keep its evidence item)"
+          if python3 /tmp/evidence-copy/test/validate.py; then
+            echo "ERROR: validator accepted a checker contract with no evidence item"
+            exit 1
+          else
+            echo "OK: the evidence item cannot be dropped from the contract"
+          fi
+
+      - name: Negative self-test (the two homes of the checker contract must agree)
+        run: |
+          set -eu
+          rm -rf /tmp/mirror-copy && cp -R . /tmp/mirror-copy
+          python3 test/plant_guard.py snap /tmp/mirror-copy
+          # The mirror is declared: the home is the graph reference, `agent-evals` states the
+          # eval half and points back. Deliberately different wording is why the shingle
+          # check cannot compare them — so the declaration is what gets compared, and this
+          # plant drops one key from ONE side, the shape drift takes when a list is edited in
+          # the file the editor happened to have open.
+          python3 - <<'PY'
+          import pathlib, re
+          p = pathlib.Path("/tmp/mirror-copy/plugins/agent-stack/skills/agent-evals/SKILL.md")
+          s = p.read_text(encoding="utf-8")
+          m = re.search(r"<!--\s*checker-contract:\s*([^|]+?)\s*\|", s)
+          assert m, "PLANT DID NOT LAND: no checker-contract declaration in the mirror"
+          keys = [k.strip() for k in m.group(1).split(",") if k.strip()]
+          assert len(keys) > 1, "PLANT DID NOT LAND: nothing to drop"
+          out = s[:m.start(1)] + ", ".join(keys[:-1]) + s[m.end(1):]
+          assert out != s, "PLANT DID NOT LAND"
+          p.write_text(out, encoding="utf-8")
+          PY
+          python3 test/plant_guard.py verify /tmp/mirror-copy "Negative self-test (the two homes of the checker contract must agree)"
+          if python3 /tmp/mirror-copy/test/validate.py; then
+            echo "ERROR: validator accepted two documents naming different checker contracts"
+            exit 1
+          else
+            echo "OK: the mirror must name the same items as its home"
+          fi
+
       - name: Agent audit scanner — every detector must fire, and a clean file must not
         run: |
           set -eu

@@ -277,6 +277,142 @@ def check_one_home_per_fact():
 
 check_one_home_per_fact()
 
+# ------------------------------------------------- the checker's contract
+
+# The checker node's contract is the gate in front of every convergence this pack
+# recommends, and it is named in TWO documents by design: the home is
+# `agent-orchestrator/references/graph-engineering.md` §6, and `agent-evals/SKILL.md` §5a
+# states the eval half and points back (docs/DOCMAP.md, 2026-08-15 D-1). Two homes for one
+# list is exactly what the shingle check above refuses, so the two are worded differently —
+# which means nothing above can tell whether they still name the SAME items.
+#
+# They did not. Until 2026-08-19 the list held five items and *"carries its evidence"* was
+# not one of them: a confidence signal stood in its place, in the one pack whose first value
+# is evidence over confidence and whose own text says an uncalibrated judge is an opinion
+# with a number attached. Arrival was half-covered too — no count, so a branch that never
+# returned was caught only when the host happened to null its slot.
+#
+# So the list is declared machine-readably in both files and compared here. The floor is a
+# RATCHET: an item may be added, never quietly dropped. Removing one is a deliberate edit to
+# this file with a reason, which is the whole point — a contract that can shrink in silence
+# is not a contract.
+CHECKER_CONTRACT_FLOOR = 6
+# Named individually because these two are the requirement, not decoration: *arrived* needs
+# an arrival count and *carries its evidence* is the item that was missing.
+CHECKER_CONTRACT_REQUIRED = {"missing", "unevidenced"}
+# Demoted on purpose. Promoting it back to mandatory is a decision, not a typo, so it fails
+# here and has to be argued.
+CHECKER_CONTRACT_OPTIONAL_ONLY = {"under-confident"}
+CHECKER_CONTRACT_DOCS = [
+    ("agent-orchestrator/references/graph-engineering.md", "## 6. The checker node"),
+    ("agent-evals/SKILL.md", "## 5a."),
+]
+CONTRACT_DECL = re.compile(
+    r"<!--\s*checker-contract:\s*([^|>]+?)\s*\|\s*optional:\s*([^>]+?)\s*-->"
+)
+NUMBER_WORDS = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six",
+                7: "seven", 8: "eight", 9: "nine", 10: "ten"}
+
+
+def _section(text, heading):
+    """The body of one `##` section, heading line included, or None."""
+    i = text.find(heading)
+    if i < 0:
+        return None
+    j = text.find("\n## ", i + len(heading))
+    return text[i:] if j < 0 else text[i:j]
+
+
+def check_checker_contract_is_one_list_in_two_documents():
+    decls = {}
+    for rel, heading in CHECKER_CONTRACT_DOCS:
+        path = os.path.join(SKILL_ROOT, *rel.split("/"))
+        if not os.path.isfile(path):
+            fail(f"{rel}: missing — it carries half of the checker contract")
+            continue
+        body = _section(open(path, encoding="utf-8").read(), heading)
+        if body is None:
+            fail(f"{rel}: no section starting {heading!r} — the checker contract lost its home")
+            continue
+        m = CONTRACT_DECL.search(body)
+        if not m:
+            fail(f"{rel}: {heading} has no `<!-- checker-contract: … | optional: … -->` "
+                 "declaration. The two documents word the list differently on purpose, so "
+                 "this line is the only thing that can prove they still name the same items")
+            continue
+        mandatory = [x.strip() for x in m.group(1).split(",") if x.strip()]
+        optional = [x.strip() for x in m.group(2).split(",") if x.strip()]
+        # Strip comments before reading the prose, or the declaration would satisfy the
+        # check that the prose mentions the item — a guard that cannot fail.
+        prose = re.sub(r"<!--.*?-->", "", body, flags=re.S)
+        decls[rel] = (tuple(mandatory), tuple(optional), prose)
+
+    if len(decls) < len(CHECKER_CONTRACT_DOCS):
+        return
+
+    # Compared pairwise against the home rather than unpacked as a pair, so adding a third
+    # document to the list above does not silently stop comparing anything.
+    rel_a = CHECKER_CONTRACT_DOCS[0][0]
+    mand_a, opt_a, _ = decls[rel_a]
+    diverged = False
+    for rel_b, (mand_b, opt_b, _p) in decls.items():
+        if rel_b == rel_a:
+            continue
+        if mand_a != mand_b or opt_a != opt_b:
+            diverged = True
+            fail(f"{rel_a} and {rel_b} declare different checker contracts — "
+                 f"{list(mand_a)}/{list(opt_a)} vs {list(mand_b)}/{list(opt_b)}. One of the "
+                 "two gates is now the other one's past, and a reader cannot tell which")
+    if diverged:
+        return
+
+    if len(mand_a) < CHECKER_CONTRACT_FLOOR:
+        fail(f"the checker contract declares {len(mand_a)} mandatory items, floor is "
+             f"{CHECKER_CONTRACT_FLOOR}: {list(mand_a)}. The floor is a ratchet — an item "
+             "may be added, never quietly dropped, because the list is what every "
+             "convergence in this pack is gated on")
+
+    for key in sorted(CHECKER_CONTRACT_REQUIRED - set(mand_a)):
+        fail(f"the checker contract no longer requires {key!r}. `missing` is *arrived* "
+             "(an arrival count, not a nulled slot) and `unevidenced` is *carries its "
+             "evidence* — the two this implementation was missing when the 2026-08-18 "
+             "conformance audit measured it against the manifesto. Dropping either puts "
+             "the gate back to asking how sure a branch is instead of what it can show")
+
+    for key in sorted(CHECKER_CONTRACT_OPTIONAL_ONLY & set(mand_a)):
+        fail(f"{key!r} is declared mandatory in the checker contract. It is optional by "
+             "decision: an uncalibrated confidence score orders retries, it does not open "
+             "a gate (`agent-evals` §5, `agent-orchestrator/references/governance.md`)")
+    for key in sorted(CHECKER_CONTRACT_OPTIONAL_ONLY - set(opt_a)):
+        fail(f"{key!r} left the checker contract's optional list — the confidence signal is "
+             "demoted, not deleted, and the text explains why it is kept")
+
+    word = NUMBER_WORDS.get(len(mand_a))
+    for rel, (_m, _o, prose) in decls.items():
+        # Optional keys are read too: an item kept as a hint still has to be visible to a
+        # reader, or "we kept it, demoted" is a claim only this declaration makes.
+        for key in list(mand_a) + list(opt_a):
+            if not re.search(rf"(?<![\w-]){re.escape(key)}(?![\w-])", prose, re.I):
+                fail(f"{rel}: the checker contract declares {key!r} but the prose never "
+                     "names it — the declaration would then be the only place the item "
+                     "exists, and a reader of the document would never see it")
+        if word and not re.search(rf"(?<![\w-]){word}(?![\w-])", prose, re.I):
+            fail(f"{rel}: the contract has {len(mand_a)} items and the prose never says "
+                 f"{word!r}. `Three of five are free` outlived the five it counted; a "
+                 "spelled count that nothing checks is how the sentence and the list drift")
+
+    home_rel, home_heading = CHECKER_CONTRACT_DOCS[0]
+    home_prose = decls[home_rel][2]
+    items = re.findall(r"^(\d+)\.\s+\*\*", home_prose, re.M)
+    if len(items) != len(mand_a):
+        fail(f"{home_rel}: {home_heading} lists {len(items)} numbered items but the "
+             f"contract declares {len(mand_a)}. The list is the contract — a document that "
+             "counts one way and declares another has already lost track of which items a "
+             "checker must assert")
+
+
+check_checker_contract_is_one_list_in_two_documents()
+
 # --------------------------------------------------------------- hygiene
 
 for dirpath, dirnames, filenames in os.walk(os.path.join(ROOT, "plugins")):
@@ -382,5 +518,5 @@ if FAILURES:
         print(f"  - {f}", file=sys.stderr)
     sys.exit(1)
 
-checks = 6 + len(skill_dirs)
+checks = 7 + len(skill_dirs)
 print(f"OK: agent-stack structurally valid ({checks} checks, {len(skill_dirs)} skill(s), v{version})")

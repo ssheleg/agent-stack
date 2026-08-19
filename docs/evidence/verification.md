@@ -10,6 +10,50 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Run 2026-08-19 — the checker asks what a branch can show, not how sure it is (AG-01, unreleased)
+
+Row: `sshlg-skills/docs/evidence/manifesto-conformance.md` **AG-01**, manifesto requirement
+**M-25** (`~/DATA/pod-manifesto/manifesto.md:186`). Local board: `docs/evidence/backlog.md`.
+**No release**: the version stays `0.11.1` and the CHANGELOG is untouched, so every row below
+is measured on the working tree rather than on a published artifact.
+
+| REQ | Verified by | Result | Status |
+|---|---|---|---|
+| 001 | read the audit's two citations before changing anything | Confirmed. `graph-engineering.md:154-161` (before) named *empty-or-null, mutually-contradictory, off-topic, **under-confident**, malformed* and called the list "the contract"; `manifesto.md:186` requires *arrived / matches its contract / **carries its evidence** / does not contradict a sibling*. contract↔malformed and sibling↔contradictory map; **"carries its evidence" had no item at all** and the confidence signal sat in its place — against this pack's own `agent-evals/SKILL.md:154` and `governance.md:53-55`. The audit's reading was correct | **verified** |
+| 002 | read `graph-engineering.md:154-190` after | Six mandatory items, `**Unevidenced**` third (line 167): *"an assertion with no receipt: no citation, no tool result, no file and line, nothing a later reader could re-check"*, and explicitly distinguished from *wrong* | **verified** |
+| 003 | read `graph-engineering.md:181-190` | The confidence signal is kept and demoted in one paragraph that cites the repo's **own** two arguments — *"an uncalibrated judge is an opinion with a number attached"* (`agent-evals` §5) and *"never a classifier's confidence"* (`governance.md`) — and ends *"low confidence flags, absent evidence blocks"*. No new argument was invented for it | **verified** |
+| 004 | read item 1, `graph-engineering.md:159-165` | *Arrived* is now a **count**: the fan-out is fixed when the layer is built, the checker is handed the number to expect and compares it with what it holds. The old incidental catch is named as such — a nulled slot is item 2 "by luck rather than by design" — and §9's primitive table is **cited, not restated**, so the host fact keeps one home | **verified** |
+| 005 | the duplication check, before and after | The mirror is declared (DOCMAP 2026-08-15 D-1: the graph reference is the home, `agent-evals` states the eval half and points back), so the two are worded differently on purpose. Shared twelve-word runs between them: **7 → 8**, against the floor of 20. Repo maximum unchanged at **12** (`agent-harness/SKILL.md` ↔ the graph reference). No second home was created | **verified** |
+| 006 | `python3 test/validate.py` | `OK: agent-stack structurally valid (11 checks, 4 skill(s), v0.11.1)` — 10 checks before; the new one is `check_checker_contract_is_one_list_in_two_documents`. It compares the two `<!-- checker-contract: … -->` declarations for equality, holds a **floor of 6** as a ratchet, requires `missing` and `unevidenced` by name, refuses `under-confident` as mandatory, requires every declared key (optional included) to be named in the prose **with comments stripped first**, and requires the home's numbered list and its spelled count to match the declaration | **verified** |
+| 007 | three new negative self-tests in `validate.yml`, run locally from the YAML | Each plants structurally and each was watched refusing: **shrink** (delete the last numbered item, whatever it says) → *"lists 5 numbered items but the contract declares 6"*; **evidence dropped from both declarations** → *"declares 5 mandatory items, floor is 6"* + *"no longer requires 'unevidenced'"*; **mirror diverged on one side** → *"declare different checker contracts"*. `plant_guard.py verify` confirmed all three plants landed | **verified** |
+| 008 | the whole negative suite, extracted from `validate.yml` and executed | **12 of 12** steps printed their `OK:` line, 9 pre-existing + 3 new; runner exit **0**. Three further plants were run by hand and also refused: `under-confident` promoted to mandatory, the declaration comment deleted, and the optional item removed from the prose while left in the declaration | **verified** |
+| 009 | `npm test`; `python3 test/validate.py`; `audit_agent.py --self-test`; `yaml.safe_load` on the workflow | exit **0** / **0** / **0** — `PASS: plant_guard — 9 cases`, `self-test: 11/11 passed`, `workflow parses OK` | **verified** |
+
+**9 of 9 verified. 0 at `never`.**
+
+### What the checks did not cover
+
+- **The product hypothesis is unobserved, as on every run of this ledger.** Nothing above
+  shows a checker in a real graph refusing an unevidenced branch, or an arrival count
+  catching a branch that vanished. The pack ships prose; the first system that gates a
+  convergence on the evidence item is the evidence this ledger cannot supply.
+- **"A receipt a reader could re-check" is stated, not implemented.** Whether it is
+  decidable by code in a given system — a citation that resolves, a tool result that is
+  present — is the reader's measurement, and this repository ships no checker library to
+  make it one.
+- **The arrival count assumes the fan-out is known.** That holds for a static layer, which
+  is what §7 already tells you to prefer; a layer that grows its own branches has no such
+  number, and the text does not solve that case.
+- **The mirror check compares declarations, not meaning.** Two documents can name the same
+  six keys and describe them differently; the shingle check deliberately cannot look at
+  wording this close, so agreement of *sense* between the two rests on reading them.
+- **Nothing here ran in CI.** The three new steps were executed locally by extracting them
+  from `validate.yml`; GitHub has not run them, and no artifact was published.
+- **`agent-orchestrator/SKILL.md` was deliberately not touched.** Its body measured 4728
+  tokens against the 4750 it set itself, so a summary of the new items there would have
+  bought a third home for the list and broken the budget in one edit. §13 still describes
+  the checker as *usable / not usable* and points at the reference, which stays true.
+
 ## Run 2026-08-16 — the body under its budget, and one home per fact, v0.11.0
 
 Brief: `sshlg-skills/docs/evidence/briefs/2026-08-15-graph-backlog.md` (modules M7, M8).
