@@ -406,6 +406,119 @@ jobs:
             echo "OK: the spelled count must match the declared field list"
           fi
 
+      - name: Negative self-test (the eval-tier contract must not shrink)
+        run: |
+          set -eu
+          rm -rf /tmp/tiers-copy && cp -R . /tmp/tiers-copy
+          python3 test/plant_guard.py snap /tmp/tiers-copy
+          # STRUCTURAL plant: drop the LAST tier of the eval contract, whatever it is called.
+          # A single tier is the state this pack shipped in — `agent-evals` said "Never author
+          # the suite up front" and had no word for the criterion the manifesto requires
+          # before there is code, so the corpus rule read as the whole rule.
+          python3 - <<'PY'
+          import pathlib, re
+          p = pathlib.Path("/tmp/tiers-copy/plugins/agent-stack/skills/agent-evals/SKILL.md")
+          s = p.read_text(encoding="utf-8")
+          m = re.search(r"<!--\s*eval-tiers:\s*([^>]+?)\s*-->", s)
+          assert m, "PLANT DID NOT LAND: no eval-tiers declaration to shorten"
+          keys = [k.strip() for k in m.group(1).split(",") if k.strip()]
+          assert len(keys) > 1, "PLANT DID NOT LAND: nothing to drop"
+          out = s[:m.start(1)] + ", ".join(keys[:-1]) + s[m.end(1):]
+          assert out != s, "PLANT DID NOT LAND"
+          p.write_text(out, encoding="utf-8")
+          PY
+          python3 test/plant_guard.py verify /tmp/tiers-copy "Negative self-test (the eval-tier contract must not shrink)"
+          if python3 /tmp/tiers-copy/test/validate.py; then
+            echo "ERROR: validator accepted an eval-tier contract with a tier deleted"
+            exit 1
+          else
+            echo "OK: the eval-tier contract cannot lose a tier quietly"
+          fi
+
+      - name: Negative self-test (the eval-tier spelled count must track its declaration)
+        run: |
+          set -eu
+          rm -rf /tmp/tiercount-copy && cp -R . /tmp/tiercount-copy
+          python3 test/plant_guard.py snap /tmp/tiercount-copy
+          # COMPUTED plant, not a prose anchor: it reads the declaration, derives the number
+          # word from its length and removes that word from §6 only. Add a third tier and this
+          # plant removes "three" without being edited.
+          python3 - <<'PY'
+          import pathlib, re
+          WORDS = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six"}
+          p = pathlib.Path("/tmp/tiercount-copy/plugins/agent-stack/skills/agent-evals/SKILL.md")
+          s = p.read_text(encoding="utf-8")
+          i = s.find("## 6.")
+          assert i >= 0, "PLANT DID NOT LAND: no `## 6.` section"
+          j = s.find("\n## ", i + len("## 6."))
+          j = len(s) if j < 0 else j
+          m = re.search(r"<!--\s*eval-tiers:\s*([^>]+?)\s*-->", s[i:j])
+          assert m, "PLANT DID NOT LAND: no eval-tiers declaration in section 6"
+          n = len([k for k in m.group(1).split(",") if k.strip()])
+          word = WORDS.get(n)
+          assert word, f"PLANT DID NOT LAND: no number word for {n} tiers"
+          body = re.sub(rf"(?<![\w-]){word}(?![\w-])", "N", s[i:j], flags=re.I)
+          assert body != s[i:j], f"PLANT DID NOT LAND: section 6 never spells {word!r}"
+          p.write_text(s[:i] + body + s[j:], encoding="utf-8")
+          PY
+          python3 test/plant_guard.py verify /tmp/tiercount-copy "Negative self-test (the eval-tier spelled count must track its declaration)"
+          if python3 /tmp/tiercount-copy/test/validate.py; then
+            echo "ERROR: validator accepted an eval-tier section whose prose never spells its count"
+            exit 1
+          else
+            echo "OK: the spelled count must match the declared tier list"
+          fi
+
+      - name: Negative self-test (a timing rule stated without its sibling tier must fail)
+        run: |
+          set -eu
+          rm -rf /tmp/alone-copy && cp -R . /tmp/alone-copy
+          python3 test/plant_guard.py snap /tmp/alone-copy
+          # THE ROW ITSELF, re-planted into a document that never had it: one imperative in a
+          # section that never names the other tier. This is what `agent-evals:203` was before
+          # 2026-08-19, and it is why the check sweeps every section of every document rather
+          # than guarding the one file the audit happened to read.
+          python3 - <<'PY'
+          import pathlib
+          p = pathlib.Path("/tmp/alone-copy/plugins/agent-stack/skills/agent-interop/SKILL.md")
+          s = p.read_text(encoding="utf-8")
+          out = s + "\n## Fixtures\n\nNever author the suite up front.\n"
+          assert out != s, "PLANT DID NOT LAND"
+          p.write_text(out, encoding="utf-8")
+          PY
+          python3 test/plant_guard.py verify /tmp/alone-copy "Negative self-test (a timing rule stated without its sibling tier must fail)"
+          if python3 /tmp/alone-copy/test/validate.py; then
+            echo "ERROR: validator accepted an eval-timing absolute with neither tier named beside it"
+            exit 1
+          else
+            echo "OK: a section that dates an eval must name both tiers"
+          fi
+
+      - name: Negative self-test (the two hosts of the eval-timing line must agree)
+        run: |
+          set -eu
+          rm -rf /tmp/hostline-copy && cp -R . /tmp/hostline-copy
+          python3 test/plant_guard.py snap /tmp/hostline-copy
+          # One host reworded, the other left behind. Both halves still name both tiers, so
+          # nothing else in this validator would notice — and a reader cannot tell which of
+          # the two bars the pack now holds. Anchored on the shared line, not on a file.
+          python3 - <<'PY'
+          import pathlib
+          p = pathlib.Path("/tmp/hostline-copy/plugins/agent-stack/skills/agent-harness/SKILL.md")
+          s = p.read_text(encoding="utf-8")
+          out = s.replace("only the corpus waits for production",
+                          "only the corpus may wait for production", 1)
+          assert out != s, "PLANT DID NOT LAND: the shared eval-timing line was not found"
+          p.write_text(out, encoding="utf-8")
+          PY
+          python3 test/plant_guard.py verify /tmp/hostline-copy "Negative self-test (the two hosts of the eval-timing line must agree)"
+          if python3 /tmp/hostline-copy/test/validate.py; then
+            echo "ERROR: validator accepted two hosts stating different eval-timing bars"
+            exit 1
+          else
+            echo "OK: the shared eval-timing line cannot diverge between its two hosts"
+          fi
+
       - name: Agent audit scanner — every detector must fire, and a clean file must not
         run: |
           set -eu

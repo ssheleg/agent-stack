@@ -250,8 +250,12 @@ def _runs(text, n=DUP_SHINGLE):
     return {" ".join(words[i:i + n]) for i in range(max(0, len(words) - n + 1))}
 
 
-def check_one_home_per_fact():
-    import itertools
+def _pack_docs():
+    """Every prose document this pack ships, keyed `<skill>/<file>`.
+
+    One enumeration, because two of them drift: a check that sweeps "every document" is
+    only as good as its idea of which documents exist.
+    """
     docs = {}
     for _sk in sorted(os.listdir(SKILL_ROOT)) if os.path.isdir(SKILL_ROOT) else []:
         _sd = os.path.join(SKILL_ROOT, _sk)
@@ -265,7 +269,12 @@ def check_one_home_per_fact():
             for _f in sorted(os.listdir(_rd)):
                 if _f.endswith(".md"):
                     docs[f"{_sk}/{_f}"] = open(os.path.join(_rd, _f), encoding="utf-8").read()
-    shingled = {k: _runs(v) for k, v in docs.items()}
+    return docs
+
+
+def check_one_home_per_fact():
+    import itertools
+    shingled = {k: _runs(v) for k, v in _pack_docs().items()}
     for a, b in itertools.combinations(sorted(shingled), 2):
         shared = len(shingled[a] & shingled[b])
         if shared >= DUP_FLOOR:
@@ -505,6 +514,163 @@ def check_node_contract_keeps_its_five_fields():
 
 check_node_contract_keeps_its_five_fields()
 
+# ------------------------------------- the two eval tiers, named together
+#
+# Third use of the same mechanism, and the sharpest row the 2026-08-18 conformance audit
+# found: not a thinner statement of a manifesto rule but the opposite imperative.
+# `pod-manifesto/manifesto.md:114` treats *a requirement with no observable as unfinished,
+# because you cannot connect it to the evidence graph later without inventing the test after
+# seeing the implementation*, and `:122` says an evidence graph built after the code "has
+# already let the output decide what counts as success". `agent-evals/SKILL.md` answered
+# **"Never author the suite up front."**
+#
+# Both rules are right, because they are about different objects: an *observable* is a
+# criterion — what would count as success — and a *corpus* is a sample, which inputs you
+# happen to have. Neither text performed that reconciliation, and `agent-evals` had no word
+# for the first tier at all: `grep -ci 'observable'` and `grep -ci 'requirement'` over it
+# both returned 0. Its own §3 convicted the sentence without help from the manifesto — the
+# offline suite is the release gate, and a suite that may never be authored up front cannot
+# gate a first release, which has no production to grow a corpus from.
+#
+# So prose alone is not the fix. The tiers are declared machine-readably in their one home,
+# and — the part that actually holds — **every section anywhere in this pack that dates an
+# eval must name both tiers.** One imperative shipped alone in a document that never named
+# the other is exactly how the absolute got here.
+EVAL_TIERS_FLOOR = 2
+# Named individually because these two ARE the row: `observable` is the concept the pack was
+# missing, `corpus` is the rule that survives this change untouched.
+EVAL_TIERS_REQUIRED = {"observable", "corpus"}
+EVAL_TIERS_DOC = ("agent-evals/SKILL.md", "## 6.")
+EVAL_TIERS_DECL = re.compile(r"<!--\s*eval-tiers:\s*([^>]+?)\s*-->")
+# Each tier's clock, in words. A tier named with no timing is the concept without the
+# requirement — the same hole as doctrine that describes "its own completion test" forever
+# and never names the field.
+EVAL_TIER_CLOCKS = ("before the implementation", "from production")
+# Every phrase in this pack that dates an eval. A section carrying one owes both tiers.
+EVAL_TIMING_TRIGGERS = (
+    r"never author the suite up front",
+    r"authored up front",
+    r"eval exists before",
+    r"before the prompt is tuned",
+    r"before the implementation",
+    r"grown from production",
+)
+# The bar was asserted in two checklists as *before the prompt is tuned* — a real bar, and
+# not the manifesto's, which is before the implementation. One line now carries both tiers,
+# byte-identical in both hosts by design: 23 words, 12 shingles, inside the duplication floor
+# of 20. It is COMPARED rather than trusted, because the drift that matters is one host
+# reworded and the other left behind — and both halves would still name both tiers while
+# disagreeing about when.
+EVAL_TIERS_HOSTS = ("agent-orchestrator/SKILL.md", "agent-harness/SKILL.md")
+CHECKLIST_ITEM = re.compile(r"^- \[ \] (.+?)(?=\n- \[ \]|\n\s*\n|\n#|\Z)", re.S | re.M)
+
+
+def check_eval_tiers_are_named_together():
+    rel, heading = EVAL_TIERS_DOC
+    path = os.path.join(SKILL_ROOT, *rel.split("/"))
+    if not os.path.isfile(path):
+        fail(f"{rel}: missing — it is the only home of the two eval tiers")
+        return
+    body = _section(open(path, encoding="utf-8").read(), heading)
+    if body is None:
+        fail(f"{rel}: no section starting {heading!r} — the two eval tiers lost their home")
+        return
+    m = EVAL_TIERS_DECL.search(body)
+    if not m:
+        fail(f"{rel}: {heading} has no `<!-- eval-tiers: … -->` declaration. The tiers are "
+             "prose everywhere else, and prose is what let one of them be stated as an "
+             "absolute with the other absent for the whole life of this file")
+        return
+    tiers = [x.strip() for x in m.group(1).split(",") if x.strip()]
+    # Comments stripped before reading the prose, or the declaration itself would satisfy the
+    # requirement that the prose names each tier — a guard that cannot fail.
+    prose = re.sub(r"<!--.*?-->", "", body, flags=re.S)
+
+    if len(tiers) < EVAL_TIERS_FLOOR:
+        fail(f"the eval-tier contract declares {len(tiers)} tier(s), floor is "
+             f"{EVAL_TIERS_FLOOR}: {tiers}. The floor is a ratchet, and here it guards the "
+             "pair itself — a single tier is the state this repository shipped in, where one "
+             "timing rule read as universal because the other had no name")
+
+    for key in sorted(EVAL_TIERS_REQUIRED - set(tiers)):
+        fail(f"the eval-tier contract no longer declares {key!r}. `observable` is the "
+             "criterion, written before the implementation because a requirement with no "
+             "observable cannot be attached to evidence later without inventing the test "
+             "after seeing the code; `corpus` is the sample, grown from production because "
+             "invented inputs test your imagination. Dropping either turns the other back "
+             "into an absolute, which is the 2026-08-18 audit's AG-03 finding")
+
+    for key in tiers:
+        if not re.search(rf"(?<![\w-]){re.escape(key)}(?![\w-])", prose, re.I):
+            fail(f"{rel}: the eval-tier contract declares {key!r} but the prose never names "
+                 "it — the declaration would then be the only place the tier exists, and a "
+                 "reader of the document would never see it")
+
+    word = NUMBER_WORDS.get(len(tiers))
+    if word and not re.search(rf"(?<![\w-]){word}(?![\w-])", prose, re.I):
+        fail(f"{rel}: the contract has {len(tiers)} tiers and the prose never says {word!r}. "
+             "A spelled count nothing checks is how prose and list drift apart")
+
+    low = prose.lower()
+    for clock in EVAL_TIER_CLOCKS:
+        if clock not in low:
+            fail(f"{rel}: the tiers are named but {clock!r} never appears. A tier with no "
+                 "clock is the concept without the requirement — the whole finding was that "
+                 "one rule had a date and the other had no name, so both dates are stated "
+                 "here or neither is enforceable")
+
+    # The part that holds the reconciliation. Every section in the pack that dates an eval
+    # must name both tiers, wherever it lives — including a document nobody has written yet.
+    for doc_rel, doc_text in sorted(_pack_docs().items()):
+        clean = re.sub(r"<!--.*?-->", "", doc_text, flags=re.S)
+        # The opening chunk before the first `##` is a section too: that is where the
+        # unqualified version of this rule was, and a sweep that skipped it would have
+        # scored the original defect as green.
+        for sec in re.split(r"(?m)^(?=## )", clean):
+            tripped = [t for t in EVAL_TIMING_TRIGGERS if re.search(t, sec, re.I)]
+            if not tripped:
+                continue
+            absent = [k for k in sorted(EVAL_TIERS_REQUIRED)
+                      if not re.search(rf"(?<![\w-]){re.escape(k)}(?![\w-])", sec, re.I)]
+            if not absent:
+                continue
+            first = next((ln for ln in sec.strip().split("\n") if ln.strip()), "")
+            where = first[:70] if first.startswith("## ") else "(opening section)"
+            fail(f"{doc_rel}: {where} dates an eval ({tripped[0]!r}) and never names "
+                 f"{absent} in the same section. The two tiers are stated together or not at "
+                 "all: a timing rule alone reads as the whole rule, which is how "
+                 "\"never author the suite up front\" came to contradict the requirement "
+                 "that every requirement carry an observable before there is code")
+
+    # One line, two hosts, compared.
+    picked = {}
+    for host in EVAL_TIERS_HOSTS:
+        hpath = os.path.join(SKILL_ROOT, *host.split("/"))
+        if not os.path.isfile(hpath):
+            fail(f"{host}: missing — it is one of the two hosts of the eval-timing line")
+            continue
+        htext = re.sub(r"<!--.*?-->", "", open(hpath, encoding="utf-8").read(), flags=re.S)
+        hits = [" ".join(it.split()) for it in CHECKLIST_ITEM.findall(htext)
+                if re.search(r"(?<![\w-])observable(?![\w-])", it, re.I)]
+        if len(hits) != 1:
+            fail(f"{host}: {len(hits)} checklist item(s) name an observable, expected exactly "
+                 "one. This is the line that raises the bar from *before the prompt is tuned* "
+                 "to *before the implementation*; zero means the host reverted to the lower "
+                 "bar, more than one means two of them can now disagree")
+            continue
+        if "corpus" not in hits[0].lower():
+            fail(f"{host}: the eval-timing checklist line names an observable and not the "
+                 "corpus. Half the reconciliation is the half that reads as an absolute")
+        picked[host] = hits[0]
+
+    if len(picked) == len(EVAL_TIERS_HOSTS) and len(set(picked.values())) != 1:
+        fail("the eval-timing checklist line differs between "
+             f"{' and '.join(EVAL_TIERS_HOSTS)}: {list(picked.values())}. One of the two is "
+             "now the other's past, and a reader cannot tell which bar this pack holds")
+
+
+check_eval_tiers_are_named_together()
+
 # --------------------------------------------------------------- hygiene
 
 for dirpath, dirnames, filenames in os.walk(os.path.join(ROOT, "plugins")):
@@ -610,5 +776,5 @@ if FAILURES:
         print(f"  - {f}", file=sys.stderr)
     sys.exit(1)
 
-checks = 8 + len(skill_dirs)
+checks = 9 + len(skill_dirs)
 print(f"OK: agent-stack structurally valid ({checks} checks, {len(skill_dirs)} skill(s), v{version})")

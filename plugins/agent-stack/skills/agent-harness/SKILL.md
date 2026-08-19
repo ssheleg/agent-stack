@@ -179,4 +179,5 @@ prompt.
 - [ ] One technique chosen per problem, with a reason — not ReAct because it was in a paper
 - [ ] Sub-agents return **distilled summaries**, not transcripts
 - [ ] The agent can be observed: which tool, which arguments, which observation, how many tokens
-- [ ] An eval exists before the prompt is tuned, or the tuning is folklore
+- [ ] An observable before the implementation, an eval before the prompt is tuned, or the
+      tuning is folklore — only the corpus waits for production

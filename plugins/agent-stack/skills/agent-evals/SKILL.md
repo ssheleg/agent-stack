@@ -20,7 +20,8 @@ license: MIT
 
 An agent's behaviour does not exist in its source. The code says what it is *allowed* to
 do; only a run says what it *did*. So the artifact under test is the execution record,
-and the suite is grown from production rather than authored up front.
+and the suite runs on **two clocks**: the *observable* is authored up front, before the
+implementation exists, and the *corpus* it runs against is grown from production (§6).
 
 Three claims follow, and they are what makes this different from testing ordinary code:
 
@@ -28,7 +29,8 @@ Three claims follow, and they are what makes this different from testing ordinar
 - **Every natural-language input is unique**, so the edge cases cannot be enumerated
   offline. Production is not only where you catch what you missed — it is where you
   discover what to test for.
-- **Traces become test cases.** The suite grows from what actually happened.
+- **Traces become test cases.** The corpus grows from what actually happened; the
+  criterion it is measured against does not.
 
 ---
 
@@ -208,10 +210,34 @@ and they are eval work rather than orchestration work:
 Where the checker sits in the shape, and why the convergence needs one at all:
 `agent-orchestrator/references/graph-engineering.md`.
 
-## 6. The corpus grows from production
+## 6. Two clocks — the observable up front, the corpus from production
 
-Never author the suite up front. Every production failure and every thumbs-down becomes a
-fixture:
+Two different objects get called *the eval*, and they are written at opposite ends of the
+work. Naming them apart is what stops either rule from reading as the other's exception.
+
+<!-- eval-tiers: observable, corpus -->
+
+| Tier | Is | Written | Because |
+|---|---|---|---|
+| **Observable** | the criterion that would show one requirement was met — a pass/fail rubric (§4), a trajectory or state-change assertion (§2) | **before the implementation exists** | a requirement with no observable is unfinished: attach one afterwards and you are inventing the test having already seen the code, so the output has decided what counts as success |
+| **Corpus** | the inputs those criteria run against — fixtures, datasets, minimised production failures | **from production, never up front** | every natural-language input is unique, so the edge cases cannot be enumerated offline; inputs invented in advance test your imagination |
+
+**Neither rule softens the other, because they govern different objects.** An observable is
+a *criterion* — what would count as success. A corpus is a *sample* — which inputs you
+happen to have. The criterion costs nothing to write early and can only be written honestly
+early; the sample written early is green on inputs no user sends. Both therefore hold at
+full strength: **a requirement that ships without an observable is unfinished, and a corpus
+with no production in it is imagination.** The requirement itself gets its id and its
+definition of done from `task-pipeline`'s REQ spine — what this pack owns is the
+observable's *form*, not the register it hangs on.
+
+**The first release has no production, so its offline gate is observables only** (§3). That
+is not the corpus rule suspended for a special case: the corpus is empty because nothing has
+run yet, and it fills from the first real traces. Inventing *inputs* to fill it sooner would
+still be imagination.
+
+**Never author the suite up front** — the *corpus*, that is: the inputs. Every production
+failure and every thumbs-down becomes a fixture:
 
 1. Capture the state at the failure point.
 2. Minimise it to the smallest input that still reproduces.
@@ -267,6 +293,8 @@ None of the above runs without these, and they are the part people skip:
 - [ ] Every checker node watched refusing a planted output, its verdicts stored as scores,
       and its rejection rate on the dashboard — a checker at zero rejections is a finding
 - [ ] Domain-expert review for output a general judge cannot grade
+- [ ] Every requirement carries an **observable** written before the implementation — the
+      corpus waits for production, the criterion does not
 - [ ] Every production failure minimised into a permanent fixture
 - [ ] Annotation queue with filters, and the two reviewer roles kept separate
 - [ ] Simulated users trained on real transcripts, with adversarial personas

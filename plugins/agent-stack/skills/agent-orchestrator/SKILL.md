@@ -365,7 +365,8 @@ heading — the ones that were learned by getting them wrong:
       to the input is a function call wearing a costume
 - [ ] Model, window and price are resolved at one boundary from configuration or the
       provider — never from a table of vendor ids in source
-- [ ] An eval exists before the prompt is tuned, or the tuning is folklore
+- [ ] An observable before the implementation, an eval before the prompt is tuned, or the
+      tuning is folklore — only the corpus waits for production
 
 ## References
 

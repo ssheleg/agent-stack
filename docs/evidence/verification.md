@@ -10,6 +10,71 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Run 2026-08-19 (third) — two clocks: the observable up front, the corpus from production (AG-03, unreleased)
+
+Row: `sshlg-skills/docs/evidence/manifesto-conformance.md` **AG-03**, manifesto requirements
+**M-17** (`~/DATA/pod-manifesto/manifesto.md:114`) and **M-19** (`:122`). Local board:
+`docs/evidence/backlog.md`. **No release**: the version stays `0.11.1` and the CHANGELOG is
+untouched, so every row below is measured on the working tree rather than on a published
+artifact.
+
+| REQ | Verified by | Result | Status |
+|---|---|---|---|
+| 001 | tested the audit's reading before changing anything, including the reading that would have stopped this row | **The contradiction is real, and `agent-evals`' own text proves it without the manifesto.** The audit's charitable alternative was checked first and fails: §6's heading said *corpus* while its imperative said *suite*, and this document does not use the two as synonyms — `:66` *"a suite that fails on every refactor gets deleted"* and `:263` *"Offline suite as the release gate"* both mean assertions, not inputs. Taken as written, the rule makes a first release ungateable: §3 (`:103`) names the offline suite *"**yes** — this is the gate"*, and a suite that may never be authored up front cannot exist before there is production to grow it from. The opening at `:22-23` carried no scope at all. So the sentence contradicted both the manifesto and §3 of its own file | **verified** |
+| 002 | `grep -oci` over `agent-evals/SKILL.md` at `HEAD` (`96d44c8`) | `observable` → **0**, `requirement` → **0**. The pack had no word for M-17's tier, so the softening clause was not there to find — confirming the audit's sharpest claim. After this change: **10** and **5** | **verified** |
+| 003 | read `agent-evals/SKILL.md:213-240` after | §6 is now *"Two clocks — the observable up front, the corpus from production"*. The two tiers are defined as **different objects**: an observable is *"the criterion that would show one requirement was met"*, written **before the implementation exists**; a corpus is *"the inputs those criteria run against"*, grown **from production, never up front**. Each row carries its own justification — the manifesto's for the first, the pack's existing *every-input-is-unique* argument for the second | **verified** |
+| 004 | read `:225-232` — the sentence that stops either rule being read as softened | *"**Neither rule softens the other, because they govern different objects.**"* followed by the distinction in one clause each (*criterion* = what would count as success; *sample* = which inputs you happen to have) and both rules restated at full strength in one sentence: *"a requirement that ships without an observable is unfinished, and a corpus with no production in it is imagination"* | **verified** |
+| 005 | `grep -n "Never author the suite up front"`, before and after | **Kept verbatim, scope stated, not deleted.** `/tmp/ev_before.md:213` → `agent-evals/SKILL.md:239`: *"**Never author the suite up front** — the *corpus*, that is: the inputs."* The four-step fixture recipe under it is byte-identical | **verified** |
+| 006 | read `:234-237` — the case that would have been a loophole | The first release is **answered, not waived**: with no production the offline gate is observables only, and *"that is not the corpus rule suspended for a special case: the corpus is empty because nothing has run yet"*. Inventing inputs to fill it sooner is still named imagination, so the exemption a reader would reach for is closed rather than granted | **verified** |
+| 007 | read `:230-232` — whether `agent-evals` gained the missing concept or a parallel vocabulary | **Gained, in one paragraph, and deliberately not a register.** The observable's *form* is bound to machinery the skill already had — §4's pass/fail rubric and §2's trajectory and state-change assertions — while the requirement's id and definition of done are cited to `task-pipeline`'s **REQ spine**. `observable` is also already the family's word for this (`task-pipeline/references/audit.md:103` *"is there an executed observable?"*, `super-ux`'s `scenario-format.md:131,156`), so no third vocabulary was invented. This is AG-02's rule applied to a concept instead of a field name | **verified** |
+| 008 | read `agent-orchestrator/SKILL.md:368-369` and `agent-harness/SKILL.md:182-183` | The pack's only other timing assertion, mirrored in two skills, went from *"An eval exists before the prompt is tuned, or the tuning is folklore"* to *"An observable before the implementation, an eval before the prompt is tuned, or the tuning is folklore — only the corpus waits for production"* — the original clause kept inside the new one, and the bar raised from **before tuning** to **before implementation**. One shared line rather than two adjacent ones, for the duplication reason in row 012 | **verified** |
+| 009 | `python3 test/validate.py` | `OK: agent-stack structurally valid (13 checks, 4 skill(s), v0.11.1)` — 12 before; the new one is `check_eval_tiers_are_named_together`. **Third use of AG-01's mechanism, not a third mechanism**: an `<!-- eval-tiers: observable, corpus -->` declaration, a **floor of 2** as a ratchet, both keys required by name, each required in the prose with comments stripped first, and the spelled count matched. Two requirements the siblings did not need: each tier's **clock** as a phrase (`before the implementation`, `from production`), because a tier named with no date is the concept without the requirement; and a **sweep** — every `##` section of every document in the pack that dates an eval must name both tiers, the pre-heading opening chunk included, since that is exactly where the unqualified version lived. The sweep currently trips **5** sections and all five name both tiers | **verified** |
+| 010 | four new negative self-tests in `validate.yml`, extracted and run locally | Each watched refusing, with `plant_guard.py verify` confirming the plant landed: **shrink** (drop the last declared tier, whatever it is called) → *"declares 1 tier(s), floor is 2"*; **spelled count** → *"the contract has 2 tiers and the prose never says 'two'"*; **rule stated alone** (the row's own defect re-planted as a new section of `agent-interop/SKILL.md`) → *"## Fixtures dates an eval ('never author the suite up front') and never names ['corpus', 'observable'] in the same section"*; **hosts diverged** (one host reworded, the other left behind — both halves still naming both tiers) → *"the eval-timing checklist line differs between …"*. The second plant is **computed from the declaration, not prose-anchored**, AG-02's trick reused: it derives the number word from the declaration's length, so a third tier re-aims it without an edit | **verified** |
+| 011 | seven further plants run by hand, chosen to reach every branch of the new check | All refused: `observable` dropped by key from the declaration; the declaration comment deleted whole; a clock phrase removed from §6; one host reverted verbatim to the old line; the corpus clause cut from one host's line; the corpus clause cut but corpus still named elsewhere in the same section (the one branch the sweep cannot reach); and a second checklist item naming an observable added to one host. **11 of 11 plants refused, 0 accepted** | **verified** |
+| 012 | the whole workflow, extracted from the YAML and executed at the repo root | **26 passed / 0 failed / 1 skipped** of 27 `run:` steps. Of those, **19 of 19** `Negative self-test` steps green — 15 pre-existing plus 4 new. The skip is *Official Claude Code conformance (plugin + marketplace, strict)*: it runs `npm install -g @anthropic-ai/claude-code`, which needs the network and would mutate this machine's global npm, so it is named rather than counted as green. The installer step was allowed to run because it exports `HOME=/tmp/fakehome` first — confirmed afterwards that `~/.claude/skills/` holds no `agent-*` directory | **verified** |
+| 013 | `npm test`; `python3 test/validate.py`; `audit_agent.py --self-test`; `yaml.safe_load` on the workflow | exit **0** / **0** / **0** / **0** — `PASS: plant_guard — 9 cases`, `self-test: 11/11 passed`, `workflow parses OK` | **verified** |
+| 014 | the duplication check, before and after | Repo maximum **12 → 12** shared twelve-word runs against the floor of 20, so the ceiling this repository reports is unchanged. The pair this edit touches moved: `agent-harness/SKILL.md` ↔ `agent-orchestrator/SKILL.md` **2 → 12**, which is the shared checklist line growing from 13 words to 23. The first shape tried was two adjacent identical lines and it measured **15** — the two lines concatenate into one 26-word run — so it was rewritten as one line before commit. Measured, not estimated | **verified** |
+| 015 | `cl100k_base` count of every SKILL.md this row touches | `agent-orchestrator` body **4143 → 4163** tokens against the 4750 it sets itself (whole file 4442 → 4462); `agent-harness` 2320 → 2340; `agent-evals` 2930 → 3432. **The 4728 both siblings deliberately left it alone for does not reproduce.** Counted at `422f211`, the commit whose message claims the body came under budget: 4143 body / 4442 whole. The headroom was ~607 body tokens, not 22, so a one-line addition here was never near the limit — and AG-01's and AG-02's decision to skip the file rested on a restated number rather than a counted one. Their conclusions are untouched: neither needed the file | **verified** |
+
+**15 of 15 verified. 0 at `never`.**
+
+### What the checks did not cover
+
+- **The product hypothesis is unobserved, as on every run of this ledger.** Nothing above
+  shows a team that wrote an observable before the implementation and caught a requirement
+  the code would otherwise have redefined, nor one that stopped inventing fixtures because
+  §6 now separates the tiers. The pack ships prose; the first project that writes the
+  criterion first is the evidence this ledger cannot supply, and it does not exist yet.
+- **The check reads documents, never an eval suite.** It proves the two tiers are named
+  together in this pack's text. It cannot prove any real suite has an observable per
+  requirement — unlike `super-ux`, whose sibling row SU-01 could at least lint its own
+  scenarios, this pack ships no artifact where a requirement lives, so on this side M-17 is
+  doctrine with a documentation gate rather than a mechanism.
+- **The sweep is a phrase list, and a paraphrase escapes it.** `EVAL_TIMING_TRIGGERS` holds
+  six literal phrases. A future document that dates an eval in words nobody listed — *"write
+  the fixtures once traffic arrives"* — states one tier alone and passes. The floor and the
+  named keys are ratchets; this one is a filter, and it catches restatement rather than
+  invention.
+- **The cross-pack alignment is a reading, not a shared artifact.** `observable` matches the
+  word `task-pipeline` and `super-ux` already use, and the REQ spine is cited by name.
+  Nothing computes that the three still mean the same thing, and any of them can be edited
+  without the others noticing — the same narrowing AG-02 recorded for `check`, not a closure.
+- **Nothing here ran in CI.** The four new steps were executed locally by extracting them
+  from `validate.yml`; GitHub has not run them, and no artifact was published. The one step
+  that was skipped locally is the one CI would run differently.
+- **The manifesto was not touched, and one asymmetry survives on its side.** M-17 demands an
+  observable per requirement and says nothing about where the inputs come from; `:188` does
+  accept *"a known failing fixture, or recorded historical failure"* as proof a checker can
+  discriminate, which is the corpus tier arriving from production and is why the two rules
+  reconcile at all. But no manifesto sentence names the distinction either, so a reader of
+  the manifesto alone can still read M-19 as demanding invented fixtures up front. That is
+  the manifesto's row to fix, not this one's, and it was left alone by instruction.
+- **`.agent-sync/leases/B-65.lock` is expired and was left in place** — stamped
+  `2026-08-16T20:47:46Z` with a 2700s TTL, so three days stale. Reported rather than deleted:
+  a lease is released, never removed.
+
+---
+
 ## Run 2026-08-19 (second) — a node says who owns it and what closes it (AG-02, unreleased)
 
 Row: `sshlg-skills/docs/evidence/manifesto-conformance.md` **AG-02**, manifesto requirement
