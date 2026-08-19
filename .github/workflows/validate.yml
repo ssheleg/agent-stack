@@ -519,6 +519,185 @@ jobs:
             echo "OK: the shared eval-timing line cannot diverge between its two hosts"
           fi
 
+      - name: Negative self-test (the priority axes must stay the manifesto's four)
+        run: |
+          set -eu
+          rm -rf /tmp/axes-copy && cp -R . /tmp/axes-copy
+          python3 test/plant_guard.py snap /tmp/axes-copy
+          # STRUCTURAL plant: put `effort` back in place of an axis, which is the exact state
+          # that shipped — Irreversibility and Coordination absent from the whole pack, and a
+          # COST standing where a risk axis belongs. Computed from the declaration, so a
+          # future rename of the axes re-aims the plant without an edit here.
+          python3 - <<'PY'
+          import pathlib, re
+          p = pathlib.Path("/tmp/axes-copy/plugins/agent-stack/skills/agent-harness/references/audit.md")
+          s = p.read_text(encoding="utf-8")
+          m = re.search(r"<!--\s*priority-axes:\s*([^>]+?)\s*-->", s)
+          assert m, "PLANT DID NOT LAND: no priority-axes declaration to rewrite"
+          keys = [k.strip() for k in m.group(1).split(",") if k.strip()]
+          assert len(keys) > 1, "PLANT DID NOT LAND: nothing to substitute"
+          out = s[:m.start(1)] + ", ".join(keys[:-1] + ["effort"]) + s[m.end(1):]
+          assert out != s, "PLANT DID NOT LAND"
+          p.write_text(out, encoding="utf-8")
+          PY
+          python3 test/plant_guard.py verify /tmp/axes-copy "Negative self-test (the priority axes must stay the manifesto's four)"
+          if python3 /tmp/axes-copy/test/validate.py; then
+            echo "ERROR: validator accepted a cost substituted for a manifesto risk axis"
+            exit 1
+          else
+            echo "OK: the priority axes cannot be swapped for a cost"
+          fi
+
+      - name: Negative self-test (a priority scalar must not come back)
+        run: |
+          set -eu
+          rm -rf /tmp/scalar-copy && cp -R . /tmp/scalar-copy
+          python3 test/plant_guard.py snap /tmp/scalar-copy
+          # The refused formula, reinstated as a standalone line — what a reader follows as an
+          # instruction, and what shipped. The check deliberately does NOT refuse the same
+          # formula inside a sentence: the paragraph recording its removal quotes it, and a
+          # guard that reads a citation as a prescription refuses correct documents.
+          python3 - <<'PY'
+          import pathlib
+          p = pathlib.Path("/tmp/scalar-copy/plugins/agent-stack/skills/agent-harness/references/audit.md")
+          s = p.read_text(encoding="utf-8")
+          out = s.replace("**Ordering rule:", "`P = impact \u00d7 uncertainty / effort`\n\n**Ordering rule:", 1)
+          assert out != s, "PLANT DID NOT LAND: the ordering rule was not found"
+          p.write_text(out, encoding="utf-8")
+          PY
+          python3 test/plant_guard.py verify /tmp/scalar-copy "Negative self-test (a priority scalar must not come back)"
+          if python3 /tmp/scalar-copy/test/validate.py; then
+            echo "ERROR: validator accepted a priority scalar beside its own refusal of one"
+            exit 1
+          else
+            echo "OK: a prescribed priority scalar is refused"
+          fi
+
+      - name: Negative self-test (the plan must not be ordered by a number)
+        run: |
+          set -eu
+          rm -rf /tmp/ordered-copy && cp -R . /tmp/ordered-copy
+          python3 test/plant_guard.py snap /tmp/ordered-copy
+          # The half a formula check alone misses: define the scalar anywhere, order by it here.
+          python3 - <<'PY'
+          import pathlib
+          p = pathlib.Path("/tmp/ordered-copy/plugins/agent-stack/skills/agent-harness/references/audit.md")
+          s = p.read_text(encoding="utf-8")
+          out = s.replace("**The plan** \u2014 ordered by the axes above",
+                          "**The plan** \u2014 ordered by P", 1)
+          assert out != s, "PLANT DID NOT LAND: the plan's ordering line was not found"
+          p.write_text(out, encoding="utf-8")
+          PY
+          python3 test/plant_guard.py verify /tmp/ordered-copy "Negative self-test (the plan must not be ordered by a number)"
+          if python3 /tmp/ordered-copy/test/validate.py; then
+            echo "ERROR: validator accepted a plan ordered by a scalar"
+            exit 1
+          else
+            echo "OK: the plan cannot be ordered by a number"
+          fi
+
+      - name: Negative self-test (a temp tree must not bypass the residue ledger)
+        run: |
+          set -eu
+          rm -rf /tmp/residue-copy && cp -R . /tmp/residue-copy
+          python3 test/plant_guard.py snap /tmp/residue-copy
+          # The bypass, planted exactly as it was found: one `residue.workspace()` swapped
+          # back to a bare `tempfile.mkdtemp()`. The fixture still PASSES with this plant and
+          # the ledger prints "this run left nothing — 0 temp tree(s) created", which is why
+          # the ledger alone is not the check. Eight nameless trees per run is how 2576 of
+          # them accumulated with every run reporting clean.
+          python3 - <<'PY'
+          import pathlib
+          p = pathlib.Path("/tmp/residue-copy/test/plant_guard_test.py")
+          s = p.read_text(encoding="utf-8")
+          out = s.replace('d = residue.workspace("plant-guard")', "import tempfile; d = tempfile.mkdtemp()", 1)
+          assert out != s, "PLANT DID NOT LAND: no residue.workspace() call to replace"
+          p.write_text(out, encoding="utf-8")
+          PY
+          python3 test/plant_guard.py verify /tmp/residue-copy "Negative self-test (a temp tree must not bypass the residue ledger)"
+          if python3 /tmp/residue-copy/test/validate.py; then
+            echo "ERROR: validator accepted a temp tree the residue ledger cannot see"
+            exit 1
+          else
+            echo "OK: every temp tree goes through the residue ledger"
+          fi
+
+      - name: Negative self-test (a description must stay inside the working limit)
+        run: |
+          set -eu
+          rm -rf /tmp/desc-copy && cp -R . /tmp/desc-copy
+          python3 test/plant_guard.py snap /tmp/desc-copy
+          # Under the 1024 cap and over the 970 working limit — the state three of four
+          # skills shipped in, one with five characters of headroom. The hard-cap check
+          # passes on this plant, so it is the working limit or nothing.
+          python3 - <<'PY'
+          import pathlib, re
+          p = pathlib.Path("/tmp/desc-copy/plugins/agent-stack/skills/agent-evals/SKILL.md")
+          s = p.read_text(encoding="utf-8")
+          # Anchored on the front-matter key, not on any sentence inside the description:
+          # the words get reflowed and a prose anchor stops planting silently.
+          m = re.search(r"(?m)^description: >-\n", s)
+          assert m, "PLANT DID NOT LAND: no folded description block to grow"
+          out = s[:m.end()] + "  padding to reach the working limit and no further.\n" + s[m.end():]
+          assert out != s, "PLANT DID NOT LAND"
+          p.write_text(out, encoding="utf-8")
+          PY
+          python3 test/plant_guard.py verify /tmp/desc-copy "Negative self-test (a description must stay inside the working limit)"
+          if python3 /tmp/desc-copy/test/validate.py; then
+            echo "ERROR: validator accepted a description past the house working limit"
+            exit 1
+          else
+            echo "OK: a description cannot drift past the working limit"
+          fi
+
+      - name: Negative self-test (a verified row must not stand over an unreleased artifact)
+        run: |
+          set -eu
+          rm -rf /tmp/ledger-copy && cp -R . /tmp/ledger-copy
+          python3 test/plant_guard.py snap /tmp/ledger-copy
+          # The exact state that shipped: three sections headed `unreleased`, carrying
+          # "No release: the version stays 0.11.1", over 35 rows all reading `verified` —
+          # while v0.12.0 was tagged, on npm and in the CHANGELOG.
+          python3 - <<'PY'
+          import pathlib
+          p = pathlib.Path("/tmp/ledger-copy/docs/evidence/verification.md")
+          s = p.read_text(encoding="utf-8")
+          out = s.replace("**Shipped in v0.12.0** (tag",
+                          "**No release**: the version stays `0.11.1` and the CHANGELOG is untouched. (tag", 1)
+          assert out != s, "PLANT DID NOT LAND: no shipped-in paragraph to reverse"
+          p.write_text(out, encoding="utf-8")
+          PY
+          python3 test/plant_guard.py verify /tmp/ledger-copy "Negative self-test (a verified row must not stand over an unreleased artifact)"
+          if python3 /tmp/ledger-copy/test/validate.py; then
+            echo "ERROR: validator accepted verified rows measured on a working tree"
+            exit 1
+          else
+            echo "OK: a verified row cannot stand over an unreleased artifact"
+          fi
+
+      - name: Negative self-test (the ledger must not announce a release nobody cut)
+        run: |
+          set -eu
+          rm -rf /tmp/cut-copy && cp -R . /tmp/cut-copy
+          python3 test/plant_guard.py snap /tmp/cut-copy
+          python3 - <<'PY'
+          import pathlib
+          p = pathlib.Path("/tmp/cut-copy/docs/evidence/verification.md")
+          s = p.read_text(encoding="utf-8")
+          # Capitalised on purpose: that is how the ledger states the claim, and the first
+          # version of the check was lowercase-only, so every real claim went unchecked.
+          out = s.replace("**Shipped in v0.12.0**", "**Shipped in v9.9.9**", 1)
+          assert out != s, "PLANT DID NOT LAND: no shipped-in claim to falsify"
+          p.write_text(out, encoding="utf-8")
+          PY
+          python3 test/plant_guard.py verify /tmp/cut-copy "Negative self-test (the ledger must not announce a release nobody cut)"
+          if python3 /tmp/cut-copy/test/validate.py; then
+            echo "ERROR: validator accepted a ledger section naming a version that does not exist"
+            exit 1
+          else
+            echo "OK: the ledger cannot announce a release nobody cut"
+          fi
+
       - name: Agent audit scanner — every detector must fire, and a clean file must not
         run: |
           set -eu

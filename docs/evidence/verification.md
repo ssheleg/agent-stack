@@ -10,13 +10,74 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
-## Run 2026-08-19 (third) — two clocks: the observable up front, the corpus from production (AG-03, unreleased)
+## Run 2026-08-20 — the document that refused a score and computed one (AG-04 … AG-09, in tree at v0.12.0, release pending)
+
+Rows: `docs/evidence/backlog.md` **AG-04 … AG-09**. Manifesto requirements **M-?** are not
+the frame here — four of these six are the pack disagreeing with **itself**, and the ledger
+below is the first section of this file whose own preamble rule (`:4-5`) was the defect being
+closed. **Not released by this run:** HEAD is the v0.12.0 release commit and the version is
+untouched, so every row below states which artifact it was measured on.
+
+| REQ | Verified by | Result | Status |
+|---|---|---|---|
+| 001 | tested the audit's reading before changing anything | **Both halves confirmed.** `audit.md:20-25` refused a score in two sentences, `:114` computed `P = blast × confidence / effort`, `:128` ordered the plan by it. And the arithmetic did not do what its own paragraph claimed — *"the ranking can be argued with on its inputs"* — because multiplication is one-way over them: `3 × 1 / 3` and `1 × 1 / 1` both print **1**, so *harms a user, judgement-tier, its own project* and *annoys a future maintainer, judgement-tier, an hour* arrive at one priority and no reader can recover which is which. That argument needs no manifesto | **verified** |
+| 002 | `grep -ci irreversib` and `grep -ci coordinat` over `plugins/` at `7937c35` | **0** and **0**. Two of the manifesto's four axes (`~/DATA/pod-manifesto/manifesto.md:419-422`) were absent from every document in the pack, so a **cost** could stand where a risk axis belongs and nothing was there to notice | **verified** |
+| 003 | read `agent-harness/references/audit.md` after | §*Priority — four axes, and no scalar*. The four axes are declared as `<!-- priority-axes: impact, irreversibility, uncertainty, coordination -->` and each is written out with its High·Medium·Low values, cited to `manifesto.md:419-422` and to `:424`'s *"these axes are not a fake numerical score"*. The ordering rule is **the first axis that separates two findings**, which is arguable at the axis that decided it. `effort` keeps its job — sizing the plan's first three items — and loses its rank, because a cost that divides a risk is how *too expensive to fix* becomes *not important*. `Uncertainty` is stated as **not** the old `confidence` renamed: that graded the auditor's evidence and still exists as the tier on every finding | **verified** |
+| 004 | `python3 test/validate.py`, on this tree | `OK: agent-stack structurally valid (13 checks = 9 named + 4 per-skill, 4 skill(s), v0.12.0)`, exit **0**. Three new named checks: `check_priority_axes_are_the_manifesto_s_and_carry_no_scalar`, `check_temp_trees_go_through_the_residue_ledger`, `check_the_ledger_matches_what_shipped` | **verified** |
+| 005 | the axis check watched refusing, four ways | Each at **exit 1**: `effort` substituted back for an axis → *"the priority axes are ['impact', 'irreversibility', 'uncertainty', 'effort'], and the manifesto names …"*; the formula reinstated as a standalone line → *"prescribes a priority scalar — '`P = impact × uncertainty / effort`'"*; `ordered by P` → *"orders the plan by a scalar"*; and both restored axes renamed away across the pack → the equality fires. The first three are negative self-tests in `validate.yml`; the fourth was run by hand | **verified** |
+| 006 | the axis check watched refusing a **correct** document, which is why it changed shape | The first draft matched the formula anywhere on a line and refused the paragraph that *records its removal*. Fixed by reading a whole-line prescription rather than a citation — the umbrella's own rule, *name a dead command, never claim it* — and the plant is written to the same distinction on purpose. The `PRIORITY_ORDERING` half was added at the same time, because a formula defined elsewhere and a plan ordered by it is the same contradiction one file away | **verified** |
+| 007 | AG-06, measured before and after | `find "$TMPDIR" -maxdepth 4 -type f -path '*/copy/sub/b.sh' \| wc -l` → **2568 → 2576** across one run of `test/plant_guard_test.py`: **8 nameless trees per run**, and the gate printed nothing. After the port: **2576 → 2576**, `0` directories matching `agent-stack-test-*` left behind, and `npm test` ends `residue: this run left nothing — 8 temp tree(s) created, 8 removed` | **verified** |
+| 008 | AG-06, and how it was closed | **Ported from `make-skill/test/residue.py`, not reinvented** — that repository measured the defect first and shipped the answer; a second implementation of one ledger is how two gates disagree about what a clean run leaves. Differences: the `agent-stack-test-` prefix, the suite it accounts for, and the opening paragraph, which carries **this** repository's measurement rather than make-skill's. A failing case KEEPS its tree by design, and `report()` is wired to `atexit` so the line prints on the failure path too | **verified** |
+| 009 | the port watched **failing to be enough** | The leak re-planted as a bare `tempfile.mkdtemp()`: the fixture **passed**, exit 0, and the ledger printed *"this run left nothing — 0 temp tree(s) created"*. A bypass that reports clean is indistinguishable from no leak, which is the exact reading the ledger exists to prevent — so `check_temp_trees_go_through_the_residue_ledger` makes the ledger the only door. `mkdtemp` and `TemporaryDirectory` both refused in every `test/*.py` but `residue.py`, read from source with comments and docstrings stripped so an explanation of the ban is not a violation of it. The pattern is **assembled from parts**, because spelled out it contains the literals it hunts and `test/validate.py` is inside the set it scans — it passed only because a `)` happened to follow each name, and a guard that is green by luck is a guard nobody has watched. Both shapes watched at **exit 1** after the hardening; one negative self-test in `validate.yml` | **verified** |
+| 010 | AG-07/AG-08, re-run on the shipped artifact rather than re-graded | `git archive v0.12.0` (tag `7937c35`, released 2026-08-19T19:30:00Z, `npm view @ssheleg/agent-stack version` → `0.12.0`) into a clean tree: `python3 test/validate.py` → `OK: agent-stack structurally valid (13 checks, 4 skill(s), v0.12.0)`, exit **0**; `python3 test/plant_guard_test.py` → `PASS: plant_guard — 9 cases`, exit **0**. The 35 `verified` rows of the three earlier sections now stand on that, and each paragraph records what it used to say | **verified** |
+| 011 | the ledger guard watched refusing, both directions | At **exit 1** each: the shipped state re-planted → *"'## Run 2026-08-19 (third) …' declares no release and carries 15 row(s) marked verified"*; and a section announcing a version the CHANGELOG lacks, planted both capitalised and lowercase. A third branch — *"version stays X"* behind the CHANGELOG's newest release — is implemented and covered by the first plant's text, which carries that phrase. Two negative self-tests in `validate.yml` | **verified** |
+| 011a | the guard watched **not** refusing, which is how two holes were found | Two of them, both from a plant that stopped firing rather than from reading the code. **(a)** The claim pattern was lowercase-only while this ledger states every claim as *Shipped in v0.12.0* — so every real claim in the file was unchecked and the check reported green; now case-insensitive, and refused at **exit 1** in both cases. **(b)** The first two drafts refused CORRECT documents: the paragraph that quotes the sentence it replaced, and the row above that quotes a plant's own text. A `*"…"*` quotation is now dropped before any pattern runs, and an announcement must survive outside a backtick span — the umbrella's rule that a guard reads what is claimed, not what is cited | **verified** |
+| 012 | AG-09, measured with the family's auditor | Before: **1019 / 986 / 983** chars against `DESC_TARGET = 970` in `make-skill/scripts/audit_skill.py` — one skill with **five** characters of headroom before the hard 1024 cap. After: **964 / 963 / 970**, and `audit_skill.py --house` reports `0 GAP, 14 PASS` for `agent-orchestrator`, `agent-interop` and `agent-harness` and `0 GAP, 13 PASS` for `agent-evals` | **verified** |
+| 013 | AG-09, that no trigger was lost | Quoted trigger phrases counted from the parsed YAML before and after, per skill: `agent-orchestrator` 19 → 19, `agent-evals` 12 → 12, `agent-interop` 14 → 14, `lost: []` and `gained: []` in all three. Only connective prose was compressed; the `>-` folded scalars were re-wrapped and each round-trips through `yaml.safe_load` to the exact intended string | **verified** |
+| 014 | AG-09, the limit as a gate rather than an opinion | `test/validate.py` refuses a description past `DESC_WORKING_LIMIT = 970`, sourced by name to make-skill's `DESC_TARGET` rather than re-decided here. Watched at **exit 1** on a description padded to **1014** chars — under the hard cap, over the working limit, the band the old 1024-only check could not see. One negative self-test in `validate.yml` | **verified** |
+| 015 | the validator's own check count, which was a restated number | `checks = 9 + len(skill_dirs)` was a hand-bumped literal, and the hand had missed: five ledger rows quote it as evidence that a check was added, and the check added on 2026-08-20 did not move it. Counted from this module's globals now — and the true count at `7937c35` was **10**: `git show v0.12.0:test/validate.py | grep -c '^def check_'` → **6** named plus 4 per-skill, against the **13** the shipped artifact prints. Three drifted apart, and the literal was the loosest of them. This row was written claiming 11 before that command was run — corrected in the same change, which is the only reason to run it. The historical rows are left as they were measured; the literal is the thing that was wrong, and it is gone | **verified** |
+| 016 | `python3 -c 'import yaml; yaml.safe_load(open(".github/workflows/validate.yml"))'` | Parses. Counted against the shipped artifact rather than guessed: `git show v0.12.0:.github/workflows/validate.yml | grep -c '^      - name:'` → **27**, now **34**, so **7** steps were added and every one is a negative self-test (19 → **26** by `grep -c 'name: Negative self-test'`; **51** occurrences of the string overall, since each step names itself three times). This row first said 8, and the `git show` was run because it claimed a number | **verified** |
+
+**17 of 17 verified. 0 at `never`.** Each row names the artifact it was measured on: rows
+010 and 011 on the shipped v0.12.0 tarball, the rest on this tree at the commit that carries
+them, which is what this section's own heading says.
+
+### What the checks did not cover
+
+- **The product hypothesis is unobserved, as on every run of this ledger.** Nothing above
+  shows an auditor who ranked two findings by Irreversibility and reached a different plan
+  than the formula would have given, nor a reader who argued with an axis instead of a
+  number. The pack ships prose; the first audit run against the four axes is the evidence
+  this ledger cannot supply, and it does not exist yet.
+- **The axes are checked as words, never as use.** `check_priority_axes_are_the_manifesto_s_and_carry_no_scalar`
+  proves the four are declared, described, counted and present in the pack. It cannot prove
+  any real audit report carries them, because this pack ships no artifact a report is
+  validated against — the same narrowing AG-01, AG-02 and AG-03 each recorded.
+- **The manifesto is not read by the check.** It lives at `~/DATA/pod-manifesto/manifesto.md`,
+  outside this repository, so CI cannot open it. The four axis names are pinned here with the
+  citation beside them, which means a manifesto edit does not reach this check — the same
+  cross-repository gap AG-02's TP-01 alignment recorded, not a closure of it.
+- **The residue ledger sees `test/`, not `$TMPDIR`.** Board row AG-06a. A tree made outside
+  this repository's own suite is unaccounted for, and observing `$TMPDIR` directly would mean
+  claiming ownership of directories this run cannot prove it made.
+- **2592 nameless trees remain, 16 of them added by this run's own verification.** Board row
+  AG-06b. They are reported and left alone, and the identical fixture still leaks in
+  `seo-aeo-audit`, which another agent holds.
+- **This board's own priority is still a scalar.** Board row AG-04a. `docs/evidence/backlog.md`
+  computes `P = blast × (1 + age_runs) / effort` while `audit.md` now argues against
+  multiplying axes. The check scopes to documents under `plugins/` on purpose, so it neither
+  polices nor blesses the board; the method's home is the umbrella, which another agent holds.
+- **Nothing here ran in CI.** The eight new negative self-tests were executed locally by
+  running their plants against a copy of the tree; GitHub has not run them, and no artifact
+  was published by this run.
+
+---
+
+## Run 2026-08-19 (third) — two clocks: the observable up front, the corpus from production (AG-03, shipped in v0.12.0)
 
 Row: `sshlg-skills/docs/evidence/manifesto-conformance.md` **AG-03**, manifesto requirements
 **M-17** (`~/DATA/pod-manifesto/manifesto.md:114`) and **M-19** (`:122`). Local board:
-`docs/evidence/backlog.md`. **No release**: the version stays `0.11.1` and the CHANGELOG is
-untouched, so every row below is measured on the working tree rather than on a published
-artifact.
+`docs/evidence/backlog.md`. **Shipped in v0.12.0** (tag `7937c35`, released 2026-08-19T19:30:00Z, `npm view @ssheleg/agent-stack version` → `0.12.0`). Every row below was re-run on that artifact on 2026-08-20: `git archive v0.12.0` into a clean tree, then `python3 test/validate.py` → `OK: agent-stack structurally valid (13 checks, 4 skill(s), v0.12.0)`, exit **0**, and `python3 test/plant_guard_test.py` → `PASS: plant_guard — 9 cases`, exit **0**. Until 2026-08-20 this paragraph read *"No release: the version stays 0.11.1 and the CHANGELOG is untouched"* — false from the moment v0.12.0 was cut, and it stood over rows all reading `verified` while this file's own opening says a row sits at `never` until its check has been watched passing **on the shipped artifact**. AG-07 and AG-08.
 
 | REQ | Verified by | Result | Status |
 |---|---|---|---|
@@ -75,13 +136,11 @@ artifact.
 
 ---
 
-## Run 2026-08-19 (second) — a node says who owns it and what closes it (AG-02, unreleased)
+## Run 2026-08-19 (second) — a node says who owns it and what closes it (AG-02, shipped in v0.12.0)
 
 Row: `sshlg-skills/docs/evidence/manifesto-conformance.md` **AG-02**, manifesto requirement
 **M-22** (`~/DATA/pod-manifesto/manifesto.md:157`, under the heading *A node has one job* at
-`:156`). Local board: `docs/evidence/backlog.md`. **No release**: the version stays `0.11.1`
-and the CHANGELOG is untouched, so every row below is measured on the working tree rather
-than on a published artifact.
+`:156`). Local board: `docs/evidence/backlog.md`. **Shipped in v0.12.0** (tag `7937c35`, released 2026-08-19T19:30:00Z, `npm view @ssheleg/agent-stack version` → `0.12.0`). Every row below was re-run on that artifact on 2026-08-20: `git archive v0.12.0` into a clean tree, then `python3 test/validate.py` → `OK: agent-stack structurally valid (13 checks, 4 skill(s), v0.12.0)`, exit **0**, and `python3 test/plant_guard_test.py` → `PASS: plant_guard — 9 cases`, exit **0**. Until 2026-08-20 this paragraph read *"No release: the version stays 0.11.1 and the CHANGELOG is untouched"* — false from the moment v0.12.0 was cut, and it stood over rows all reading `verified` while this file's own opening says a row sits at `never` until its check has been watched passing **on the shipped artifact**. AG-07 and AG-08.
 
 | REQ | Verified by | Result | Status |
 |---|---|---|---|
@@ -126,12 +185,11 @@ than on a published artifact.
   node contract there would buy a second home for the list and break the budget in one edit.
   §1's five fields are reachable from the reference the SKILL.md already links (`:377`).
 
-## Run 2026-08-19 — the checker asks what a branch can show, not how sure it is (AG-01, unreleased)
+## Run 2026-08-19 — the checker asks what a branch can show, not how sure it is (AG-01, shipped in v0.12.0)
 
 Row: `sshlg-skills/docs/evidence/manifesto-conformance.md` **AG-01**, manifesto requirement
 **M-25** (`~/DATA/pod-manifesto/manifesto.md:186`). Local board: `docs/evidence/backlog.md`.
-**No release**: the version stays `0.11.1` and the CHANGELOG is untouched, so every row below
-is measured on the working tree rather than on a published artifact.
+**Shipped in v0.12.0** (tag `7937c35`, released 2026-08-19T19:30:00Z, `npm view @ssheleg/agent-stack version` → `0.12.0`). Every row below was re-run on that artifact on 2026-08-20: `git archive v0.12.0` into a clean tree, then `python3 test/validate.py` → `OK: agent-stack structurally valid (13 checks, 4 skill(s), v0.12.0)`, exit **0**, and `python3 test/plant_guard_test.py` → `PASS: plant_guard — 9 cases`, exit **0**. Until 2026-08-20 this paragraph read *"No release: the version stays 0.11.1 and the CHANGELOG is untouched"* — false from the moment v0.12.0 was cut, and it stood over rows all reading `verified` while this file's own opening says a row sits at `never` until its check has been watched passing **on the shipped artifact**. AG-07 and AG-08.
 
 | REQ | Verified by | Result | Status |
 |---|---|---|---|

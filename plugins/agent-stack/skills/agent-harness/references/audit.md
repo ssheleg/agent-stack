@@ -11,7 +11,7 @@ inherited codebase, or a "why is this unreliable" investigation.
 - Run the scanner first
 - Seven tracks
 - Evidence tiers
-- Priority, computed
+- Priority — four axes, and no scalar
 - The report
 - Traps
 
@@ -109,23 +109,56 @@ Every finding carries one, and the tier is part of the finding:
 **Never present judgement as measured.** A finding whose tier is honest survives the meeting
 where it is challenged; one that is inflated loses the whole report.
 
-## Priority, computed
+## Priority — four axes, and no scalar
 
-`P = blast × confidence / effort`
+`P = blast × confidence / effort` used to sit here, and it contradicted the two sections
+above it. "Not a score" and *pass/fail with a named failure condition beats a scalar that
+names no fix* cannot share a file with a number the plan is then ordered by.
 
-- **blast** 3 = a user of the system is harmed · 2 = the operator · 1 = a future maintainer
-- **confidence** 3 = measured · 2 = documented · 1 = judgement
-- **effort** 1 = under an hour · 2 = a session · 3 = its own project
+**And the number does not do what it claimed to do.** The section said the ranking "can be
+argued with on its inputs", but multiplication destroys them: `3 × 1 / 3` and `1 × 1 / 1`
+both print **1**, so *harms a user, judgement-tier, its own project* and *annoys a future
+maintainer, judgement-tier, an hour* arrive at one priority and nobody reading the output
+can tell which is which. A product is a one-way function on the very inputs the argument
+needs.
 
-Computed, not felt — so a dramatic finding nobody can act on ranks below a boring one that
-is fixed before lunch, and the ranking can be argued with on its inputs.
+<!-- priority-axes: impact, irreversibility, uncertainty, coordination -->
+
+So the inputs are published and the arithmetic is not. The axes are the manifesto's four
+(`~/DATA/pod-manifesto/manifesto.md:419-422`, under *these axes are not a fake numerical
+score* at `:424`), and two of them were absent here entirely while `effort` — a **cost**,
+not a risk axis — had been substituted into their place:
+
+| Axis | Question | High · Medium · Low |
+|---|---|---|
+| **Impact** | What is harmed if the finding is right? | a user of the system · the operator · a future maintainer |
+| **Irreversibility** | How hard is the harm to undo once it lands? | unrecoverable · recoverable with work · trivially reversible |
+| **Uncertainty** | How much of the behaviour cannot be checked deterministically? | unmeasurable here · measurable but unmeasured · measured |
+| **Coordination** | How many agents, repositories, services and owners meet at the fix? | many · two · one |
+
+**Ordering rule: the first axis that separates two findings decides, in that order.**
+Impact, then Irreversibility, then Uncertainty, then Coordination. It is inspectable in the
+direction the old formula was not — a reader who disagrees with the order of two findings
+can point at the axis that decided it and argue about that axis alone.
+
+**Effort keeps its job and loses its rank.** It is recorded per finding — under an hour · a
+session · its own project — and it never moves a finding up or down. It sizes the *first
+three items of the plan* so they can start immediately, which is the only decision it was
+ever good for. A cost that divides a risk is how "too expensive to fix" becomes "not
+important".
+
+**Uncertainty is not the old `confidence` renamed.** `confidence` graded the auditor's
+evidence; the axis grades what the *system* cannot be made to prove. The evidence grade
+still exists and is still required — it is the tier on every finding, one section up — and
+a finding whose tier is `judgement` says so there rather than being quietly discounted here.
 
 ## The report
 
 1. **One paragraph** — what the system is, which layer, and the single most important thing.
 2. **The scanner output**, including its blind-spot list, verbatim.
-3. **Findings by track**, each with observation, tier and priority.
-4. **The plan** — ordered by P, with the first three items sized so they can start immediately.
+3. **Findings by track**, each with observation, tier, the four axes and its effort.
+4. **The plan** — ordered by the axes above, first separating axis wins, with the first
+   three items sized by effort so they can start immediately.
 5. **What was not looked at**, and why. An audit that does not say where it stopped is read
    as complete.
 
@@ -135,7 +168,9 @@ is fixed before lunch, and the ranking can be argued with on its inputs.
   is often not in the repository at all — ask where it lives before concluding it is fine.
 - **Filing "no permission model" against a harness that delegates by design.** Check the
   layer first (`layers.md`).
-- **Grading instead of planning.** A score ends the conversation the audit was meant to start.
+- **Grading instead of planning.** A score ends the conversation the audit was meant to
+  start — including a score assembled from honest axes. Publish the axes; do not multiply
+  them.
 - **Confusing "no evals" with "not measured yet."** It is the root finding; put it first,
   because every other conclusion inherits it.
 - **Reading a silent scanner as a clean system.** It is silent about what it can see.

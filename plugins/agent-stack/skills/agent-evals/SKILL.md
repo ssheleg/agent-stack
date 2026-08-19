@@ -7,12 +7,11 @@ description: >-
   evals. Covers the three observability primitives (run, trace, thread) crossed with three
   eval granularities (single-step, full-turn, multi-turn), the offline/online/ad-hoc
   timing axis, pass-fail rubrics over scalar scores, cheap code checks before model
-  judges, the checker node as an evaluator running inside the graph, simulated users with
-  adversarial personas, annotation queues, and what to instrument so any of it is
-  possible. Triggers - "agent eval", "eval suite", "LLM judge", "regression fixture",
+  judges, the checker node as an evaluator inside the graph, simulated users with adversarial
+  personas, annotation queues, and what to instrument for any of it. Triggers - "agent eval", "eval suite", "LLM judge", "regression fixture",
   "trajectory eval", "checker node", "is the agent getting better", "эвалы агента",
   "оценка агента", "LLM-судья", "регрессионный набор", "как проверить агента". Not for
-  unit tests of ordinary code, or for benchmarking a model.
+  unit tests of ordinary code, or benchmarking a model.
 license: MIT
 ---
 

@@ -25,13 +25,29 @@ Exit code 0 = green. Anything else = a fail with a reason on stderr.
 """
 
 import datetime
+import glob
 import subprocess
 import json
 import os
 import re
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+try:
+    # Accounts for what this run leaves on disk and prints it at exit, `nothing` included
+    # — see test/residue.py. Tolerant on purpose: a gate that refuses to start because a
+    # helper is absent is worse than one that runs and discloses that it could not account
+    # for itself. Nothing in THIS file writes to $TMPDIR today; the import is what makes
+    # the next thing that does visible in this command's own output.
+    import residue  # noqa: F401
+except ImportError:
+    print("  unlooked: residue — test/residue.py is absent, so this run cannot say what "
+          "it left on disk")
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# 5% under the 1024 cap. Not this repo's number: `DESC_TARGET` in make-skill's
+# `scripts/audit_skill.py`, the family's authority on skill budgets.
+DESC_WORKING_LIMIT = 970
 FAILURES = []
 
 # Skills whose references describe an external specification somebody else
@@ -187,6 +203,19 @@ for name in skill_dirs:
         fail(
             f"{name}/SKILL.md: description is {len(fm_desc)} chars, limit 1024 "
             "-- hosts truncate silently, so this never surfaces at runtime"
+        )
+    elif len(fm_desc) > DESC_WORKING_LIMIT:
+        # The house working limit, and it was checked nowhere here. Three of four skills sat
+        # past it on 2026-08-20 — 1019, 986 and 983 chars — one with FIVE characters of
+        # headroom before the hard cap, which is not room for the "and not for X" clause the
+        # next near-miss neighbour requires. The family's own auditor
+        # (`make-skill/scripts/audit_skill.py`, DESC_TARGET) is the authority for the number;
+        # this is the gate that stops the drift returning silently.
+        fail(
+            f"{name}/SKILL.md: description is {len(fm_desc)} chars, past the "
+            f"{DESC_WORKING_LIMIT}-char working limit (hard cap 1024). A description at 99% "
+            "of cap cannot absorb the clause that says what this skill is NOT for, and that "
+            "clause is what stops a sibling stealing its triggers"
         )
     if fm_desc and re.search(r"<[a-zA-Z/]", fm_desc):
         fail(f"{name}/SKILL.md: description must not contain angle-bracket tags")
@@ -671,6 +700,251 @@ def check_eval_tiers_are_named_together():
 
 check_eval_tiers_are_named_together()
 
+# ------------------------------- the priority axes, and the scalar that must not return
+#
+# Fourth use of the same declaration mechanism, against the flattest contradiction the
+# 2026-08-18 conformance audit found: `audit.md` opened with *"A prioritized change plan …
+# **Not a score**"* and *"pass/fail with a named failure condition beats a scalar that names
+# no fix"*, and then computed `P = blast × confidence / effort` and ordered the plan by it.
+#
+# The manifesto backs the refusal — `~/DATA/pod-manifesto/manifesto.md:424`, *"these axes
+# are not a fake numerical score"* — and names FOUR axes at `:419-422`. Two of them,
+# **Irreversibility** and **Coordination**, appeared nowhere in this pack (`grep -ci
+# irreversib` → 0, `grep -ci coordinat` → 0), while `effort` — a **cost** — had been
+# substituted into their place. So the file held neither position: not the manifesto's axes,
+# and not its own refusal of a scalar.
+#
+# The position taken is the one the document already argued for: publish the axes, drop the
+# arithmetic. Which makes two things checkable, and both are checked, because either alone
+# leaves the defect reachable — the axes could come back as multiplicands, or the scalar
+# could come back under different axis names.
+PRIORITY_AXES_DOC = ("agent-harness/references/audit.md", "## Priority")
+PRIORITY_AXES_DECL = re.compile(r"<!--\s*priority-axes:\s*([^>]+?)\s*-->")
+# Not a floor and not a subset: the manifesto names four axes and this is the whole list, so
+# an axis that is not one of them is as wrong as an axis that is missing. `effort` is the
+# specific wrong one this row exists for, and it is refused by exactly this equality.
+PRIORITY_AXES_REQUIRED = ("impact", "irreversibility", "uncertainty", "coordination")
+PRIORITY_AXES_SOURCE = "manifesto.md:419-422"
+# Any arithmetic over the axes, PRESCRIBED rather than quoted. Two design decisions, and the
+# second was found by watching this check refuse a correct document:
+#
+#  * the name is an alternation, not the literal `P`, because renaming the variable to
+#    `score` would have walked the first draft of this check straight past the defect;
+#  * the whole line must BE the formula. The shipped defect was `P = blast × confidence /
+#    effort` alone on its own line — that is what a reader follows as an instruction. A
+#    formula inside a sentence explaining why it was dropped is a citation, and the first
+#    draft refused exactly that: the paragraph that records the removal. Naming a dead
+#    formula is how the record survives; claiming one is the defect.
+PRIORITY_SCALAR = re.compile(
+    r"(?m)^\s*`?\s*(?:P|score|priority|rank|weight)\s*=\s*[^`\n]*[×*/][^`\n]*`?\s*$")
+# The other half: the formula can be defined anywhere and the plan still ordered by it.
+PRIORITY_ORDERING = re.compile(r"ordered by (?:P\b|the (?:score|number|scalar))", re.I)
+
+
+def check_priority_axes_are_the_manifesto_s_and_carry_no_scalar():
+    rel, heading = PRIORITY_AXES_DOC
+    path = os.path.join(SKILL_ROOT, *rel.split("/"))
+    if not os.path.isfile(path):
+        fail(f"{rel}: missing — it is the only home of the audit's priority rule")
+        return
+    text = open(path, encoding="utf-8").read()
+    body = _section(text, heading)
+    if body is None:
+        fail(f"{rel}: no section starting {heading!r} — the priority rule lost its home")
+        return
+    m = PRIORITY_AXES_DECL.search(body)
+    if not m:
+        fail(f"{rel}: {heading} has no `<!-- priority-axes: … -->` declaration. The axis "
+             "list was prose, and prose is what let two of the manifesto's four axes be "
+             "absent from the whole pack while a cost was substituted for them")
+        return
+    axes = [x.strip().lower() for x in m.group(1).split(",") if x.strip()]
+    prose = re.sub(r"<!--.*?-->", "", body, flags=re.S)
+
+    if tuple(axes) != PRIORITY_AXES_REQUIRED:
+        fail(f"{rel}: the priority axes are {axes}, and the manifesto names "
+             f"{list(PRIORITY_AXES_REQUIRED)} ({PRIORITY_AXES_SOURCE}). This is an equality, "
+             "not a floor: a fifth axis nobody sourced is as wrong as a missing one, and the "
+             "defect this closes was `effort` — a cost — standing where Irreversibility and "
+             "Coordination should have been")
+
+    for axis in axes:
+        if not re.search(rf"(?<![\w-]){re.escape(axis)}", prose, re.I):
+            fail(f"{rel}: the declaration names the axis {axis!r} and the prose never does "
+                 "— the axis would exist only in a comment, and a reader of the document "
+                 "would rank findings without it")
+
+    word = NUMBER_WORDS.get(len(axes))
+    if word and not re.search(rf"(?<![\w-]){word}(?![\w-])", prose, re.I):
+        fail(f"{rel}: there are {len(axes)} axes and the prose never says {word!r} — a "
+             "spelled count nothing checks is how a list and its description drift")
+
+    # The axes must also reach the pack at large, not just this one section: two of them were
+    # missing from every file, and a section that names them while no other document does is
+    # the same defect one scope smaller.
+    pack = "\n".join(_pack_docs().values()).lower()
+    for axis in ("irreversib", "coordinat"):
+        if axis not in pack:
+            fail(f"the pack never uses {axis!r} anywhere. Both of the axes this row restored "
+                 "were absent from every document in it, which is why a cost could be "
+                 "substituted without anybody noticing a manifesto axis had gone")
+
+    # And the arithmetic, refused across the whole pack rather than one section — a formula
+    # moved one heading down is the same contradiction with a better hiding place.
+    for doc_rel, doc_text in sorted(_pack_docs().items()):
+        hit = PRIORITY_SCALAR.search(doc_text)
+        if hit:
+            fail(f"{doc_rel}: prescribes a priority scalar — {hit.group(0).strip()[:80]!r}. "
+                 "This pack's position is that a score ends the conversation an audit exists "
+                 "to start, and multiplication is also a one-way function on the inputs the "
+                 "ranking claims can be argued with: `3 × 1 / 3` and `1 × 1 / 1` both print "
+                 "1. Publish the axes; do not multiply them")
+        order = PRIORITY_ORDERING.search(doc_text)
+        if order:
+            fail(f"{doc_rel}: orders the plan by a scalar — {order.group(0)!r}. The formula "
+                 "can live anywhere and the ranking still be a number; the plan is ordered "
+                 "by the axes, first separating axis winning")
+
+
+check_priority_axes_are_the_manifesto_s_and_carry_no_scalar()
+
+
+# ------------------------------ every temp tree goes through the residue ledger
+#
+# `test/residue.py` accounts for what a run leaves in `$TMPDIR` and prints one line about
+# it, `nothing` included — ported from `make-skill`, which measured the defect first. It
+# only accounts for trees taken through `residue.workspace()`, and that is the hole this
+# check closes: the leak was re-planted by swapping one `residue.workspace()` call back to
+# a bare `tempfile.mkdtemp()`, the fixture passed, and the ledger printed
+# *"this run left nothing — 0 temp tree(s) created"*. A bypass that reports clean is
+# indistinguishable from no leak, which is the exact reading the ledger exists to prevent.
+#
+# So the ledger is the only door. `residue.py` itself is exempt — it is the module that
+# calls `mkdtemp` on everyone's behalf — and `TemporaryDirectory` is refused with it,
+# because a context manager that cleans up on the happy path still deletes the tree a
+# failing case needs to be read.
+# Assembled from parts on purpose. Spelled out, the pattern contains the very literals it
+# looks for, and this file is inside the set it scans — it passed only because a `)`
+# happened to follow each name. A guard that is green by luck is a guard nobody has
+# watched, so the names never appear here as callable text.
+TEMP_MAKERS = re.compile(r"(?<![\w.])(?:tempfile\.)?(?:" + "mkdtemp" + "|Temporary"
+                         + "Directory" + r")\s*\(")
+TEMP_LEDGER_EXEMPT = {"residue.py"}
+
+
+def check_temp_trees_go_through_the_residue_ledger():
+    tests = sorted(glob.glob(os.path.join(ROOT, "test", "*.py")))
+    if not tests:
+        fail("test/: no python files — the suite cannot be checked for temp-tree accounting")
+        return
+    for path in tests:
+        base = os.path.basename(path)
+        if base in TEMP_LEDGER_EXEMPT:
+            continue
+        with open(path, encoding="utf-8") as fh:
+            text = fh.read()
+        # Comments and docstrings mention `mkdtemp` when they explain why it is banned. A
+        # guard that reads an explanation as a violation refuses the document that records
+        # the fix — so only lines that would RUN are read.
+        code = "\n".join(ln for ln in text.split("\n")
+                         if not ln.lstrip().startswith("#"))
+        code = re.sub(r'"""(?:.|\n)*?"""', "", code)
+        hit = TEMP_MAKERS.search(code)
+        if hit:
+            line = code[:hit.start()].count("\n") + 1
+            fail(f"test/{base}: creates a temp tree outside the residue ledger — "
+                 f"{hit.group(0)!r} near line {line} of the stripped source. Use "
+                 "`residue.workspace(tag)`: a tree the ledger never saw is a tree the "
+                 "gate's residue line reports as nothing, which is how 2576 nameless "
+                 "`tmpXXXXXXXX` directories accumulated with every run printing clean")
+
+
+check_temp_trees_go_through_the_residue_ledger()
+
+
+# --------------------- the ledger may not describe an artifact that is not there
+#
+# AG-07 and AG-08, and they are one defect read from two ends. Three sections of
+# `docs/evidence/verification.md` were headed `(AG-0N, unreleased)` and carried *"No
+# release: the version stays 0.11.1 and the CHANGELOG is untouched, so every row below is
+# measured on the working tree rather than on a published artifact"* — while v0.12.0 was
+# tagged, on npm and in the CHANGELOG. Under those paragraphs, 35 rows across the three
+# sections all read `**verified**`, against this file's own opening: *"A row sits at `never`
+# until somebody has watched its check pass on the shipped artifact — not on a branch, not
+# in a plan."*
+#
+# So a section either states no release and carries no `verified` row, or it names the
+# version it shipped in and that version exists. Both directions, because either alone
+# leaves a true-looking ledger: the first stops rows being graded against a tree, the second
+# stops a section announcing a release nobody cut.
+LEDGER = os.path.join("docs", "evidence", "verification.md")
+NO_RELEASE = re.compile(r"\*\*No release\*\*|\bunreleased\b", re.I)
+STAYS_AT = re.compile(r"version stays `?v?(\d+\.\d+\.\d+)`?")
+# Case-insensitive, and that is not cosmetic: the first version of this pattern was
+# lowercase-only, and the ledger states the claim as **Shipped in v0.12.0** at the head of
+# every section — so every real claim in the file went unchecked while the check reported
+# green. Found by a plant that stopped firing, not by reading the regex.
+SHIPPED_IN = re.compile(r"shipped in v(\d+\.\d+\.\d+)", re.I)
+VERIFIED_ROW = re.compile(r"\*\*verified\*\*")
+# A quoted passage is evidence, not an assertion: `*"…"*` is how this ledger cites the
+# sentence a row replaced, and an inline code span is how it quotes a plant's own text.
+QUOTATION = re.compile(r"\*\"[^\"]*\"\*", re.S)
+INLINE_CODE = re.compile(r"`[^`\n]*`")
+
+
+def _released_versions(changelog):
+    return {m for m in re.findall(r"(?m)^##+\s+\[?v?(\d+\.\d+\.\d+)", changelog)}
+
+
+def check_the_ledger_matches_what_shipped():
+    path = os.path.join(ROOT, LEDGER)
+    if not os.path.isfile(path):
+        fail(f"{LEDGER}: missing — an absent ledger and a clean one are indistinguishable "
+             "from the number alone, which is the reading this file exists to prevent")
+        return
+    with open(path, encoding="utf-8") as fh:
+        text = fh.read()
+    cpath = os.path.join(ROOT, "CHANGELOG.md")
+    changelog = open(cpath, encoding="utf-8").read() if os.path.isfile(cpath) else ""
+    released = _released_versions(changelog)
+    newest = max((tuple(int(x) for x in v.split(".")) for v in released), default=(0, 0, 0))
+
+    for sec in re.split(r"(?m)^(?=## )", text)[1:]:
+        head = sec.splitlines()[0].strip()
+        # A ledger that closes this defect QUOTES the sentence it replaced — that is how the
+        # record survives — and the first two drafts of this check refused exactly that: the
+        # paragraph recording the removal, and the row quoting the plant's own text. The
+        # umbrella's rule applies here as much as to a Bash guard: read what is CLAIMED, not
+        # what is cited. So a `*"…"*` quotation is dropped before any of these patterns run,
+        # and `shipped in vX` additionally has to survive outside a backtick span.
+        claimed_text = QUOTATION.sub(" ", sec)
+        announce_text = INLINE_CODE.sub(" ", claimed_text)
+        if NO_RELEASE.search(claimed_text):
+            rows = len(VERIFIED_ROW.findall(claimed_text))
+            if rows:
+                fail(f"{LEDGER}: {head[:70]!r} declares no release and carries {rows} row(s) "
+                     "marked **verified**. This file's own opening puts a row at `never` "
+                     "until its check has been watched passing ON THE SHIPPED ARTIFACT — a "
+                     "`verified` row over a working tree is the grade standing in for the "
+                     "measurement")
+            stays = STAYS_AT.search(claimed_text)
+            if stays:
+                at = tuple(int(x) for x in stays.group(1).split("."))
+                if at < newest:
+                    fail(f"{LEDGER}: {head[:70]!r} says the version stays "
+                         f"{stays.group(1)} while the CHANGELOG has released "
+                         f"{'.'.join(str(n) for n in newest)}. The claim was true when it "
+                         "was written and false from the moment the tag was cut, and "
+                         "nothing re-read it")
+        for claimed in sorted(set(SHIPPED_IN.findall(announce_text))):
+            if released and claimed not in released:
+                fail(f"{LEDGER}: {head[:70]!r} says the work shipped in v{claimed} and the "
+                     "CHANGELOG has no such release — a ledger announcing a version nobody "
+                     "cut is worse than one that says nothing")
+
+
+check_the_ledger_matches_what_shipped()
+
 # --------------------------------------------------------------- hygiene
 
 for dirpath, dirnames, filenames in os.walk(os.path.join(ROOT, "plugins")):
@@ -776,5 +1050,12 @@ if FAILURES:
         print(f"  - {f}", file=sys.stderr)
     sys.exit(1)
 
-checks = 9 + len(skill_dirs)
-print(f"OK: agent-stack structurally valid ({checks} checks, {len(skill_dirs)} skill(s), v{version})")
+# Counted, never restated. This was `9 + len(skill_dirs)` — a hand-bumped literal, and the
+# hand missed: five ledger rows quote the number as evidence that a check was added, and the
+# check added on 2026-08-20 did not move it at all. The named checks are read out of this
+# module's own globals, so adding one is the only way to change the count.
+named_checks = sorted(n for n, v in list(globals().items())
+                      if n.startswith("check_") and callable(v))
+checks = len(named_checks) + len(skill_dirs)
+print(f"OK: agent-stack structurally valid ({checks} checks = {len(named_checks)} named + "
+      f"{len(skill_dirs)} per-skill, {len(skill_dirs)} skill(s), v{version})")
