@@ -1,5 +1,45 @@
 # Changelog
 
+## v0.13.0 — 2026-08-20 — the audit refused a score and computed one
+
+`references/audit.md` said *"a prioritized change plan … **not** a score"* at `:20`, argued
+at `:22-25` that *"a number compresses away the only useful information"*, and then computed
+`P = blast × confidence / effort` at `:114` and ordered the plan by it at `:128`. The
+manifesto backs the refusal in the same words (`manifesto.md:424` — *"these axes are not a
+fake numerical score. They are a reason the team can inspect"*) and names **four** axes at
+`:419-422`: impact, **irreversibility**, uncertainty, **coordination**. Two of them appeared
+nowhere in the pack (`grep -ci irreversib` → 0, `grep -ci coordinat` → 0) and `effort` — a
+cost, not a risk — had been substituted for both.
+
+**Position taken: publish the axes, drop the arithmetic.** The number never did what its own
+paragraph claimed — `3 × 1 / 3` and `1 × 1 / 1` both print 1, so two findings a reviewer
+would rank very differently ranked identically.
+
+Three more, each with its plant:
+
+- **The ledger graded a tree, not an artifact.** Three sections said *unreleased* and
+  *"the version stays 0.11.1 and the CHANGELOG is untouched"* over 35 rows reading
+  `verified` — while v0.12.0 was tagged and published — against this file's own rule that a
+  row sits at `never` until its check has been watched passing **on the shipped artifact**.
+  Re-run against `git archive v0.12.0`, both commands exit 0.
+- **Three of four skill descriptions were past the house working limit**, one with five
+  characters of headroom before the platform's hard 1024. 1019 / 986 / 983 → **964 / 963 /
+  970**, every trigger intact (19→19, 12→12, 14→14), and 970 is a gate now.
+- **`test/plant_guard_test.py` leaked eight nameless temp trees per run and the gate said
+  nothing.** `test/residue.py` is **ported** from `make-skill`, not rewritten; the shared
+  pile went from growing to flat (2568 → 2576 measured, 0 growth from this suite).
+
+**Three guards were wrong first, and watching them fail is the only reason that is known:**
+the scalar check refused the paragraph that records the formula's removal; the ledger check
+read its own citation as a claim; and its `shipped in vX` pattern was **lowercase-only**
+while every real claim is capitalised — so it reported green over a file it had never read.
+
+Also corrected: `checks = 9 + len(skill_dirs)` was a hand-bumped literal that five ledger
+rows quote as evidence a guard was added. The true count at v0.12.0 was **10**, not 13.
+
+Negative self-tests 19 → **26**.
+
+
 ## v0.12.0 — 2026-08-19
 
 Three places where this pack's own doctrine disagreed with the Proof of Done manifesto it
