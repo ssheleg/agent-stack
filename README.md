@@ -191,6 +191,10 @@ teaches you to route around it.
 
 ## Verify
 
+<!-- commands-run-in: a clone -->
+These run **in a clone of this repository**. The published npm package ships no
+`test/` directory, so from an install they are names, not commands.
+
 ```bash
 python3 test/validate.py
 ```

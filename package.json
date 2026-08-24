@@ -1,6 +1,6 @@
 {
   "name": "@ssheleg/agent-stack",
-  "version": "0.13.1",
+  "version": "0.13.2",
   "scripts": {
     "test": "python3 test/validate.py && python3 test/plant_guard_test.py"
   },

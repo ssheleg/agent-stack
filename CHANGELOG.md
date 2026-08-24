@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.13.2 — the residue scan stops answering for other runs
+
+`test/residue.py` now tags every workspace with the process group that made it, and the
+gate-wide scan reads only that tag. Scanning the shared `$TMPDIR` by prefix reported two
+things that are not this run's leak: another session's trees — 37,301 entries under the
+shared directory on 2026-08-24 turned a green suite red — and a tree a FAILING case in an
+earlier run kept ON PURPOSE as its evidence, which poisoned every run after it. The split is
+a pure function with fixtures for both directions, and what it excludes is printed rather
+than dropped in silence.
+
+The README told a reader to run commands the published package cannot run: it ships no
+`test/` directory, so `python3 test/validate.py` resolves in a clone and nowhere else. Measured against the
+published tarball on 2026-08-25. Shipping the suite does not fix it — the plants live in
+`.github/workflows/`, which no packaging npm can express puts in a tarball — so the document
+now names where the command runs instead of claiming it, beside a marker the umbrella's
+validator reads. Naming a dead command is this family's own rule; claiming one is the defect.
+
+
 ## v0.13.1 — a citation into the manifesto is a phrase
 
 Five references into the manifesto had rotted, and every rule they named was
