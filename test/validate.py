@@ -457,7 +457,7 @@ check_checker_contract_is_one_list_in_two_documents()
 # declaration beside the prose, a floor that ratchets, and named keys that cannot leave in
 # silence. It is here because the same defect was found twice by the same audit. The
 # manifesto states a useful node as *one input, one job, one output, one owner, and its own
-# completion test* (`pod-manifesto/manifesto.md:156`); §1 of the graph reference shipped
+# completion test* (`manifesto` → *"one input, one job, one output, one owner, and its own completion test"*); §1 of the graph reference shipped
 # three of the five — "One input, one output, one job" — while giving the manifesto's own
 # justification in nearly the manifesto's words, so nothing about the sentence read as
 # abridged. `grep -i owner` and `grep -i 'completion test'` over the file both exited 1.
@@ -547,9 +547,9 @@ check_node_contract_keeps_its_five_fields()
 #
 # Third use of the same mechanism, and the sharpest row the 2026-08-18 conformance audit
 # found: not a thinner statement of a manifesto rule but the opposite imperative.
-# `pod-manifesto/manifesto.md:114` treats *a requirement with no observable as unfinished,
+# `manifesto` → *"you cannot connect it to the evidence graph later without inventing the test"* treats *a requirement with no observable as unfinished,
 # because you cannot connect it to the evidence graph later without inventing the test after
-# seeing the implementation*, and `:122` says an evidence graph built after the code "has
+# seeing the implementation*, and *"The evidence graph says how the result will be known"* says an evidence graph built after the code "has
 # already let the output decide what counts as success". `agent-evals/SKILL.md` answered
 # **"Never author the suite up front."**
 #
@@ -707,8 +707,9 @@ check_eval_tiers_are_named_together()
 # **Not a score**"* and *"pass/fail with a named failure condition beats a scalar that names
 # no fix"*, and then computed `P = blast × confidence / effort` and ordered the plan by it.
 #
-# The manifesto backs the refusal — `~/DATA/pod-manifesto/manifesto.md:424`, *"these axes
-# are not a fake numerical score"* — and names FOUR axes at `:419-422`. Two of them,
+# The manifesto backs the refusal — `manifesto` → *"These axes are not a fake numerical score"*
+# — and names FOUR axes, the last being *"How many agents, repositories, services,
+# and owners meet at the change"*. Two of them,
 # **Irreversibility** and **Coordination**, appeared nowhere in this pack (`grep -ci
 # irreversib` → 0, `grep -ci coordinat` → 0), while `effort` — a **cost** — had been
 # substituted into their place. So the file held neither position: not the manifesto's axes,
@@ -724,7 +725,11 @@ PRIORITY_AXES_DECL = re.compile(r"<!--\s*priority-axes:\s*([^>]+?)\s*-->")
 # an axis that is not one of them is as wrong as an axis that is missing. `effort` is the
 # specific wrong one this row exists for, and it is refused by exactly this equality.
 PRIORITY_AXES_REQUIRED = ("impact", "irreversibility", "uncertainty", "coordination")
-PRIORITY_AXES_SOURCE = "manifesto.md:419-422"
+# A phrase, not a line. `manifesto.md:419-422` rotted: those lines now hold "The
+# strongest is mechanical", and the axes moved twenty lines down. Swept 2026-08-24
+# with the same change that converted the conformance register (R-003).
+PRIORITY_AXES_SOURCE = ('manifesto → "How many agents, repositories, services, and '
+                        'owners meet at the change"')
 # Any arithmetic over the axes, PRESCRIBED rather than quoted. Two design decisions, and the
 # second was found by watching this check refuse a correct document:
 #

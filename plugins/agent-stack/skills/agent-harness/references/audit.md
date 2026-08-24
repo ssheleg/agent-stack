@@ -125,8 +125,8 @@ needs.
 <!-- priority-axes: impact, irreversibility, uncertainty, coordination -->
 
 So the inputs are published and the arithmetic is not. The axes are the manifesto's four
-(`~/DATA/pod-manifesto/manifesto.md:419-422`, under *these axes are not a fake numerical
-score* at `:424`), and two of them were absent here entirely while `effort` — a **cost**,
+(`manifesto` → *"How many agents, repositories, services, and owners meet at the
+change"*, under *"These axes are not a fake numerical score"*), and two of them were absent here entirely while `effort` — a **cost**,
 not a risk axis — had been substituted into their place:
 
 | Axis | Question | High · Medium · Low |

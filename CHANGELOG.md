@@ -1,5 +1,27 @@
 # Changelog
 
+## v0.13.1 — a citation into the manifesto is a phrase
+
+Five references into the manifesto had rotted, and every rule they named was
+intact — the worst shape a dead citation takes, because it still reads as a
+receipt. `manifesto.md:419-422`, which this pack cited as the home of the four
+priority axes, now holds *"The strongest is mechanical"*; the axes moved twenty
+lines down when the document grew.
+
+Converted to phrase anchors, each verified unique in the subject:
+`:156` → *"one input, one job, one output, one owner, and its own completion
+test"*, `:114` → *"you cannot connect it to the evidence graph later without
+inventing the test"*, `:122` → *"The evidence graph says how the result will be
+known"*, `:419-422` → *"How many agents, repositories, services, and owners meet
+at the change"*, `:424` → *"These axes are not a fake numerical score"*.
+
+`PRIORITY_AXES_SOURCE` was a constant holding one of the dead addresses; it holds
+the phrase now.
+
+Swept from the umbrella's conformance register in the same pass — R-003, run the
+fix against its siblings rather than its instance. `seo-aeo-audit` got the four
+axes this pack already had, in the other direction, on the same day.
+
 ## v0.13.0 — 2026-08-20 — the audit refused a score and computed one
 
 `references/audit.md` said *"a prioritized change plan … **not** a score"* at `:20`, argued
