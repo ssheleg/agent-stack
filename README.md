@@ -1,5 +1,12 @@
 # agent-stack
 
+[![validate](https://github.com/ssheleg/agent-stack/actions/workflows/validate.yml/badge.svg)](https://github.com/ssheleg/agent-stack/actions/workflows/validate.yml)
+[![npm](https://img.shields.io/npm/v/%40ssheleg%2Fagent-stack)](https://www.npmjs.com/package/@ssheleg/agent-stack)
+[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![site](https://img.shields.io/badge/docs-ssheleg.github.io-8ab0ff)](https://ssheleg.github.io/sshlg-skills/skills/agent-stack/)
+
+**[Docs, and all 8 skills →](https://ssheleg.github.io/sshlg-skills/)** · [this skill's page](https://ssheleg.github.io/sshlg-skills/skills/agent-stack/) · [follow @sshlg93 on X](https://x.com/intent/follow?screen_name=sshlg93)
+
 Production patterns for building AI agent orchestrators — and for billing the
 LLM access they burn.
 
