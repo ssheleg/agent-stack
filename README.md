@@ -5,6 +5,16 @@
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![site](https://img.shields.io/badge/docs-skills.sshlg.me-8ab0ff)](https://skills.sshlg.me/skills/agent-stack/)
 
+**Build agent loops, harnesses, evals and protocol boundaries that stay inspectable under production failure.**
+
+```bash
+npx skills add ssheleg/agent-stack
+```
+
+Ask: `Design a resumable orchestrator with parallel collection and one convergence checker.`
+
+**[Detailed docs →](https://skills.sshlg.me/skills/agent-stack/)**
+
 **[Docs, and every skill →](https://skills.sshlg.me/)** · [this skill's page](https://skills.sshlg.me/skills/agent-stack/) · [follow @sshlg93 on X](https://x.com/intent/follow?screen_name=sshlg93)
 
 Loads in **DeepSeek Harness** (`dsh`) with **no plugin to write**: it reads the

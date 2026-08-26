@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.13.3 — public contract, measurable before it is marketable
+
+The repository now opens with one install path and one concrete request, carries a
+reviewable `SKILL-CARD.md`, portable trigger and behavior evals, and a generated
+1200×630 social preview. CI runs the pinned family skill audit, validates the eval
+schema, watches its planted defect fail, and checks the preview. The eval suite is
+authored, not presented as a model result.
+
 ## v0.13.2 — the residue scan stops answering for other runs
 
 `test/residue.py` now tags every workspace with the process group that made it, and the

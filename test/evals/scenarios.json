@@ -1,0 +1,52 @@
+{
+  "note": "Score each expected_behavior line independently. These are authored evaluations, not executed results.",
+  "scenarios": [
+    {
+      "id": "s01",
+      "title": "Resumable orchestrator",
+      "skills": [
+        "agent-orchestrator"
+      ],
+      "query": "Design a production orchestrator for research tasks with parallel collection, one checker, a human approval before publication, and resume after restart.",
+      "files": [],
+      "expected_behavior": [
+        "Represents work as a graph whose edges name payloads",
+        "Places a convergence checker before the consuming node",
+        "Persists enough state to resume without replaying completed side effects",
+        "Names provider failure and context-pressure behavior"
+      ]
+    },
+    {
+      "id": "s02",
+      "title": "Evaluation suite",
+      "skills": [
+        "agent-evals"
+      ],
+      "query": "Create an eval plan for a support agent that uses search and refund tools. We care about regressions in tool choice, not only polished answers.",
+      "files": [],
+      "expected_behavior": [
+        "Separates outcome, trajectory and tool-contract checks",
+        "Includes production-derived regression fixtures and adversarial cases",
+        "Defines judge calibration before trusting model grades",
+        "Records model, prompt and tool versions with results"
+      ]
+    },
+    {
+      "id": "s03",
+      "title": "Protocol boundary",
+      "skills": [
+        "agent-interop",
+        "agent-harness"
+      ],
+      "query": "Audit an agent that exposes MCP tools, talks to another agent over A2A, and has a 900-line system prompt.",
+      "files": [],
+      "expected_behavior": [
+        "Separates MCP tool interoperability from A2A agent interoperability",
+        "Pins protocol claims to a named specification revision",
+        "Audits prompt and tool descriptions at the harness layer",
+        "Does not route repository coordination to the agent-system layer"
+      ]
+    }
+  ]
+}
+
