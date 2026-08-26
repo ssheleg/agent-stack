@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.13.4 — shared guards identify their owner
+
+The eval and social-preview validators now declare their umbrella-owned shared
+mechanisms, so cross-repository drift is reported as one contract rather than
+nine accidental copies.
+
 ## v0.13.3 — public contract, measurable before it is marketable
 
 The repository now opens with one install path and one concrete request, carries a
