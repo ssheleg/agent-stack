@@ -1,6 +1,10 @@
 # Changelog
 
-## v0.14.0 — the workforce axis: provider lifecycle and workspace-scale memory
+## v0.14.1 — the workforce axis: provider lifecycle and workspace-scale memory
+
+(v0.14.0 was burned during release engineering: its tag landed on a commit a
+protected branch could never reach, and the tag rules forbid deletion — so the
+content ships as v0.14.1 and the dead tag stays as its own cautionary receipt.)
 
 The orchestrator gains `references/provider-lifecycle.md` — where providers come
 from and how one earns trust: produced-once/bound-many, the production pipeline

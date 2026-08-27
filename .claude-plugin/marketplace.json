@@ -11,7 +11,7 @@
       "displayName": "Agent Stack",
       "source": "./plugins/agent-stack",
       "description": "Two skills: agent-orchestrator — tool-calling loops, multi-stage pipelines with checkpoints, provider routing with fallback, four-layer memory, context engineering, plus the wallet side of reselling LLM access; and agent-evals — run/trace/thread evals, judges, and fixtures grown from production.",
-      "version": "0.14.0",
+      "version": "0.14.1",
       "author": {
         "name": "ssheleg",
         "url": "https://x.com/sshlg93"
