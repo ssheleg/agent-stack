@@ -4,6 +4,7 @@
 [![npm](https://img.shields.io/npm/v/%40ssheleg%2Fagent-stack)](https://www.npmjs.com/package/@ssheleg/agent-stack)
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 [![site](https://img.shields.io/badge/docs-skills.sshlg.me-8ab0ff)](https://skills.sshlg.me/skills/agent-stack/)
+[![skills.sh](https://skills.sh/b/ssheleg/agent-stack)](https://skills.sh/ssheleg/agent-stack)
 
 **Build agent loops, harnesses, evals and protocol boundaries that stay inspectable under production failure.**
 
