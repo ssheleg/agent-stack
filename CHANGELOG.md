@@ -1,5 +1,36 @@
 # Changelog
 
+## v0.15.0 — memory architecture, and the axes the layer table does not have
+
+- **`agent-orchestrator/references/memory-architecture.md`** — form, function and dynamics
+  as the three axes of a memory decision, with the layer table demoted to what it is: one
+  property of the answer. Source pinned with a read date — *Memory in the Age of AI Agents:
+  A Survey*, arXiv:2512.13564v2, 13 Jan 2026, read 2026-08-27.
+- **Retrieval was two mentions across 1,938 lines of references**, and it is four decisions:
+  whether to retrieve at all and from which store, what query to retrieve with, which
+  strategy runs the search, what reaches the prompt. The first is the one nobody
+  instruments — an agent that overestimates its own knowledge and skips retrieval answers
+  confidently from nothing, with **no error, no empty result and no latency spike**.
+- **Facts are now separated from experience, and by entity.** Layers 3 and 4 are
+  experiential; nothing in them is a factual store. A stale fact about the USER makes the
+  agent rude, a stale fact about the ENVIRONMENT makes it wrong — one expiry rule for both
+  is wrong twice.
+- **Forgetting gains the long-tail trap.** Frequency-based eviction is the easy policy and
+  the one that deletes the rarely-read entry preventing the rare expensive mistake. Where
+  storage is not the binding constraint: demote, not delete.
+- Also carried: forms beyond token-level and what each costs (parametric memory cannot be
+  selectively deleted; latent memory cannot be inspected), why `agent-sync`'s leases are
+  coordination rather than shared memory, and abstention under low-confidence retrieval —
+  which needs a similarity floor, because semantic search always returns K results and an
+  empty store looks identical to an irrelevant one.
+- **§7 was split rather than trimmed.** The house auditor refused the first attempt at
+  4981 tokens against a 4750 working limit and named the remedy itself. The context-budget
+  trap, layer 0 carryover and workspace scale moved into the new reference; the body is now
+  **4659 tokens — below the 4708 it sat at before any of this**.
+- Discoverability, measured: against *"agent memory architecture: forms, functions,
+  dynamics, retrieval, forgetting"* this skill ranked **8th** among installed skills and now
+  ranks **1st**. The description is 965 chars, inside the 970-char working limit.
+
 ## v0.14.1 — the workforce axis: provider lifecycle and workspace-scale memory
 
 (v0.14.0 was burned during release engineering: its tag landed on a commit a
