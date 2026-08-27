@@ -3,8 +3,8 @@ name: agent-orchestrator
 description: >-
   Use when building an agent system — an orchestrator, an LLM-powered tool, a chatbot with tool
   use, an AI pipeline — or metering and billing the LLM access it burns. Covers tool-calling
-  loops, pipelines with human checkpoints, provider routing with fallback/retry, four-layer
-  memory with confidence decay, context budgets, sub-agent coordination, error hierarchies; the
+  loops, pipelines with human checkpoints, provider routing with fallback/retry, memory
+  architecture, retrieval and decay, context budgets, sub-agent coordination, error hierarchies; the
   work as a graph — parallel layers, fake edges, a checker before convergence; for resale:
   tiered wallets, one markup boundary, two-phase commit across database and provider API,
   spend-delta polling, budget and loop guards, per-tenant keys. Triggers - "agent",
@@ -245,6 +245,21 @@ a floor.
 
 **Layer 0 — carryover state.** Goal, artifacts, verified work and restrictive
 mode cross a compaction boundary as copied typed blocks, not prose (§12).
+
+**These four are lifetimes, and lifetime is not the whole taxonomy.** The table above
+says how long each layer lives, not what kind of memory it is, and the two questions have
+different answers. Layers 3 and 4 are *experiential* — earned from contrast (§8).
+**Nothing here is a factual store**, and facts split again by entity: a stale fact about
+the USER makes the agent rude, a stale fact about the ENVIRONMENT makes it wrong, so one
+expiry rule for both is wrong twice. Retrieval is absent from this section entirely and is
+four decisions rather than one — including whether to retrieve at all, whose failure mode
+is a confident answer built from nothing and appears in no error log.
+
+Before designing a memory layer, read
+[`references/memory-architecture.md`](references/memory-architecture.md): form, function
+and dynamics as the three axes, the four-stage retrieval pipeline, the long-tail trap in
+frequency-based forgetting, what `agent-sync` does and does not give a multi-agent store,
+and a ten-question checklist. Its source is pinned with a read date.
 
 **Workspace scale.** Managing persistent workspaces rather than sessions shifts
 the scopes — run, workspace, global, doctrine — and adds the journal-spine
