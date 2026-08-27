@@ -30,6 +30,7 @@ the diversity and dynamics of contemporary agent memory systems."*
 - [8. Trustworthy memory](#8-trustworthy-memory)
 - [9. What this pack does NOT claim](#9-what-this-pack-does-not-claim)
 - [10. The checklist](#10-the-checklist)
+- [11. The rest of it](#11-the-rest-of-it)
 
 ## The source, and what this file adds
 
@@ -306,3 +307,20 @@ made by accident:
 9. **Can a person see, correct and delete what is held about them?** (§8)
 10. **What eval fails if memory is silently disabled?** If none, the memory layer is
     unmeasured and its value is a belief. (`agent-evals`)
+
+## 11. The rest of it
+
+This file is the decision spine and it deliberately stops at decisions. Two siblings carry
+the depth, both pinned to the same survey and the same read date:
+
+- [`memory-lifecycle.md`](memory-lifecycle.md) — the **write path**. Five ways to turn
+  experience into an entry and how each one fails, consolidation at three granularities,
+  why temporal annotation beats deletion when a fact is superseded, dual-phase updating,
+  and the three forgetting policies. It ends with a table of what this pack already
+  implements and three things it deliberately does not.
+- [`memory-landscape.md`](memory-landscape.md) — **build or adopt**, the axes that actually
+  separate the twenty-odd open-source memory frameworks, which benchmarks measure what, and
+  which frontier ideas are directions rather than practice. Its last section is the one
+  frontier worth acting on now: exposing memory operations as tools the agent calls, which
+  makes every memory decision visible in the trace — including the decision not to
+  retrieve.

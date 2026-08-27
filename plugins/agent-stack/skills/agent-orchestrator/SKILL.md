@@ -244,7 +244,10 @@ answer built from nothing, in no error log.
 
 **Design a memory layer from
 [`references/memory-architecture.md`](references/memory-architecture.md)**, not from this
-table. It also carries the context-budget trap, layer 0 carryover and workspace scale.
+table — it also carries the context-budget trap, layer 0 carryover and workspace scale.
+The write path is [`references/memory-lifecycle.md`](references/memory-lifecycle.md);
+what to build on and measure with is
+[`references/memory-landscape.md`](references/memory-landscape.md).
 ## 8. Self-Learning Feedback Loops
 
 Three cycles feed the memory layers, and they differ by what supplies the signal: a failed
