@@ -24,6 +24,7 @@ the diversity and dynamics of contemporary agent memory systems."*
 - [3. Function — what it is for](#3-function--what-it-is-for)
 - [4. Dynamics — formation, evolution, retrieval](#4-dynamics--formation-evolution-retrieval)
 - [5. Retrieval is four decisions, not one](#5-retrieval-is-four-decisions-not-one)
+- [5.5 The budget, layer 0, and workspace scale](#55-the-budget-layer-0-and-workspace-scale)
 - [6. Forgetting, and the long-tail trap](#6-forgetting-and-the-long-tail-trap)
 - [7. Shared memory when there is more than one agent](#7-shared-memory-when-there-is-more-than-one-agent)
 - [8. Trustworthy memory](#8-trustworthy-memory)
@@ -183,6 +184,26 @@ Raw hits are redundant, stale and mutually contradictory. Two operations:
 This is where `context-engineering.md`'s budget applies. §7's warning holds at every stage:
 every layer competes for one window, so give working memory a floor or a large set of old
 generalities will quietly evict what the user said a minute ago.
+
+## 5.5 The budget, layer 0, and workspace scale
+
+Moved here from `SKILL.md` §7 when that file reached its body budget: these are memory
+*architecture*, and this is the file about it.
+
+**The trap is the budget, not the storage.** Every layer competes for the same context
+window, so allocation is decided per call rather than per layer. A session that trims chat
+history to fit a large set of learnings has quietly chosen old generalities over what the
+user said sixty seconds ago. **Give layer 1 a floor.** This is the same window
+`context-engineering.md` governs, and §5.4's post-retrieval stage is where a retrieval
+that ignores it does its damage.
+
+**Layer 0 — carryover state.** Goal, artifacts, verified work and restrictive mode cross a
+compaction boundary as copied typed blocks, not prose (`SKILL.md` §12). It is a memory
+layer whose whole job is surviving one specific event.
+
+**Workspace scale.** Managing persistent workspaces rather than sessions shifts the scopes
+— run, workspace, global, doctrine — and adds the journal-spine rules:
+`patterns.md` → **Workspace-scale memory**.
 
 ## 6. Forgetting, and the long-tail trap
 
