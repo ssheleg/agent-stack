@@ -1,5 +1,45 @@
 # Changelog
 
+## v0.16.0 — the whole survey, not just its taxonomy
+
+v0.15.0 took the taxonomy and the named failure modes. This takes the rest: the write
+path and the landscape, as two references under the spine that already exists.
+
+- **`memory-lifecycle.md` — how an entry is made, changed and thrown away.** Five formation
+  operations with the cost of each stated rather than implied: semantic summarization is
+  *lossy by design* and wrong for evidence-critical tasks; structured construction buys
+  multi-hop and pays schema rigidity; latent is a black box; parametric cannot be precisely
+  removed. Summarization's two shapes fail differently — incremental drifts because each
+  summary is built from the last, partitioned loses cross-partition dependencies — and
+  **summarizing by fixed window is partitioned summarization with the worst partition rule**.
+- **Updating is not consolidation.** One resolves conflict, the other abstracts, and a
+  system needs both. The field's own trajectory is worth copying rather than rediscovering:
+  early systems deleted the superseded entry and broke temporal continuity; the better
+  pattern is **temporal annotation** — mark a validity window instead — which also makes the
+  stability–plasticity decision reversible, and it has no general answer.
+- **Consolidation has a cost this pack did not state**: it risks information smoothing, and
+  the outlier it smooths away is often the entry worth keeping.
+- **`memory-landscape.md` — build or adopt, measure, and what is not practice yet.** Around
+  twenty-five open-source frameworks give you an index and leave you the judgement: what
+  becomes a memory, when to retrieve, what to abstain on, what to demote. **Adopt for the
+  index, not for the judgement.** Frameworks are compared by the axes that separate them
+  rather than by a list that expires.
+- Benchmarks are split into memory-oriented and long-horizon-that-stresses-memory, and the
+  first question is neither: it is `agent-evals`' question — **what fails if memory is
+  silently disabled?** A memory never queried and a memory that is empty score identically
+  on every benchmark; only the retrieval log separates them.
+- Frontiers are marked as frontiers, with one exception acted on: **expose memory operations
+  as tools the agent calls.** It makes every memory decision legible in the trace, including
+  the decision NOT to retrieve — which is the silent failure this whole subject is about,
+  and which a background memory module cannot show you.
+- Three things the pack deliberately does NOT implement are named as absent rather than
+  quietly added: frequency-based forgetting, temporal annotation, dual-phase updating. Each
+  is a real change to a mechanism in production, and a reference's job is to say what the
+  options are, not to rewrite `patterns.md` from a survey.
+- The citation now has **one home**. The member's own validator refused three files each
+  repeating the pinned source — "a fact with two homes disagrees with itself on the first
+  edit" — so the spine holds it and the siblings name it.
+
 ## v0.15.0 — memory architecture, and the axes the layer table does not have
 
 - **`agent-orchestrator/references/memory-architecture.md`** — form, function and dynamics
