@@ -56,6 +56,7 @@ Walk them in order. Later tracks assume earlier ones.
 - Is there a default limit on response size, or only an optional one?
 - Do errors **name the next action**?
 - Are destructive tools guarded by shape (`confirm: true`, absolute paths, enums) rather than by instruction?
+- What was the agent **actually equipped with**? Three different truths — *required* by the task, *installed* on the machine, *loaded* by the session — and the receipts are the compiled bundle's lockfile and the session-init capability list. An audit that reads only the config file has checked the first truth of three.
 
 ### 3 — Control flow
 

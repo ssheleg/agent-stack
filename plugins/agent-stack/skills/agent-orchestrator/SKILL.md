@@ -245,6 +245,10 @@ a floor.
 
 **Layer 0 — carryover state.** Goal, artifacts, verified work and restrictive
 mode cross a compaction boundary as copied typed blocks, not prose (§12).
+
+**Workspace scale.** Managing persistent workspaces rather than sessions shifts
+the scopes — run, workspace, global, doctrine — and adds the journal-spine
+rules: `references/patterns.md` → **Workspace-scale memory**.
 ## 8. Self-Learning Feedback Loops
 
 Three cycles feed the memory layers, and they differ by what supplies the signal: a failed
@@ -381,3 +385,4 @@ there, so this table stays an index and the two cannot drift apart.
 | [`references/runtime.md`](references/runtime.md) | the agent must **survive a crash, a pause, a second message or a schedule** |
 | [`references/governance.md`](references/governance.md) | the question is **permission, not cost** — what it may do, and how you prove it |
 | [`references/llm-proxy-billing.md`](references/llm-proxy-billing.md) | the product **resells LLM access** |
+| [`references/provider-lifecycle.md`](references/provider-lifecycle.md) | the question is the **workforce, not the loop** — where providers come from, produced-once/bound-many, knowledge packs, canary trust, workspace lifecycle, fleet budgets |
