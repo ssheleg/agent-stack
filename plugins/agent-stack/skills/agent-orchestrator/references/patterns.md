@@ -20,6 +20,7 @@ that costs no LLM call.
 - [Conflict Resolution Pattern](#conflict-resolution-pattern)
 - [Cross-Resource Learning Transfer](#cross-resource-learning-transfer)
 - [Suggestion Engine (No LLM Cost)](#suggestion-engine-no-llm-cost)
+- [Workspace-scale memory — the journal spine](#workspace-scale-memory--the-journal-spine)
 
 
 ## Data Models
@@ -454,3 +455,37 @@ constant to tune and a constant with two homes is one that will disagree with it
 Both moved out of `SKILL.md` on 2026-08-16. The mechanisms they describe were already
 in this file — the validation loop, the extractors, the confidence arithmetic — so the
 body was holding a second copy of their surface. One home; the body keeps the decision.
+
+## Workspace-scale memory — the journal spine
+
+The four layers in the body's §7 are session-scale: chat, working, learnings, insights.
+When the same machinery manages **persistent workspaces** — long-lived projects that own
+agents, schedules and history and outlive every conversation — the scopes shift, and five
+rules keep the store honest at that scale. *Distilled 2026-08-27 from the Passion Code
+fabric design review; the workforce half of that review is
+`references/provider-lifecycle.md`.*
+
+| Scope | Holds | Lives |
+|---|---|---|
+| run-working | scratch, intermediates, the transcript | one run; artifacts survive by content hash |
+| workspace | decisions, lessons, report context of one project | permanent, append-only, isolated |
+| global | facts promoted above any one workspace | permanent, with decay |
+| doctrine | intent and standards, versioned in git | the source everything else indexes |
+
+1. **One append-only journal is the canonical ledger.** Memory writes are events; every
+   register anyone reads is a projection of them. Corrections supersede; erasure leaves a
+   tombstone. A store built table-first cannot adopt this later — history that predates
+   the journal is unrecoverable at any price.
+2. **Every index is a rebuildable projection**, and an embedding row carries the
+   embedding model's name and version — otherwise the first model upgrade silently mixes
+   incomparable vectors and similarity search degrades without an error.
+3. **Isolation is enforced at the memory API**, from the authenticated caller's scope —
+   never by asking the prompt to respect a boundary. One workspace never writes
+   another's memory; transfer happens only as an explicit, revisioned artifact
+   (`provider-lifecycle.md` names the vehicle).
+4. **Promotion to global carries provenance, confidence, contradiction links and an
+   expiry.** Memory without decay accumulates confident lies, and the global scope is
+   where they do the most damage because nothing above it contradicts them.
+5. **Memory reaches the model only through the compiled per-task bundle.** One entry
+   point means one supply-chain gate and one lockfile that pins what the agent knew —
+   which is the difference between debugging a bad answer and re-litigating it.

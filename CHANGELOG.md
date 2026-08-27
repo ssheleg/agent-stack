@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.14.0 — the workforce axis: provider lifecycle and workspace-scale memory
+
+The orchestrator gains `references/provider-lifecycle.md` — where providers come
+from and how one earns trust: produced-once/bound-many, the production pipeline
+with its named-consumer gate, knowledge packs whose traps become planted
+fixtures, the canary binding with recorded promotion, the two-extension-mechanisms
+law, workspace lifecycle with the dependency projection, and fleet budgets with
+the run scheduler. `patterns.md` gains the workspace-scale memory rules — the
+journal spine, rebuildable projections with embedding-model versions, isolation
+at the API, promotion with decay, memory-through-the-bundle. The harness audit's
+tools track now asks what the agent was actually equipped with: required,
+installed, loaded — three truths with two receipts. Distilled from the Passion
+Code fabric design review of 2026-08-27.
+
 ## v0.13.5 — the shared seam is explicit
 
 Both shared validators now state `diverges: none`, completing the umbrella
