@@ -232,38 +232,19 @@ Four layers, each with a different lifetime and a different reason to exist:
 | 3 Long-term learnings | per resource | months | what worked, with a confidence score |
 | 4 Insights | per project | permanent | conclusions that outlived their resource |
 
-Read `references/patterns.md` for the data models, **Confidence Management**
-(how a learning decays and when it is retired), **Learning Extraction
-Heuristics**, **Fuzzy Deduplication** and **Conflict Resolution** — the four
-mechanisms that decide what actually enters layers 3 and 4.
+What enters layers 3 and 4 is decided by `references/patterns.md` — **Confidence
+Management**, **Learning Extraction Heuristics**, **Fuzzy Deduplication**, **Conflict
+Resolution**.
 
-**The trap is the budget, not the storage.** Every layer competes for the same
-context window, so allocation has to be decided per call rather than per layer:
-a session that trims chat history to fit a large set of learnings has quietly
-chosen old generalities over what the user said sixty seconds ago. Give layer 1
-a floor.
+**These four are lifetimes, and lifetime is not the taxonomy.** Layers 3 and 4 are
+*experiential*; **nothing here is a factual store**, and a stale fact about the USER makes
+the agent rude while one about the ENVIRONMENT makes it wrong. Retrieval is absent here and
+is four decisions, the first of which — whether to retrieve at all — fails as a confident
+answer built from nothing, in no error log.
 
-**Layer 0 — carryover state.** Goal, artifacts, verified work and restrictive
-mode cross a compaction boundary as copied typed blocks, not prose (§12).
-
-**These four are lifetimes, and lifetime is not the whole taxonomy.** The table above
-says how long each layer lives, not what kind of memory it is, and the two questions have
-different answers. Layers 3 and 4 are *experiential* — earned from contrast (§8).
-**Nothing here is a factual store**, and facts split again by entity: a stale fact about
-the USER makes the agent rude, a stale fact about the ENVIRONMENT makes it wrong, so one
-expiry rule for both is wrong twice. Retrieval is absent from this section entirely and is
-four decisions rather than one — including whether to retrieve at all, whose failure mode
-is a confident answer built from nothing and appears in no error log.
-
-Before designing a memory layer, read
-[`references/memory-architecture.md`](references/memory-architecture.md): form, function
-and dynamics as the three axes, the four-stage retrieval pipeline, the long-tail trap in
-frequency-based forgetting, what `agent-sync` does and does not give a multi-agent store,
-and a ten-question checklist. Its source is pinned with a read date.
-
-**Workspace scale.** Managing persistent workspaces rather than sessions shifts
-the scopes — run, workspace, global, doctrine — and adds the journal-spine
-rules: `references/patterns.md` → **Workspace-scale memory**.
+**Design a memory layer from
+[`references/memory-architecture.md`](references/memory-architecture.md)**, not from this
+table. It also carries the context-budget trap, layer 0 carryover and workspace scale.
 ## 8. Self-Learning Feedback Loops
 
 Three cycles feed the memory layers, and they differ by what supplies the signal: a failed
