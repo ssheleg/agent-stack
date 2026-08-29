@@ -1,5 +1,40 @@
 # Changelog
 
+## v0.16.1 — the installers refuse the shadow, and the pack stops mis-selling itself
+
+- **Both installers refuse to write plain copies over an installed plugin.** The family
+  audit of 2026-08-29 reproduced the shadow live: a bare `npx @ssheleg/telegram-dev`
+  created three plain copies in `~/.claude/skills/` while that plugin was enabled — and
+  this member had **no plugin check at all**, in either installer, so a bare
+  `npx @ssheleg/agent-stack` on a machine with the plugin would have shipped **four**
+  shadows, one per skill, each serving its frozen version forever. `bin/agent-stack.js`
+  and `install.sh` now implement make-skill v0.25.0's canon (`distribution.md`, "The
+  installer must refuse the shadow it documents"): detect from the TARGET home's
+  `installed_plugins.json` (keys are `<name>@<marketplace>`, and the two names differ
+  often), keep the `marketplaces/` dir read only as the fallback signal, refuse with
+  exit **3** and a remedy that names the spec read from the JSON
+  (`claude plugin marketplace update agent-stack` + `claude plugin update
+  agent-stack@<marketplace>`, plus the family launcher), offer `--force` as the recorded
+  deliberate override, fail open on a missing or corrupt JSON, and gate only the
+  `~/.claude` write — no other agent has plugins.
+- **`test/installer_test.js` joins `npm test` and CI** — 11 cases against throwaway
+  HOMEs: fresh / rerun-skip / `--force` / unknown-arg, plugin-present refusal (exit
+  code, remedy text, nothing written — all three asserted), a differently-named
+  marketplace in the remedy spec, corrupt JSON failing open, no false refusal on other
+  plugins or an `agent-stack-extra` prefix-collider, the marketplaces-dir fallback, and
+  the same matrix for `install.sh`. Watched failing before trusted: **7 of 11 red**
+  against the pre-fix installers (`git stash` the two, run, pop). The suite follows the
+  house residue rule — a failing case keeps its HOME, and the run ends by saying what it
+  left. It replaces the inline fresh-HOME-only step in `validate.yml`, which is the CI
+  shape that let the plugin-present case go unrun everywhere.
+- **A successful install now says how the next version arrives** — the last line names
+  `npx @ssheleg/agent-stack@latest --force` and the family launcher, in both installers.
+- **AST-01: the plugin stops selling itself as two skills.** `plugin.json` and
+  `marketplace.json` both opened with "Two skills: agent-orchestrator … and agent-evals"
+  while the pack ships **four** — `agent-interop` and `agent-harness` were invisible in
+  `claude plugin details` and on the marketplace. Both descriptions now name all four
+  skills with what each covers.
+
 ## v0.16.0 — the whole survey, not just its taxonomy
 
 v0.15.0 took the taxonomy and the named failure modes. This takes the rest: the write
