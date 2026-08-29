@@ -10,6 +10,17 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Shipped state — v0.16.1 (2026-08-29)
+
+Measured on the release-candidate tree before the tag exists. The wave-1.5 rollout:
+make-skill v0.25.0's installer-shadow canon ported into both installers, plus AST-01.
+
+| REQ | What ships | How it was confirmed | Confirmed |
+|---|---|---|---|
+| R-01 | Both installers refuse to write plain copies over an installed plugin, reading `installed_plugins.json` from the target home, exit 3, remedy naming the spec from the JSON, `--force` as the recorded override, fail-open on absent/corrupt JSON | `node test/installer_test.js` → `PASS: installer — 11 case(s)` with `residue: this run left nothing — 11 temp home(s) created, 11 removed`; the plugin-present cases assert exit `3`, the `claude plugin update agent-stack@<marketplace>` line, and that no `~/.claude/skills/<skill>` was created for any of the four | **planted** + **observed** |
+| R-02 | The suite fails against the pre-fix installers, so the guard has been watched failing | `git stash push bin/agent-stack.js install.sh` → `node test/installer_test.js` → `FAIL: installer — 7 case(s) red` (every plugin-present, marketplace-dir and update-line case) → `git stash pop` → green again | **planted** |
+| R-03 | AST-01: `plugin.json` and `marketplace.json` name all four shipped skills instead of two | `grep -rn "Two skills" --include="*.json" .` → no matches; both descriptions open "Four skills:" and name `agent-orchestrator`, `agent-evals`, `agent-interop`, `agent-harness`; `ls plugins/agent-stack/skills` → those same four | **observed** |
+
 ## Run 2026-08-20 — the document that refused a score and computed one (AG-04 … AG-09, in tree at v0.12.0, release pending)
 
 Rows: `docs/evidence/backlog.md` **AG-04 … AG-09**. Manifesto requirements **M-?** are not
