@@ -731,28 +731,16 @@ jobs:
       - name: install.sh syntax check
         run: bash -n install.sh
 
-      - name: npm installer functional test (fresh / rerun-skip / --force / bad arg)
-        run: |
-          set -eu
-          export HOME=/tmp/fakehome
-          mkdir -p "$HOME"
-          node bin/agent-stack.js
-          test -f "$HOME/.claude/skills/agent-orchestrator/SKILL.md"
-          test -f "$HOME/.claude/skills/agent-orchestrator/references/patterns.md"
-          test -f "$HOME/.claude/skills/agent-orchestrator/references/llm-proxy-billing.md"
-          # Every skill the plugin ships must arrive. The installer ENUMERATES the skills
-          # directory rather than naming skills, so this asserts the enumeration works --
-          # a regression there would install a subset and report success.
-          for s in $(ls plugins/agent-stack/skills); do
-            test -f "$HOME/.claude/skills/$s/SKILL.md" || { echo "ERROR: $s did not install"; exit 1; }
-          done
-          test -f "$HOME/.claude/skills/agent-interop/references/mcp.md"
-          node bin/agent-stack.js | grep -q '^skip:'
-          node bin/agent-stack.js --force | grep -q '^Installed'
-          if node bin/agent-stack.js --wat; then
-            echo "ERROR: unknown arg accepted"; exit 1
-          fi
-          echo "OK: installer behaves"
+      - name: npm installer functional test (fresh / rerun-skip / --force / plugin-present refusal)
+        # The cases live in test/installer_test.js — one home for the logic, so
+        # `npm test` locally and this job exercise the same assertions. The one
+        # this step exists for is PLUGIN-PRESENT: a fake HOME whose
+        # installed_plugins.json declares agent-stack, asserting the non-zero
+        # exit, the remedy in the output, and that nothing was written. Every
+        # member's CI tested only a fresh HOME until 2026-08-29, which is how
+        # nine installers shipped a shadow-writer nobody had ever run against a
+        # plugin (telegram-dev, reproduced live that day).
+        run: node test/installer_test.js
 
       - name: Workflow YAML parses
         run: |
