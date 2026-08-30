@@ -10,6 +10,22 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Shipped state — v0.17.0 (2026-08-30)
+
+Measured on the release-candidate tree before the tag exists. Wave-2 of the 2026-08-29
+family audit: AST-02/03/04/06/11 plus the harness-engineering externals read 2026-08-30.
+
+| REQ | What ships | How it was confirmed | Confirmed |
+|---|---|---|---|
+| R-01 | AST-02: the quoted trigger "checker node" lives in exactly one description | `grep -rn '"checker node"' plugins/agent-stack/skills/*/SKILL.md` → one hit, `agent-evals/SKILL.md:12`; `grep -c 'checker before' agent-orchestrator/SKILL.md` → 4, so the orchestrator still states its own claim in prose | **observed** |
+| R-02 | AST-11: orchestrator's single-word triggers narrowed | description now carries `"agent system"` and `"агентная система"` (SKILL.md:10,12); neither bare `"agent"` nor bare `"агент"` remains as a quoted trigger there | **observed** |
+| R-03 | ReAct advertised as a phrase, not a bare word | `agent-harness/SKILL.md:11` carries `"ReAct loop", "react pattern"`; the only quoted `"ReAct"` trigger is gone, so the umbrella hook can mirror the phrase without firing on the React framework | **observed** |
+| R-04 | AST-06: the harness↔orchestrator boundary enumerates its four seams and names the one home | §Boundaries lists tools.md↔§3, system-prompt.md↔§10, static-or-dynamic→graph-engineering.md, context-engineering.md↔system-prompt.md, and states shape-of-the-work doctrine has ONE home (`agent-orchestrator/references/graph-engineering.md`); the intro no longer claims "the shape of the work"; `check_one_home_per_fact` (shingle floor 20) passes on the rewrite | **observed** |
+| R-05 | AST-03/04: interop's external claims carry dates | "twelve months before **2026-08-13**" anchors the moved-spec list; the v0.3 and `binds` "still" claims each end "as of 2026-08-13"; the neighbourhood table opens "**Verdicts as of 2026-08-13**" | **observed** |
+| R-06 | Harness engineering cited as the outside term, dated, with the deferred work filed | intro cites OpenAI's and Anthropic's articles (both read 2026-08-30) and the ARC-AGI-3 result 13.3%→38.3% at a sixth of the tokens (as reported 2026-08-30); `"harness engineering"` joins the triggers; board rows AST-A1 and AST-B filed in `docs/evidence/backlog.md` | **observed** |
+| R-07 | Every description stays inside the working limit after the edits | `python3 test/validate.py` → `OK: agent-stack structurally valid (13 checks = 9 named + 4 per-skill, 4 skill(s), v0.17.0)`; measured 967 / 963 / 970 / 961 chars against the 970 limit; `audit_skill.py --house` → `0 GAP, 14 PASS` for each of the three edited skills | **observed** |
+| R-08 | The whole gate is green on the bumped tree | `npm test` → validator OK line above, `PASS: plant_guard — 9 cases`, `PASS: installer — 11 case(s)`, both residue lines "left nothing" | **observed** |
+
 ## Shipped state — v0.16.1 (2026-08-29)
 
 Measured on the release-candidate tree before the tag exists. The wave-1.5 rollout:
