@@ -1,5 +1,48 @@
 # Changelog
 
+## v0.17.0 — the descriptions stop colliding, and the claims get their dates
+
+Wave-2 of the 2026-08-29 family audit (rows AST-02, AST-03, AST-04, AST-06, AST-11), plus
+the harness-engineering externals read 2026-08-30.
+
+- **AST-02: `agent-orchestrator` gives "checker node" back to `agent-evals`.** The quoted
+  trigger appeared verbatim in both descriptions, so the router had two skills advertising
+  one phrase. `agent-evals` owns it; the orchestrator's description already carries "a
+  checker before convergence" in prose, which is the claim it actually makes.
+- **AST-11: the single-word triggers "agent" / "агент" narrow to "agent system" /
+  "агентная система".** A one-word trigger matching every sentence with the word *agent*
+  in it is how a skill teaches the router to route around the boundary its own description
+  draws ("Not for a single LLM call in a script"). The multiword triggers carry the load.
+- **`agent-harness` advertises "ReAct loop" and "react pattern" instead of bare "ReAct"** —
+  a phrase the umbrella's deferred hook trigger can carry without firing on every mention
+  of the React framework. The body prose still explains ReAct by its own name.
+- **AST-06: the harness↔orchestrator boundary names its four seams instead of claiming
+  one.** `agent-harness` §Boundaries said the two skills "meet in one place" while the
+  pack actually crosses at four: orchestrator §3 → harness `tools.md` (describing a tool
+  vs assembling the list), orchestrator §10 → harness `system-prompt.md` (what the prompt
+  says vs rebuilding it per request), harness static-or-dynamic → orchestrator
+  `graph-engineering.md`, and `context-engineering.md` (compaction) vs `system-prompt.md`
+  (filling). The rewrite states explicitly that shape-of-the-work doctrine has ONE home —
+  `agent-orchestrator/references/graph-engineering.md` — and the harness intro stops
+  claiming "the shape of the work" as its own ground, which was the sentence that made
+  both skills owners of one table.
+- **AST-03/AST-04: `agent-interop`'s undated external claims get their dates.** "Moved in
+  the last twelve months", "SDKs and blog posts still document v0.3" and "its own overview
+  page still introduces `binds`" sat undated inside the very section whose rule is *a
+  protocol claim without a date is a guess* — all three now anchor to **2026-08-13**, the
+  stamp every reference in the skill already carries. The neighbourhood table gains a
+  "Verdicts as of 2026-08-13" line, since `test/validate.py` gates stamps only under
+  `references/` and the table lives in SKILL.md.
+- **`agent-harness` cites the outside term for its ground: harness engineering.** OpenAI's
+  harness-engineering article and Anthropic's harness-design article (both read
+  2026-08-30) name the layer this skill covers, with the measured leverage — ARC-AGI-3
+  harness-level changes moved a fixed model 13.3%→38.3% at a sixth of the tokens (as
+  reported 2026-08-30). "harness engineering" joins the description triggers: users will
+  say it. The deeper work is filed, not done: board rows **AST-A1** (coverage check
+  against OpenAI's nine-subsystem taxonomy, identity/approval policy the suspected gap)
+  and **AST-B** (the dated generator-evaluator citation in `agent-evals`, deferred to
+  evals day).
+
 ## v0.16.1 — the installers refuse the shadow, and the pack stops mis-selling itself
 
 - **Both installers refuse to write plain copies over an installed plugin.** The family
