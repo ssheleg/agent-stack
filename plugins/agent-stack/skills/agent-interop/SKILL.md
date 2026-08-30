@@ -24,19 +24,20 @@ registry, and the gateway between them.
 
 ## Rule zero — a protocol claim without a date is a guess
 
-Every one of these specifications moved in the last twelve months, and each moved in a way
-that silently breaks code written against the previous revision. Concretely, and each one
-measured against the live specification rather than recalled:
+Every one of these specifications moved in the twelve months before **2026-08-13** — the
+date every reference below was read — and each moved in a way that silently breaks code
+written against the previous revision. Concretely, and each one measured on that date
+against the live specification rather than recalled:
 
 - MCP replaced the `initialize` handshake with `server/discover` and made the protocol
   **stateless**; a client that opens with `initialize` is speaking a revision that is on its
   way out.
 - MCP **deprecated `sampling`, `roots` and `logging`** — three things an older model will
   reach for first, because for a year they were the interesting part of the client side.
-- A2A renamed its wire surface between v0.x and v1.0, and SDKs and blog posts still document
-  v0.3.
+- A2A renamed its wire surface between v0.x and v1.0, and SDKs and blog posts still
+  documented v0.3 as of 2026-08-13.
 - agentgateway **deprecated `binds`** in favour of `gateways` — while its own overview page
-  still introduces `binds` as a core concept.
+  still introduced `binds` as a core concept as of 2026-08-13.
 
 So: **every reference in this skill opens with a `**Spec pinned:**` line**, and
 `test/validate.py` fails the build without one. That is a mechanical check, not an
@@ -119,6 +120,8 @@ it); prompt wording; a single LLM call in a script.
 ## The neighbourhood — one verdict each
 
 Named so an agent stops guessing, with the verdict stated rather than implied.
+**Verdicts as of 2026-08-13**, the day this skill's references were pinned — this ground
+moves, so re-verify anything marked *watch* before building on it.
 
 | Thing | What it actually is | Verdict |
 |---|---|---|

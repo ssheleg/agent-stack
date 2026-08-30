@@ -8,7 +8,8 @@ description: >-
   instead of a score, plus a scanner. Carries Pi as a worked kernel implementation — SDK, RPC
   and extension seams — for embedding or extending a harness. Triggers - "system prompt",
   "tool description", "agent picks the wrong tool", "agent loops forever", "prompt
-  engineering", "ReAct", "workflow or agent", "static or dynamic", "audit this agent",
+  engineering", "harness engineering", "ReAct loop", "react pattern", "workflow or agent",
+  "static or dynamic", "audit this agent",
   "embed an agent", "agent SDK", "Pi harness", "системный промпт", "агент не вызывает тул",
   "аудит агента", "встроить агента". Not for the loop's plumbing, its evals, or its
   protocols — those are siblings.
@@ -18,7 +19,13 @@ description: >-
 
 `agent-orchestrator` wires the loop. `agent-evals` proves it behaves. `agent-interop` gets
 it talking to other processes. **This skill is the layer between them and the model: the
-prompt, the tools, and the shape of the work.**
+prompt, the tools, and the choice of technique.** The outside term for this ground is
+**harness engineering** — OpenAI's article of that name (`openai.com/index/harness-engineering`,
+read 2026-08-30) and Anthropic's harness-design guidance
+(`anthropic.com/engineering/harness-design-long-running-apps`, read 2026-08-30) both name
+this same layer, and its leverage is measured: on ARC-AGI-3, harness-level changes alone
+moved a fixed model from 13.3% to 38.3% while spending a sixth of the tokens (as reported
+2026-08-30).
 
 It runs in both directions. Building one and auditing one are the same checklist read
 forwards and backwards, which is why they live together here.
@@ -146,10 +153,22 @@ is then unfalsifiable — including this audit. Say so first, and make it the fi
 
 **Against `agent-orchestrator`.** That skill owns the loop's *plumbing*: iteration guards,
 trimming, sub-agent dispatch, provider routing, memory layers, checkpoints. This one owns
-what the model is *told*. They meet in one place:
-`agent-orchestrator/references/context-engineering.md` covers **compaction** — what to drop
-when the window fills — while this skill's `system-prompt.md` covers what to put there in
-the first place. Filling and emptying, two files.
+what the model is *told*. They meet at four seams, each crossing in exactly one place:
+
+1. **Describing a tool** so the model picks the right one is this skill's
+   `references/tools.md`; assembling the tool *list* per request from capability flags is
+   the orchestrator's §3, which points here for the wording.
+2. **What the prompt says** — altitude, vocabulary, enumerated statuses — is this skill's
+   `references/system-prompt.md`; *rebuilding* that prompt per request, in the same pass
+   as the tools, is the orchestrator's §10.
+3. **The shape of the work** — the static/dynamic table, the fake-edge test, the checker
+   before a convergence — has ONE home, and it is not here:
+   `agent-orchestrator/references/graph-engineering.md`. This skill's static-or-dynamic
+   section stops at the decision and links there for the model.
+4. **The context window:** `agent-orchestrator/references/context-engineering.md` covers
+   **compaction** — what to drop when the window fills — while this skill's
+   `system-prompt.md` covers what to put there in the first place. Filling and emptying,
+   two files.
 
 **Against `agent-evals`.** That skill measures whether an agent behaves, from execution
 records. This one reviews how it was *built*, from its source and prompts. An audit that
