@@ -28,6 +28,7 @@ well-measured answer to the wrong question.
 - [9. What Claude Code actually executes](#9-what-claude-code-actually-executes)
 - [10. Barrier or no barrier](#10-barrier-or-no-barrier)
 - [11. Project defaults, written once](#11-project-defaults-written-once)
+- [11a. MAST — the failures, named from outside](#11a-mast--the-failures-named-from-outside)
 - [12. The source's four diagrams, and what each one is for](#12-the-sources-four-diagrams-and-what-each-one-is-for)
 - [Where this file disagrees with its source](#where-this-file-disagrees-with-its-source)
 
@@ -374,6 +375,32 @@ session:
 The last line is `context-engineering.md`'s *filesystem as context* stated as a graph
 rule: an edge that carries a path costs a few tokens, and an edge that carries a
 transcript costs the window.
+
+## 11a. MAST — the failures, named from outside
+
+Everything above is argued from what breaks. *Why Do Multi-Agent LLM Systems Fail?* (2025)
+measured it: execution traces from seven mainstream frameworks — MetaGPT, ChatDev, AG2 and
+Magentic-One among them — with human annotators independently analysing roughly **150
+traces** at **Cohen's kappa = 0.88**, producing **14 failure modes in three groups**.
+
+The three groups land on this file's own node contract, which is the reason to carry them:
+
+| MAST group | Modes include | The field it lands on |
+|---|---|---|
+| **System design flaws** | unclear interfaces between agents, overlapping roles, wrong tool configuration | `input` / `output` (the interface), and `owner` (overlapping roles) |
+| **Inter-agent alignment failures** | inconsistent understanding of the objective, downstream misinterpretation, logically contradictory operations | the **edge payload** — what actually crosses, §3's *Carries* column |
+| **Missing task verification** | an agent reports *completed* and the result does not meet the requirement | `check`, and §6's checker node |
+
+**The load-bearing result is the negative one.** Straightforward fixes — better prompts,
+more explicit role descriptions, retries — bought ChatDev only **15.6%**. The authors
+conclude the modes are **architectural rather than bugs**, which is the same claim §1 makes
+about the two fields nobody draws: an owner and a completion test are not documentation of
+a graph, they are the parts that make it a graph.
+
+Read the mapping as a review checklist rather than a taxonomy to admire: for each node, is
+the interface stated, is there exactly one owner, and does the *check* run on something
+other than the node's own claim of success.
+
 
 ## 12. The source's four diagrams, and what each one is for
 

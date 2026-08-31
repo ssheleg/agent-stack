@@ -10,6 +10,22 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Shipped state — v0.22.0 (2026-08-31)
+
+Measured on the release-candidate tree before the tag exists. Queue positions 7–8, both ARCH.
+
+| REQ | What ships | How it was confirmed | Confirmed |
+|---|---|---|---|
+| MS-1 | The file's rules gain an external measurement, and it lands on the contract they already state | `graph-engineering.md` §11a carries MAST — 14 modes, three groups, ~150 traces, seven frameworks, Cohen's kappa 0.88 — with each group mapped to a field of the five-field node contract rather than listed beside it; `grep -c MAST` → 3 (contents entry, heading, body) | **observed** |
+| MS-2 | The answer to *why not just write better prompts* is stated with its number | the section carries the paper's negative result: patching bought ChatDev **15.6%** and the modes are architectural — the same claim §1 makes about `owner` and `check` | **observed** |
+| MS-3 | `governance.md` names the control that sits before per-tool authorisation | *The cheapest control is absence*, placed ahead of *Guardrails, and their honest limit* and cross-referenced from the four-boundary table's Tool call row by position; states that an absent tool cannot be argued for or probed, where a refused one is a negotiation | **observed** |
+| MS-4 | Sub-agent isolation is stated as two mechanisms, not one | schema filtering at construction **and** `message_history = None` at execution, with the reason the second is not optional: a sub-agent handed its parent's transcript has been told about every capability removed from its schema | **observed** |
+| MS-5 | The two eagerness figures are given with the rule that reconciles them | 40% of the context budget before the first user message under eager MCP schema loading, under 5% with a metadata index; the same system building its own prompt eagerly; the rule recorded as **eager for what you own and always need, lazy for what is foreign and might not be used** | **observed** |
+| MS-6 | Approval fatigue is filed as a safety failure with clean logs | the subsection states that an approval system without persistence converts itself into no approval system through the user rather than a bug, and ends on the operable form: a control asked too often is on its way to being switched off | **observed** |
+| MS-7 | Neither addition touched the body, which B-129 records at capacity | auditor `0 GAP, 14 PASS`, body **4655/4750**, unchanged from v0.21.0 — both findings were written entirely into references | **observed** |
+
+---
+
 ## Shipped state — v0.21.0 (2026-08-31)
 
 Measured on the release-candidate tree before the tag exists. Queue positions 5–6, both ARCH.

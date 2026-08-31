@@ -36,6 +36,45 @@ guardrails" so often means only the first.
 The last one is the one most designs miss: a sub-agent that inherits its caller's
 authority silently widens every permission the caller had.
 
+## The cheapest control is absence
+
+The **Tool call** row above puts per-tool authorisation at the moment of invocation. There
+is a control one layer earlier and it is strictly stronger:
+
+> **The model cannot reason about capabilities it does not know exist.**
+
+A tool absent from the schema cannot be invoked, cannot be argued for, and cannot be probed
+for a bypass — there is nothing to jailbreak toward. A tool present in the schema and
+refused at call time is a negotiation, and negotiations are won sometimes.
+
+So **filter the schema at build time**, and treat runtime authorisation as the second line
+rather than the first. Sub-agent isolation comes from exactly two mechanisms used together:
+schema filtering when the agent is constructed, and no inherited conversation
+(`message_history = None`) when it runs. The second matters as much as the first — a
+sub-agent handed its parent's transcript has been told about every capability you carefully
+removed from its schema.
+
+**Two numbers, and they point in opposite directions on purpose.** Eagerly loading every
+MCP tool schema at startup consumed **40% of the context budget before the first user
+message**; a metadata index at startup with the full schema fetched on selection takes it
+**under 5%**. But the same system builds *its own* prompt and tool schemas **eagerly**, in
+the constructor. The rule underneath is not *lazy is better*: it is **eager for what you
+own and always need, lazy for what is foreign and might not be used** — the first removes
+latency and race conditions from the hot path, the second removes a cost you cannot predict.
+
+### Approval fatigue is a safety failure, not a UX complaint
+
+> Without persistence, users must re-approve the same operations every session, causing
+> approval fatigue that leads to **blanket auto-approval, defeating the safety system
+> entirely**.
+
+An approval system with no memory converts itself into no approval system, and it does so
+through the user rather than through a bug — so nothing in the logs looks wrong. The
+remedy is on the same axis as the section above: **decide once what does not need asking,
+remove it from the question, and spend the prompts on what genuinely changes.** A control
+that is asked too often is a control on its way to being switched off.
+
+
 ## Guardrails, and their honest limit
 
 The content-layer checks worth having, roughly in order of reliability:

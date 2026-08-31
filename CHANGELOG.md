@@ -1,3 +1,45 @@
+## v0.22.0 — the failures named from outside, and the control that is absence
+
+**`graph-engineering.md` was argued entirely from what breaks, with no citation behind it.**
+*Why Do Multi-Agent LLM Systems Fail?* (2025) measured the same ground: traces from seven
+mainstream frameworks — MetaGPT, ChatDev, AG2, Magentic-One — with human annotators
+independently analysing ~**150 traces** at **Cohen's kappa = 0.88**, yielding **14 failure
+modes in three groups**.
+
+The reason to carry it is that the three groups land on this file's own five-field node
+contract without being bent to fit: *system design flaws* on the interface and the `owner`,
+*inter-agent alignment failures* on the edge payload — §3's **Carries** column — and
+*missing task verification* on `check` and the checker node. An outside measurement arriving
+at the same joints is worth more than another argument from failure.
+
+**And its load-bearing result is the negative one.** Better prompts, more explicit roles and
+retries bought ChatDev **15.6%**, and the authors conclude the modes are **architectural
+rather than bugs** — the same claim §1 makes about the two fields nobody draws. The section
+is written as a review checklist, not a taxonomy to admire: per node, is the interface
+stated, is there exactly one owner, and does the check run on something other than the
+node's own claim of success.
+
+**`governance.md` put per-tool authorisation at the moment of invocation, and there is a
+strictly stronger control one layer earlier.** *The model cannot reason about capabilities
+it does not know exist.* A tool absent from the schema cannot be invoked, argued for, or
+probed for a bypass; a tool present and refused at call time is a negotiation, and
+negotiations are won sometimes. Sub-agent isolation needs both halves — schema filtering at
+construction **and** `message_history = None` at execution, because a sub-agent handed its
+parent's transcript has been told about every capability you removed from its schema.
+
+**Two numbers that point in opposite directions on purpose.** Eagerly loading every MCP tool
+schema at startup consumed **40% of the context budget before the first user message**; a
+metadata index with schemas fetched on selection takes it **under 5%**. Yet the same system
+builds *its own* prompt and tool schemas **eagerly**, in the constructor. The rule is not
+*lazy is better*: it is **eager for what you own and always need, lazy for what is foreign
+and might not be used.**
+
+**Approval fatigue is filed as a safety failure, not a UX complaint.** An approval system
+with no persistence makes users re-approve the same operations every session, which produces
+blanket auto-approval and defeats the safety system entirely — through the user rather than
+through a bug, so nothing in the logs looks wrong. **A control that is asked too often is a
+control on its way to being switched off.**
+
 ## v0.21.0 — the risk one tool cannot show you, and the money an iteration refund does not cover
 
 Two findings, both of them about a rule that is right on one axis and silently assumed to
