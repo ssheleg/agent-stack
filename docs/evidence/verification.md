@@ -10,6 +10,21 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Shipped state — v0.20.0 (2026-08-31)
+
+Measured on the release-candidate tree before the tag exists. Queue positions 3–4 of the
+2026-08-31 harvest, both ARCH class, plus the budget finding that shares their subject.
+
+| REQ | What ships | How it was confirmed | Confirmed |
+|---|---|---|---|
+| MR-1 | §6 names the assumption its three existing traps share, and the reference carries the mechanism | the new fourth bullet states that the three above assume the *request* is portable; `llm-proxy-billing.md` → *What a trajectory cannot carry across a vendor* has the credential mechanism, the tool-call attachment that makes *strip all reasoning* the failing policy, the neutral-format rule and the between-turns boundary | **observed** |
+| MR-2 | Capability allocation is stated, with its source | `references/llm-proxy-billing.md` → *Where the capability goes* cites Plan-and-Act (arXiv:2503.09572) and its 54% on WebArena-Lite from improving the planner; §6 carries the one-line rule | **observed** |
+| MR-3 | Budget awareness sits beside the guard it corrects | §2's bullet list gains it after the iteration refund; the reference explains why a max-iteration guard is the floor and not the mechanism (300 steps performing like 30) | **observed** |
+| MR-4 | The body stayed inside the working limit, and the headroom was bought rather than borrowed | the three lines alone left **4745/4750 — 5 tokens**; §1's context dataclass and sub-agent base class were displaced to `references/patterns.md`, landing at **4631/4750**. Auditor: `0 GAP, 14 PASS` | **observed** |
+| MR-5 | The table-shape guard shipped in v0.19.1 caught its author, on its first use by someone other than its plant | both new board rows were inserted after the last row of *any* table and landed in the three-column *Open, and why* — `python3 test/validate.py` refused with `row has 8 cells against the 3 its own header declares`, twice. **Third occurrence of the class and the first caught by this repository rather than the umbrella**, which is exactly what it was written for | **watched failing** |
+
+---
+
 ## Shipped state — v0.19.1 (2026-08-31)
 
 Measured on the release-candidate tree before the tag exists. A class caught by the umbrella twice

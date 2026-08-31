@@ -40,23 +40,12 @@ OrchestratorAgent.run(AgentContext)
 
 ### Shared Context Object
 
-Pass a single immutable-ish context object to all sub-agents:
+Pass a single immutable-ish context object to every sub-agent. It carries the request
+(`project_id`, `user_question`, `chat_history`), the machinery (`llm_router`, `tracker`,
+`workflow_id`), the resolved provider and model, and one `extra` dict for pipeline flags.
+The full dataclass is in [`references/patterns.md`](references/patterns.md) → *The
+orchestrator's shared context and sub-agent protocol*.
 
-```python
-@dataclass
-class AgentContext:
-    project_id: str
-    user_question: str
-    chat_history: list[Message]
-    llm_router: LLMRouter           # provider abstraction with retry/fallback
-    tracker: WorkflowTracker        # SSE event emitter for real-time UI
-    workflow_id: str                 # unique ID for this request
-    connection_config: ... | None   # external resource config
-    user_id: str | None
-    preferred_provider: str | None  # e.g. "openrouter"
-    model: str | None               # e.g. "<provider>/<model-id>"
-    extra: dict[str, Any]           # pipeline_action, flags, overrides
-```
 
 **Key principles:**
 - Sub-agents never modify context — they return typed results
@@ -65,20 +54,10 @@ class AgentContext:
 
 ### Sub-Agent Protocol
 
-Every sub-agent extends a base class:
+Every sub-agent extends one base class with a single abstract `run(context) -> Result`,
+so the orchestrator never learns what any of them does internally. The class is in the same
+reference section.
 
-```python
-class BaseAgent(ABC):
-    @abstractmethod
-    async def run(self, context: AgentContext, **kwargs) -> AgentResult: ...
-
-    @property
-    @abstractmethod
-    def name(self) -> str: ...
-
-    @staticmethod
-    def accum_usage(total, usage): ...  # merge token counters
-```
 
 Typed result subclasses per agent (e.g. `SQLAgentResult` with `query`, `results`, `attempts`).
 
@@ -108,6 +87,7 @@ was gathered rather than returning nothing. The full listing is in
 - **Token limit recovery**: On `LLMTokenLimitError`, compress to 60% and retry once. If still fails, return partial answer
 - **Max iterations guard**: Always have a hard limit. On exhaustion, compose best-effort answer from data gathered so far
 - **Iteration refund**: a recoverable provider error is not charged to that guard
+- **Budget awareness**: tell the model what is left, or 300 steps performs like 30
 
 ---
 
@@ -197,6 +177,11 @@ fallback chain and per-provider retry with exponential backoff, and its
 - **Model selection has three levels** — the request, the tenant, the system
   default — and a tenant override that silently loses to a request parameter is
   how a cheap model ends up billed at a premium one's rate.
+- **Those three assume the REQUEST is portable; the trajectory is not.** Reasoning carries
+  a vendor credential — sometimes on the tool call — so mid-turn failover can 400, and
+  *strip all reasoning* is what causes it. Fail over between turns.
+- **Capability is not spent evenly**: the planner is the bottleneck, so the strongest model
+  goes to the manager, not to whichever agent does the most work.
 ## 7. Multi-Layer Memory System
 
 Four layers, each with a different lifetime and a different reason to exist:

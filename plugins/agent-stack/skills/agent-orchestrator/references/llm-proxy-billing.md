@@ -260,3 +260,57 @@ model" is otherwise unanswerable.
 
 See `patterns.md` for the retry, health-check and error-hierarchy patterns these
 routing calls sit inside.
+
+### What a trajectory cannot carry across a vendor
+
+The routing above assumes the **request** is portable. Mid-run failover is a different
+problem, because by then there is an accumulated history and not all of it can move.
+
+- **Tool calls and results are portable.** They differ in structure between vendors and
+  mean the same thing, so re-rendering them is enough.
+- **Reasoning is not.** It is portable *text* plus a **non-portable credential** the vendor
+  attaches to prove the reasoning is its own. Vendors disagree on what they demand: one end
+  validates nothing, the other rejects any credential it did not issue.
+- **The credential is not always attached to the reasoning.** It may sit on the *tool call*
+  — which is why the apparently safe policy *"just strip all reasoning before failing
+  over"* is exactly what fails at some vendors, and fails as a 400 rather than as
+  degradation.
+
+Design rules that follow:
+
+- Store trajectories in a **neutral internal format**: keep the text, discard the
+  credential, re-render per vendor at send time.
+- Decide the failover boundary deliberately. **Between turns** is cheap and safe; **inside
+  a turn**, after reasoning has been emitted, is where the credential problem lives.
+- A fallback chain that has never been exercised **mid-trajectory** has not been tested.
+  A green health probe answers a question about the endpoint, not about your history.
+
+### Where the capability goes — not evenly
+
+The intuitive allocation is to spend evenly across agents, or to give the strongest model
+to whichever agent does the most work. Both are wrong for a planner–executor pair.
+
+*Plan-and-Act* (arXiv:2503.09572) found the **planner is the bottleneck of the whole
+system**: with good enough planning a relatively simple executor suffices, and with a wrong
+decomposition every downstream executor is building on a false premise. Their 54% on
+WebArena-Lite came from improving the **planner's** planning, not the executor's execution.
+
+So: **give the strongest model and the most carefully written prompt to the manager**, and
+let the executors be cheaper. It also sets where to look when a multi-agent system
+underperforms — a weak plan is invisible in every executor's transcript, because each one
+did its own step correctly.
+
+### Budget awareness — steps the agent cannot see buy nothing
+
+Raising a step budget does not by itself buy more work. Google's *Budget-Aware Tool-Use
+Enables Effective Agent Scaling* reports that standard agents have **no budget awareness**,
+so at **300 steps** they still conduct shallow searches and plateau at roughly what they
+achieve at **30**.
+
+Spending a larger budget requires telling the model where it is in that budget, so it can
+shift strategy — broad exploration early, narrowing later. The multi-agent form is the
+manager allocating step budget per sub-task rather than handing every executor the same cap.
+
+A max-iteration guard that only composes a partial answer at exhaustion is the *floor* of
+this, not the mechanism: it stops the spend, and it never changes the behaviour that led
+there.

@@ -1,3 +1,39 @@
+## v0.20.0 — what a trajectory cannot carry across a vendor, and where the capability goes
+
+Three findings from the harvest, all landing on the same question: **which model does what,
+and what survives when that changes mid-run.** §6 shipped three traps about routing, and all
+three quietly assume the *request* is what moves.
+
+- **A trajectory carries a vendor credential, and it may not be attached to the reasoning.**
+  Tool calls and results are portable — different structure, same meaning, re-render and
+  send. Reasoning is portable *text* plus a **non-portable credential** the vendor attaches
+  to prove the reasoning is its own, and vendors disagree on what they demand: one end
+  validates nothing, the other rejects any credential it did not issue. The credential
+  sometimes sits on the **tool call** rather than the reasoning — which is why *"just strip
+  all reasoning before failing over"*, the policy that sounds safest, is the one that
+  produces a 400. Store trajectories in a neutral internal format, keep the text, discard
+  the credential, re-render per vendor at send time, and put the failover boundary
+  **between turns**. A fallback chain never exercised mid-trajectory has not been tested: a
+  green health probe answers a question about the endpoint, not about your history.
+- **Capability is not spent evenly — the planner is the bottleneck.** *Plan-and-Act*
+  (arXiv:2503.09572) found that with good enough planning a relatively simple executor
+  suffices, and with a wrong decomposition every downstream executor is building on a false
+  premise; their 54% on WebArena-Lite came from improving the **planner**, not the executor.
+  So the strongest model and the most carefully written prompt go to the **manager**. It
+  also says where to look when a multi-agent system underperforms: **a weak plan is
+  invisible in every executor's transcript**, because each one did its own step correctly.
+- **Steps the agent cannot see buy nothing.** Standard agents have no budget awareness, so
+  at **300 steps** they still plateau at roughly what they achieve at **30**. A
+  max-iteration guard is the floor of this rather than the mechanism — it stops the spend
+  and never changes the behaviour that led there.
+
+**And the second displacement in two releases.** The body was at 4609/4750 after v0.19.0
+bought that headroom back; these three lines would have left **5 tokens**. §1's context
+dataclass and sub-agent base class moved to `references/patterns.md`, beside the loop
+listing that went there in v0.19.0, landing the body at **4631/4750**. That is now twice in
+a row that an addition has cost a displacement, which is the auditor's own signal — *the
+answer then is a split, not a trim* — and it is filed rather than absorbed again.
+
 ## v0.19.1 — the class the umbrella had been catching for us, twice
 
 `B-126`'s board row shipped in v0.19.0 with **nine cells against the eight its header
