@@ -1,3 +1,20 @@
+## v0.18.1 — the board row a sibling's gate refused
+
+v0.18.0's B-124 row landed in the **wrong table** — the board carries two, an
+eight-column ledger and a three-column *"Open, and why"* — and it was appended to the
+file's end, which is the second one. It also carried an unescaped `|` inside a grep
+pattern, so even in the right table its columns would have shifted and `Status` would
+have read as whatever landed in its place.
+
+**This repository's own gate passed it.** `npm test` here was green on the broken row;
+the refusal came from `sshlg-skills`' validator reading this submodule's board during a
+re-pin — *"row B-124 has 12 cells against the 3 its own header declares"*. A member's
+board is checked by the umbrella, not by the member, and that asymmetry is why a
+documentation defect reached a tag.
+
+The neighbouring rows already showed the convention: `AG-06` and `AG-06b` carry escaped
+`\|` inside code spans and count correctly. The fix follows them.
+
 ## v0.18.0 — how many runs before a difference is real, and the trajectory rule between its two measured edges
 
 `agent-evals` shipped 315 lines of doctrine about **what** to assert with **no
