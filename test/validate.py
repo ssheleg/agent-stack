@@ -176,6 +176,12 @@ else:
     if not skill_dirs:
         fail("plugins/agent-stack/skills/ has no skills")
 
+# The house body limits. 5000 is the platform budget; 4750 is the working limit
+# that leaves room for one more correction, and the number `make-skill` enforces.
+BODY_BUDGET_TOKENS = 5000
+BODY_WORKING_TOKENS = 4750
+notes = []
+
 for name in skill_dirs:
     sdir = os.path.join(SKILL_ROOT, name)
     spath = os.path.join(sdir, "SKILL.md")
@@ -190,6 +196,35 @@ for name in skill_dirs:
 
     fm_name = scalar(block, "name")
     fm_desc = scalar(block, "description")
+
+    # --- the body budget, which this gate has never measured ----------------
+    # B-126: `agent-orchestrator` reached 4749 of the house's 4750-token working
+    # limit with nobody watching. The limit is real doctrine — `make-skill` ships
+    # it and its own gate enforces it — and this repository's gate did not, so a
+    # file could sit one token from the edge and the next release would breach it
+    # silently. HARD failure at the platform budget; the working limit REPORTS,
+    # matching the house auditor's own semantics, because a warning that fails a
+    # build is a warning nobody may act on gradually.
+    # CI's *House skill audit* job runs `make-skill`'s auditor and is the AUTHORITY on
+    # this number; the check here exists so the same drift shows up on `npm test` instead
+    # of on a push. Two corrections its first draft needed, both recorded because each
+    # was a wrong measurement rather than a strict one:
+    #   * it counted the whole file, front matter included — 4757 against a real body of
+    #     4494 chars//4 — so it flagged a file the auditor passes;
+    #   * `len//4` over the body then read ~4494 where the auditor read 4609, which errs
+    #     LOW and would warn late.
+    # The divisor is calibrated on that measured pair (4609 tokens / 17,977 body chars
+    # -> 3.9), so this tracks the authority closely and slightly high. Re-derive it if the
+    # auditor's tokenizer changes; do not widen it to make a failing file pass.
+    body = text.split("---", 2)[2] if text.count("---") >= 2 else text
+    body_tokens = int(len(body) / 3.9)
+    if body_tokens > BODY_BUDGET_TOKENS:
+        fail(f"{name}/SKILL.md: body ~{body_tokens} tokens, past the {BODY_BUDGET_TOKENS} "
+             "budget — the answer at this point is a split, not a trim")
+    elif body_tokens > BODY_WORKING_TOKENS:
+        notes.append(f"{name}/SKILL.md: body ~{body_tokens} tokens, past the "
+                     f"{BODY_WORKING_TOKENS} working limit ({BODY_BUDGET_TOKENS} budget) — "
+                     "displace before the next addition")
 
     if fm_name != name:
         fail(f"{name}/SKILL.md: front-matter name {fm_name!r} != directory {name!r}")
@@ -1048,6 +1083,13 @@ def check_shipped_front_matter_survives_a_real_reader():
 
 check_shipped_front_matter_survives_a_real_reader()
 
+
+# Notes print on EVERY run, pass or fail. A budget warning that only appeared beside a
+# failure would be invisible on exactly the runs where it still had time to be acted on.
+if notes:
+    print(f"NOTE: {len(notes)} thing(s) inside the gate but past a house limit")
+    for n in notes:
+        print(f"  ~ {n}")
 
 if FAILURES:
     print(f"FAIL: {len(FAILURES)} problem(s)", file=sys.stderr)

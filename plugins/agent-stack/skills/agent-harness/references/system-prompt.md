@@ -68,6 +68,20 @@ current date, environment, tenant, available capabilities, the user's locale —
 not assumed. A capability-aware prompt that lists only the tools actually connected beats a
 static prompt describing tools that may be absent.
 
+**A worked injection, because the shape is the lesson.** A data-verification protocol added
+only when a database is connected:
+
+> - First-time metrics: ask the user *"Do these numbers match expectations?"*
+> - Financial figures: mention units (cents vs dollars) and ask for confirmation
+> - Anomalies: explain proactively and ask the user to verify
+> - Rejected data: investigate the discrepancy, and record the finding as a learning
+
+Note what makes it injectable rather than permanent: every line is conditional on a
+capability the agent may or may not have. It arrived here from `agent-orchestrator`'s §10,
+which owns the *wiring* that assembles a prompt and says in its own text that the content
+belongs in this file — so a protocol sitting there contradicted the boundary its section
+had drawn.
+
 ## Flexible while learning, strict in production
 
 The same instruction should not survive the whole lifecycle.

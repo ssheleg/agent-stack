@@ -1,3 +1,63 @@
+## v0.19.0 — the prompt cache is an architectural constraint, and the gate that never watched the body
+
+Fourteen findings from nine independent bundles of the 2026-08-31 harvest said the same
+thing, and this pack had **zero** coverage of it: `grep -riE 'kv.cache|prefix cache|prompt
+cach|cache hit|cacheable'` over all four skills returned nothing.
+
+**`agent-orchestrator/references/kv-cache.md`** is the missing layer. Its spine is one
+directional rule — *the earlier a change lands, the more cache it invalidates* — from which
+the append-only discipline stops being a style preference and becomes arithmetic:
+
+- A `Current time: {{now}}` line added to a system prompt at **100,000 conversations/day**
+  took TTFT from **0.5 s to 3–5 s** and **nearly doubled the monthly bill**. Nothing else
+  changed; the line simply sat early in the prefix.
+- **N binary runtime conditions in front of the cache boundary produce 2^N cache
+  populations.** Three innocuous ones — OS × debug × locale — turn one warm cache into eight
+  cold ones.
+- The named invalidators, including the two that read as architecture rather than mistakes:
+  a **role switch that replaces the system prompt** buys a hard tool boundary and pays the
+  prefix for it, where a skill keeps the prefix and gives an instruction the model may
+  ignore; and a **hot-loaded plugin** owes its documentation a KV-cache impact, not only a
+  behavioural one.
+- Four things that look like optimisations and are not, with the measurement that settles
+  each: sorting tools by usage frequency costs the prefix and buys **almost no
+  tool-selection accuracy**; per-request few-shot retrieval guarantees a permanent miss;
+  `defer_loading` works by keeping definitions out of the *prefix* rather than out of the
+  request; and "manual concatenation breaks the cache" is **false** — caching is over bytes,
+  and the real cost of flattening is an out-of-distribution format.
+
+**The architectural error it corrects.** SKILL.md §10 said the prompt is rebuilt per request
+from live capability flags "so the two can never disagree" — right for correctness, silent
+on cost. It now states that rebuilding is free **only while it is byte-identical**, and that
+a capability change mid-session is appended rather than written into the prefix.
+
+**Four of the compaction ladder's five rungs were labelled `free`, and none of them is.**
+`context-engineering.md` gains a **Cache** column: every rung edits history, so every rung
+invalidates from its replacement point. The consequence is a scheduling rule — compact in
+batch at a threshold, never every round — because a per-round compactor pays a full
+re-prefill each round to save tokens it had already paid for once.
+
+**Displacement, not deletion.** The body sat at **4749 of the 4750-token working limit** —
+one token of headroom — so the §10 correction was paid for by moving the Data Verification
+Protocol into `agent-harness/references/system-prompt.md`, which is where §10's own text
+says prompt *content* belongs. A protocol sitting in the wiring section had contradicted the
+boundary its section drew.
+
+**The ceiling was enforced, but only where nobody was looking.** CI's *House skill audit*
+job runs `make-skill`'s auditor and fails on the headroom GAP — it caught this very release
+and is why the body was displaced rather than shipped over the line. What was missing is the
+**local** half: `npm test` measured nothing, so a file could sit one token from the edge
+through any number of local runs and only find out on a push. `test/validate.py` now fails
+hard at the 5000 platform budget and **reports** at the 4750 working limit, on every run,
+pass or fail — a warning printed only beside a failure is invisible on exactly the runs where
+it can still be acted on. Its estimator is deliberately cruder than the auditor's and errs
+high (~4947 against ~4804 for the same file), so it warns early and never late.
+
+**Headroom went up, not just under the bar.** The §2 tool-calling listing moved to
+`references/patterns.md` — the body keeps the six steps and the guard, the reference carries
+the code — taking the body from **4749/4750 before this release to 4609/4750 after**, with
+the cache reference added rather than at its expense.
+
 ## v0.18.2 — the card lost eleven characters and the check that watched it counted bytes
 
 `docs/assets/social-preview.png` — the image every link to this repository renders —
