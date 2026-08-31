@@ -200,6 +200,51 @@ for attempt in range(1, max_retries + 1):
 
 ---
 
+## The orchestrator's shared context and sub-agent protocol
+
+`SKILL.md` §1 states the two rules — one context object down, typed results back — and this
+is the shape they describe. It moved here in v0.20.0 for the same reason §2's loop listing
+did in v0.19.0: the body carries what is read every time, a reference carries what is read
+once.
+
+```python
+@dataclass
+class AgentContext:
+    project_id: str
+    user_question: str
+    chat_history: list[Message]
+    llm_router: LLMRouter           # provider abstraction with retry/fallback
+    tracker: WorkflowTracker        # SSE event emitter for real-time UI
+    workflow_id: str                 # unique ID for this request
+    connection_config: ... | None   # external resource config
+    user_id: str | None
+    preferred_provider: str | None  # e.g. "openrouter"
+    model: str | None               # e.g. "<provider>/<model-id>"
+    extra: dict[str, Any]           # pipeline_action, flags, overrides
+```
+
+**Key principles:**
+- Sub-agents never modify context — they return typed results
+- Provider/model preferences flow down from user → project defaults → app defaults
+- `extra` carries pipeline state, flags like `_skip_complexity`, session ids
+
+```python
+class BaseAgent(ABC):
+    @abstractmethod
+    async def run(self, context: AgentContext, **kwargs) -> AgentResult: ...
+
+    @property
+    @abstractmethod
+    def name(self) -> str: ...
+
+    @staticmethod
+    def accum_usage(total, usage): ...  # merge token counters
+```
+
+The single abstract method is what keeps the orchestrator ignorant of any sub-agent's
+internals; a second one is how that boundary starts leaking.
+
+
 ## The tool-calling loop, in full
 
 `SKILL.md` §2 states the six steps and the guard; this is the listing they describe. It
