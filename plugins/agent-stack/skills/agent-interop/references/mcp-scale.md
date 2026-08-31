@@ -84,6 +84,13 @@ Most providers cache the prompt prefix — **including the `tools` array**. Addi
 a definition mid-conversation **invalidates that cache**, and the resulting miss can cost more
 tokens than the definitions you so carefully removed.
 
+**This is one instance of a general rule**, and the platform now has a cache-safe path the three
+mitigations below were approximating: `defer_loading` keeps deferred definitions out of the
+system-prompt prefix and appends discovered ones inline as `tool_reference` blocks, leaving the
+cached prefix untouched (at least one tool must stay non-deferred — all-deferred is a 400). The
+economics, the arithmetic and the other invalidators are in `agent-orchestrator`'s
+`references/kv-cache.md`.
+
 Three mitigations, in the order they are usually right:
 
 - **Append** newly discovered definitions after the cache breakpoint rather than re-sorting

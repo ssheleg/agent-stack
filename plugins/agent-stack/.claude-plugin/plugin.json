@@ -3,7 +3,7 @@
   "name": "agent-stack",
   "displayName": "Agent Stack",
   "description": "Four skills: agent-orchestrator — tool-calling loops, pipelines with checkpoints, provider routing with fallback, memory architecture, plus the wallet side of reselling LLM access; agent-evals — run/trace/thread evals, LLM judges, and fixtures grown from production; agent-interop — MCP servers and clients, A2A agent cards, the MCP Registry, and gateways; agent-harness — system prompts, tool shaping, workflow-vs-agent, and auditing an agent system.",
-  "version": "0.18.2",
+  "version": "0.19.0",
   "author": {
     "name": "ssheleg",
     "url": "https://x.com/sshlg93"

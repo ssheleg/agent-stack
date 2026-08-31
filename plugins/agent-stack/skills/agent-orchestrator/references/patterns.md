@@ -200,6 +200,55 @@ for attempt in range(1, max_retries + 1):
 
 ---
 
+## The tool-calling loop, in full
+
+`SKILL.md` §2 states the six steps and the guard; this is the listing they describe. It
+moved here in v0.19.0 to buy the body headroom the §10 cache correction needed — the body
+carries what is read every time, a reference carries what is read once.
+
+```python
+max_iter = settings.max_orchestrator_iterations  # e.g. 10
+for iteration in range(max_iter):
+    # 1. Context pressure management
+    messages, did_trim = trim_loop_messages(messages, context_window)
+    if should_wrap_up(messages, context_window):
+        messages.append(Message(role="system",
+            content="IMPORTANT: Stop making tool calls. Compose final answer now."))
+
+    # 2. LLM call with retry
+    llm_resp = await llm_call_with_retry(messages, tools, provider, model)
+
+    # 3. No tool calls = final answer
+    if not llm_resp.tool_calls:
+        final_text = llm_resp.content
+        break
+
+    # 4. Dispatch tool calls
+    messages.append(Message(role="assistant", content=llm_resp.content,
+                            tool_calls=llm_resp.tool_calls))
+
+    # 5. Parallel execution (except sequential-only tools)
+    if len(llm_resp.tool_calls) > 1 and not has_sequential_tool:
+        results = await asyncio.gather(
+            *(handle_tool(tc, context) for tc in llm_resp.tool_calls),
+            return_exceptions=True)
+    else:
+        results = [await handle_tool(tc, context) for tc in llm_resp.tool_calls]
+
+    # 6. Append tool results
+    for tc, (text, sub_result) in zip(llm_resp.tool_calls, results):
+        messages.append(Message(role="tool", content=text,
+                                tool_call_id=tc.id, name=tc.name))
+else:
+    # Max iterations reached — compose partial answer from gathered data
+    final_text = "I reached maximum analysis steps. Here is what I found..."
+```
+
+Read it against §2's critical details: the wrap-up injection at ~70% of the window, in-loop
+trimming at ~80%, compression to 60% and one retry on a token-limit error, and the
+iteration refund that keeps a recoverable provider error from being charged to the guard.
+
+
 ## Context Window Sizes
 
 **Do not ship a table of model ids.** This file carried one until 2026-08-15 — nine

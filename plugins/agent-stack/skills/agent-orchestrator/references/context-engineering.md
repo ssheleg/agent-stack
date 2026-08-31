@@ -33,13 +33,13 @@ Compaction is not one call. It is an ordered set of strategies, and the expensiv
 is last. A loop that summarizes at the first sign of pressure pays a model call and a
 round-trip for what a string operation would have solved.
 
-| Rung | What it does | Cost | Loses |
-|---|---|---|---|
-| 1. Microcompact | Replace old tool results with a tombstone: `[tool result cleared]`. Keep the N most recent. | free | old observations, kept recent ones |
-| 2. Head/tail collapse | For an oversized text block, keep a head and a tail, elide the middle with a marker | free | the middle of long outputs |
-| 3. Session condensation | Collapse each older message to a one-line summary, capped in total | free | phrasing, keeps the thread of events |
-| 4. LLM compaction | One model call summarizes the transcript into a structured brief | a call + latency | anything the summarizer does not think to keep |
-| 5. Prompt-round truncation | Drop the oldest whole prompt rounds, boundary-aligned | free | the earliest history entirely |
+| Rung | What it does | Cost | Cache | Loses |
+|---|---|---|---|---|
+| 1. Microcompact | Replace old tool results with a tombstone: `[tool result cleared]`. Keep the N most recent. | free | invalidates from the oldest replacement | old observations, kept recent ones |
+| 2. Head/tail collapse | For an oversized text block, keep a head and a tail, elide the middle with a marker | free | invalidates from that block | the middle of long outputs |
+| 3. Session condensation | Collapse each older message to a one-line summary, capped in total | free | invalidates from the first collapsed message | phrasing, keeps the thread of events |
+| 4. LLM compaction | One model call summarizes the transcript into a structured brief | a call + latency | invalidates the whole trajectory | anything the summarizer does not think to keep |
+| 5. Prompt-round truncation | Drop the oldest whole prompt rounds, boundary-aligned | free | invalidates from the first dropped round | the earliest history entirely |
 
 Rung 5 exists for one case: **the compaction request itself does not fit.** When rung 4
 fails because the transcript it must summarize is over the limit, summarizing harder is
@@ -48,6 +48,12 @@ not available — you drop oldest rounds and retry, bounded by a small retry cou
 **Eligibility, not just age.** A tool result becomes a rung-1 candidate by size as well
 as position: anything past a few thousand characters, and every result from an external
 tool server, whose outputs are the usual window hog and the least likely to be re-read.
+
+**"Free" is a compute column, and none of these rungs is free in cache.** Every one edits
+history, and an edit invalidates the prefix from the replacement point onward — so the
+frequency of compaction is itself a cost decision: **compact in batch at a threshold, never
+every round.** A per-round compactor pays a full re-prefill each round to save tokens it had
+already paid for once. `references/kv-cache.md` carries the economics and the arithmetic.
 
 ## Re-measure between rungs
 

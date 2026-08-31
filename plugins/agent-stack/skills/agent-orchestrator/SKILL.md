@@ -86,45 +86,20 @@ Typed result subclasses per agent (e.g. `SQLAgentResult` with `query`, `results`
 
 ## 2. Tool-Calling Loop (Simple Path)
 
-The core agent loop pattern:
+The loop, in six steps, and every one of them is load-bearing:
 
-```python
-max_iter = settings.max_orchestrator_iterations  # e.g. 10
-for iteration in range(max_iter):
-    # 1. Context pressure management
-    messages, did_trim = trim_loop_messages(messages, context_window)
-    if should_wrap_up(messages, context_window):
-        messages.append(Message(role="system",
-            content="IMPORTANT: Stop making tool calls. Compose final answer now."))
+1. **Manage context pressure first** — trim, and inject a wrap-up instruction if the
+   window is nearly full, *before* spending the call.
+2. **Call the model with retry**, tools attached.
+3. **No tool calls means the answer** — that is the loop's only clean exit.
+4. **Append the assistant turn** with its tool calls, unedited.
+5. **Dispatch** — `asyncio.gather` for independent tools, sequentially for stateful ones.
+6. **Append every result** keyed by `tool_call_id`, then iterate.
 
-    # 2. LLM call with retry
-    llm_resp = await llm_call_with_retry(messages, tools, provider, model)
+The `else` on the `for` is the guard: on exhaustion, compose a best-effort answer from what
+was gathered rather than returning nothing. The full listing is in
+[`references/patterns.md`](references/patterns.md) → *The tool-calling loop, in full*.
 
-    # 3. No tool calls = final answer
-    if not llm_resp.tool_calls:
-        final_text = llm_resp.content
-        break
-
-    # 4. Dispatch tool calls
-    messages.append(Message(role="assistant", content=llm_resp.content,
-                            tool_calls=llm_resp.tool_calls))
-
-    # 5. Parallel execution (except sequential-only tools)
-    if len(llm_resp.tool_calls) > 1 and not has_sequential_tool:
-        results = await asyncio.gather(
-            *(handle_tool(tc, context) for tc in llm_resp.tool_calls),
-            return_exceptions=True)
-    else:
-        results = [await handle_tool(tc, context) for tc in llm_resp.tool_calls]
-
-    # 6. Append tool results
-    for tc, (text, sub_result) in zip(llm_resp.tool_calls, results):
-        messages.append(Message(role="tool", content=text,
-                                tool_call_id=tc.id, name=tc.name))
-else:
-    # Max iterations reached — compose partial answer from gathered data
-    final_text = "I reached maximum analysis steps. Here is what I found..."
-```
 
 **Critical details:**
 - **Parallel tool dispatch**: Use `asyncio.gather` for independent tools, sequential for stateful ones (e.g. data processing that depends on prior query results)
@@ -280,13 +255,9 @@ What belongs in that text, at what altitude, and how to enumerate the vocabulary
 agent stops inventing status values is the **`agent-harness`** skill's
 `agent-harness/references/system-prompt.md` — one home, and it is not this one. What is *this* skill's
 is the wiring: the prompt is rebuilt per request from the same capability flags the tool
-list is built from, so the two can never disagree.
-
-**Data Verification Protocol** (inject when DB connected):
-- First-time metrics: ask user "Do these numbers match expectations?"
-- Financial figures: mention units (cents vs dollars), ask for confirmation
-- Anomalies: proactively explain and ask user to verify
-- Rejected data: investigate discrepancy, record finding as learning
+list is built from, so the two can never disagree. **Rebuilding is free only while it is
+byte-identical**; when capabilities move mid-session, append the change rather than rewrite
+the prefix — `references/kv-cache.md` for what an edit before the boundary costs.
 
 ---
 
@@ -383,6 +354,7 @@ there; this table is only an index.
 | [`references/memory-lifecycle.md`](references/memory-lifecycle.md) | the memory **write path** — what enters, and what leaves |
 | [`references/memory-landscape.md`](references/memory-landscape.md) | **build or adopt** a memory layer, and what is settled practice |
 | [`references/context-engineering.md`](references/context-engineering.md) | the loop is **running out of window** |
+| [`references/kv-cache.md`](references/kv-cache.md) | you are deciding **what goes where in a request** — the static prefix against the trajectory, what a miss costs, the 2^N cache populations a runtime condition in front of the boundary creates, the named invalidators, and the four common optimisations that pay cache for nothing |
 | [`references/runtime.md`](references/runtime.md) | the agent must **survive a crash, a pause, a second message or a schedule** |
 | [`references/governance.md`](references/governance.md) | the question is **permission, not cost** — what it may do, and how you prove it |
 | [`references/llm-proxy-billing.md`](references/llm-proxy-billing.md) | the product **resells LLM access** |

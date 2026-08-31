@@ -10,6 +10,23 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Shipped state — v0.19.0 (2026-08-31)
+
+Measured on the release-candidate tree before the tag exists. B-126 from the 2026-08-31
+harness-engineering harvest: the largest corroborated gap in it, and this pack's own body
+ceiling reached without a check watching.
+
+| REQ | What ships | How it was confirmed | Confirmed |
+|---|---|---|---|
+| KV-1 | The pack gains its first prompt-cache coverage, from the harvest's most corroborated cluster | before: `grep -rniE 'kv.cache\|prefix cache\|prompt cach\|cache hit\|cacheable' plugins/agent-stack/skills/` → **0 hits**; after: `references/kv-cache.md` plus one line each in SKILL.md, `context-engineering.md` and `mcp-scale.md`. The cluster was **14 findings from 9 independent bundles** | **observed** |
+| KV-2 | SKILL.md §10's architectural error is corrected without losing the correctness argument | §10 read "rebuilt per request … so the two can never disagree"; it now adds that rebuilding is free **only while byte-identical**, and that a mid-session capability change is appended rather than written into the prefix | **observed** |
+| KV-3 | The compaction ladder no longer calls four of five rungs free | `context-engineering.md` gains a **Cache** column; each rung names where it invalidates from, and the batch-not-per-round rule sits under the table. Header, separator and every row carry 5 cells | **observed** |
+| KV-4 | Headroom was bought by displacement, not by deletion | body was **4749/4750** before the edit (house auditor); the Data Verification Protocol moved to `agent-harness/references/system-prompt.md`, which §10's own text names as the home for prompt content | **observed** |
+| KV-5 | The body budget is measured LOCALLY, calibrated against the authority | CI's *House skill audit* job runs `make-skill`'s auditor and **failed this very release** at `GAP BODY_HEADROOM … ~4804 … past the 4750 working limit`, which forced the displacement; `npm test` measured nothing. `test/validate.py` now hard-fails past 5000 and reports past 4750 on **every** run. Both thresholds watched: +2,000 chars → `past the 5000 budget`, exit 1; +700 chars → the note prints and the run still exits 0, as intended. **The first draft was wrong twice and both are recorded**: it counted the whole file including front matter (4757 against a real body of 4494) so it flagged a file the auditor passes, and `len//4` over the body then read low and would have warned late. The divisor is calibrated on the measured pair (17,977 body chars ↔ 4609 auditor tokens → 3.9) and now reports **4609, exactly the auditor's number** | **watched failing** |
+| KV-6 | The release was cut in an isolated worktree after a concurrent session was found in the shared checkout | `agent_sync.py status` showed **two leases**, `B-118` and `B-126-kv-cache`, with both sessions' uncommitted work in one tree on one branch. My six files were backed up, a worktree created from `origin/main`, and the shared checkout restored to clean `main`. `git show --name-only 62bb910` ∩ my file list = **empty**, so the separation was clean at the commit level too | **observed** |
+
+---
+
 ## Shipped state — v0.18.2 (2026-08-31)
 
 Measured on the release-candidate tree before the tag exists. Board row **B-118**,
