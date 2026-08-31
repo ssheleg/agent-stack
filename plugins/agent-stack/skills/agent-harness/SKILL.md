@@ -13,6 +13,7 @@ description: >-
   "embed an agent", "agent SDK", "Pi harness", "системный промпт", "агент не вызывает тул",
   "аудит агента", "встроить агента". Not for the loop's plumbing, its evals, or its
   protocols — those are siblings.
+license: MIT
 ---
 
 # Agent harness — what the agent is told, and how to audit what someone else told theirs

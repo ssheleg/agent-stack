@@ -12,6 +12,7 @@ description: >-
   loop", "memory layer", "LLM billing", "token wallet", "агентная система", "оркестратор",
   "суб-агент", "роутер моделей", "человек в цикле", "слой памяти", "биллинг LLM", "граф задач".
   Not for a single LLM call in a script, or prompt wording.
+license: MIT
 ---
 
 # Agent Orchestrator — Production Best Practices
@@ -245,9 +246,7 @@ answer built from nothing, in no error log.
 **Design a memory layer from
 [`references/memory-architecture.md`](references/memory-architecture.md)**, not from this
 table — it also carries the context-budget trap, layer 0 carryover and workspace scale.
-The write path is [`references/memory-lifecycle.md`](references/memory-lifecycle.md);
-what to build on and measure with is
-[`references/memory-landscape.md`](references/memory-landscape.md).
+The write path and the build-or-adopt question have their own rows in the index below.
 ## 8. Self-Learning Feedback Loops
 
 Three cycles feed the memory layers, and they differ by what supplies the signal: a failed
@@ -373,15 +372,18 @@ heading — the ones that were learned by getting them wrong:
 ## References
 
 Each file opens with its own **Load this when** line — the authoritative trigger lives
-there, so this table stays an index and the two cannot drift apart.
+there; this table is only an index.
 
 | File | Read it when |
 |---|---|
-| [`references/graph-engineering.md`](references/graph-engineering.md) | you are deciding the **shape of the work** — the fake-edge test, the diamond, the checker node, static versus dynamic, and what the host actually runs |
+| [`references/graph-engineering.md`](references/graph-engineering.md) | you are deciding the **shape of the work** — fake edges, the diamond, the checker node, static versus dynamic |
 | [`references/pipeline.md`](references/pipeline.md) | one loop is **not the shape** — the planned path, its checkpoints, resume, and the interrupt that asks a person |
 | [`references/patterns.md`](references/patterns.md) | you need the **data models and algorithms** under the body |
+| [`references/memory-architecture.md`](references/memory-architecture.md) | an agent is **being given memory**, or memory is misbehaving |
+| [`references/memory-lifecycle.md`](references/memory-lifecycle.md) | the memory **write path** — what enters, and what leaves |
+| [`references/memory-landscape.md`](references/memory-landscape.md) | **build or adopt** a memory layer, and what is settled practice |
 | [`references/context-engineering.md`](references/context-engineering.md) | the loop is **running out of window** |
 | [`references/runtime.md`](references/runtime.md) | the agent must **survive a crash, a pause, a second message or a schedule** |
 | [`references/governance.md`](references/governance.md) | the question is **permission, not cost** — what it may do, and how you prove it |
 | [`references/llm-proxy-billing.md`](references/llm-proxy-billing.md) | the product **resells LLM access** |
-| [`references/provider-lifecycle.md`](references/provider-lifecycle.md) | the question is the **workforce, not the loop** — where providers come from, produced-once/bound-many, knowledge packs, canary trust, workspace lifecycle, fleet budgets |
+| [`references/provider-lifecycle.md`](references/provider-lifecycle.md) | the question is the **workforce, not the loop** — provider lifecycle, canary trust, fleet budgets |

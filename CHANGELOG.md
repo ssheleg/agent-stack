@@ -1,5 +1,46 @@
 # Changelog
 
+## v0.17.1 — the evals run for the first time, and the tails go to zero
+
+Wave-3 of the 2026-08-29 family audit (rows AST-05, AST-07, AST-08, AST-09, AST-10),
+plus the two board rows wave 2 filed (AST-A1, AST-B). All fixes and docs — no
+description or trigger changes, hence a patch.
+
+- **AST-05: the eval suite is executed for the first time.** `test/evals/RESULTS.md`
+  gains two dated rows — haiku and sonnet, 2026-08-31 — each a fresh blind subagent
+  per trigger query against the family's 28 skill descriptions, plus all three
+  scenarios scored line by line. Both models: 11/12 triggers. Scenario lines: 10/12
+  (haiku), 9/12 (sonnet). Each miss is named — haiku false-triggered `agent-harness`
+  on "rewrite this one system prompt so it sounds friendlier" (q09), sonnet answered
+  `none` on the Russian harness-audit query (q04) — and the Method section states the
+  protocol and its three limits rather than presenting the rates as clean-room.
+- **AST-B: the generator-evaluator citation lands where the doctrine lives.**
+  `agent-evals` §5a now cites Anthropic's *tuning a standalone evaluator to be
+  skeptical is more tractable than making a generator self-critical* (read
+  2026-08-30) beside the sentence making the same claim, marked as convergence
+  rather than invention — beside the first executed eval run, as the board row asked.
+- **AST-A1: the nine-subsystem coverage check is done and the row closes.** The ninth
+  subsystem the filing row could not name is **Automation**; all nine map to existing
+  doctrine with a `file:line` each, and the suspected identity/approval-policy gap
+  resolves as a split verdict — approval policy covered (`governance.md`),
+  authentication mechanics a named delegation (`layers.md:78-80`), not a hole. The
+  map lives in the board row (`docs/evidence/backlog.md`), not in a new reference.
+- **AST-07: the README stops counting its references.** "Twenty references" had
+  drifted to 24 actual files within a week of being written; the aggregate count is
+  dropped in favour of the per-skill counts that are still true, with the reason
+  stated in place.
+- **AST-10: the orchestrator's reference index lists all 11 references.** The three
+  memory rows — `memory-architecture.md`, `memory-lifecycle.md`,
+  `memory-landscape.md` — join the index table, each paraphrasing its own
+  "Load this when" line.
+- **AST-08: `license: MIT` in all four skill front matters** (was 1 of 4 —
+  `agent-evals` alone carried it). Every front matter re-checked with
+  `yaml.safe_load` after the edit.
+- **AST-09: `$schema` in both manifests** — `claude-code-plugin-manifest.json` for
+  `plugin.json`, `claude-code-marketplace.json` for `marketplace.json`, the two
+  schemastore addresses that resolve (the third candidate, `claude-code-plugin.json`,
+  is a 404 and two siblings currently point at it; referred, not copied).
+
 ## v0.17.0 — the descriptions stop colliding, and the claims get their dates
 
 Wave-2 of the 2026-08-29 family audit (rows AST-02, AST-03, AST-04, AST-06, AST-11), plus

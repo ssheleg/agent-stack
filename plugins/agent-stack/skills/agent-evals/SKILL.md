@@ -168,6 +168,13 @@ the one most systems are missing: a **checker node** sitting between a parallel 
 the node that consumes it. Its only job is *usable / not usable*, and the convergence
 depends on **it** rather than on the branches — otherwise the gate has a bypass.
 
+**That split is measured practice, not only this pack's position.** Anthropic's
+harness-design guidance (`anthropic.com/engineering/harness-design-long-running-apps`,
+read 2026-08-30) reports that *tuning a standalone evaluator to be skeptical is more
+tractable than making a generator self-critical* — the same reason the verdict belongs to
+a separate node rather than to the branches grading themselves. Dated and cited so a
+reader can tell doctrine that converged with the field from doctrine invented here.
+
 It matters here because it is the same machinery as §5, positioned differently:
 
 <!-- checker-contract: missing, empty, unevidenced, malformed, contradictory, off-topic | optional: under-confident -->
