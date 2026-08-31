@@ -33,8 +33,9 @@ Part of the [ssheleg skill family](https://github.com/ssheleg/sshlg-skills).
 
 Four skills — `agent-orchestrator` for wiring the loop, `agent-evals` for proving it
 behaves, `agent-interop` for everything it talks to outside its own process,
-`agent-harness` for what it is **told** — and twenty references they load on demand,
-plus one scanner.
+`agent-harness` for what it is **told** — and the references they load on demand,
+plus one scanner. The per-skill sections below carry their own counts; no total is
+stated here, because the last one drifted stale within a week of being written.
 
 **The orchestrator** (`SKILL.md`) — what the agent reads first:
 

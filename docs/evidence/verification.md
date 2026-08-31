@@ -10,6 +10,22 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Shipped state — v0.17.1 (2026-08-31)
+
+Measured on the release-candidate tree before the tag exists. Wave-3 of the 2026-08-29
+family audit: AST-05/07/08/09/10 plus board rows AST-A1 and AST-B closed.
+
+| REQ | What ships | How it was confirmed | Confirmed |
+|---|---|---|---|
+| R-01 | AST-05: two dated eval rows exist, with a Method line | `test/evals/RESULTS.md` carries rows dated 2026-08-31 for haiku and sonnet — 24 fresh blind trigger probes (one subagent per query per model), 6 scenario runs scored line by line; misses named (q09 haiku false trigger, q04 sonnet `none`); `python3 test/evals_validate.py` → `OK: 12 trigger cases and 3 scenarios validate`, `--self-test` → planted invalid class caught | **observed** |
+| R-02 | AST-B: the Anthropic generator-evaluator citation sits in `agent-evals` §5a, dated read 2026-08-30 | `grep -n 'standalone evaluator' plugins/agent-stack/skills/agent-evals/SKILL.md` → hit inside §5a beside "the convergence depends on **it** rather than on the branches"; `check_one_home_per_fact` (shingle floor 20) green on the quoted sentence | **observed** |
+| R-03 | AST-A1: nine subsystems mapped, row closed with the map | ninth subsystem recovered as **Automation** (kenhuangus.substack.com retelling re-read 2026-08-31; `openai.com/index/harness-engineering` → 403); every `file:line` in the map re-resolved on the edited tree (line numbers shift with this release's own edits, so they were re-measured after, not before); the suspected identity/approval-policy gap closed as covered-plus-named-delegation | **observed** |
+| R-04 | AST-07: no aggregate reference count in the README | `grep -c 'twenty references' README.md` → 0; actual count at this commit: `ls plugins/agent-stack/skills/*/references/*.md \| wc -l` → 24 (11 orchestrator + 7 harness + 6 interop), which is why the aggregate was dropped rather than corrected — it moved once already | **observed** |
+| R-05 | AST-10: the orchestrator index lists 11 of 11 | `grep -c 'references/' agent-orchestrator/SKILL.md` index table rows → 11; both-directions check in `test/validate.py` green (no orphan, no dangling) | **observed** |
+| R-06 | AST-08: `license: MIT` in 4 of 4 front matters, YAML-safe | `yaml.safe_load` over each front matter → keys `[description, license, name]`, descriptions intact at 967/963/970/961 chars, all ≤ the 970 working limit | **observed** |
+| R-07 | AST-09: `$schema` present and resolving in both manifests | `curl -sL -o /dev/null -w '%{http_code}'` → `claude-code-plugin-manifest.json` 200, `claude-code-marketplace.json` 200 (the third candidate `claude-code-plugin.json` → 404, not used); `claude plugin validate . --strict` and `plugins/agent-stack --strict` → both `✔ Validation passed` | **observed** |
+| R-08 | The whole gate is green on the bumped tree | `npm test` → `OK: agent-stack structurally valid (13 checks = 9 named + 4 per-skill, 4 skill(s), v0.17.1)`, `PASS: plant_guard — 9 cases`, `PASS: installer — 11 case(s)`, residue lines "left nothing" | **observed** |
+
 ## Shipped state — v0.17.0 (2026-08-30)
 
 Measured on the release-candidate tree before the tag exists. Wave-2 of the 2026-08-29

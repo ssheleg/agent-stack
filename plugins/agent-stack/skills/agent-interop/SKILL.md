@@ -12,6 +12,7 @@ description: >-
   "agentgateway", "tool federation", "MCP-сервер", "карточка агента", "интероперабельность
   агентов", "реестр MCP", "шлюз для агентов". Not for designing one server's tool set, nor for
   a skill's own construction — that is make-skill.
+license: MIT
 ---
 
 # Agent interop — the protocols an agent speaks outside its own process
