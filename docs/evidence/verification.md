@@ -10,6 +10,34 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Shipped state — v0.18.2 (2026-08-31)
+
+Measured on the release-candidate tree before the tag exists. Board row **B-118**,
+deferred from v0.17.1 by coordinator decision and closed here: the committed social card
+clipped its eyebrow at the canvas, and the check on it read bytes rather than text.
+
+| REQ | What ships | How it was confirmed | Confirmed |
+|---|---|---|---|
+| C-01 | The reported clip is re-derived here, not restated | decoded the previously committed PNG with an independent stdlib decoder: accent ink spans `x 0..1199` of a 1200px canvas, muted ink to `x=1131`; replaying the renderer's own metric on the 91-char role gives `fitScale` → **2** (its floor, under both the legacy and the corrected metric), advance 14px/char, pen finishing at **x=1354**, last fully drawn glyph index **79 of 90** → visible `"…AND THE WALLET UNDER"`, lost `" LLM RESALE"` (**11** characters) | **observed** |
+| C-02 | The role text is shortened to fit with margin, and names all four skills | new string, 60 chars: `orchestration, prompts, evals, protocols, and the LLM wallet` — orchestration→`agent-orchestrator`, prompts→`agent-harness` (absent from the old 91-char string), evals→`agent-evals`, protocols→`agent-interop`, plus the resale wallet. Painted ink `x 84..919` against a content box of `x 84..1115`: **196px / 19% of margin**, and the eyebrow renders identically under both fit metrics | **observed** |
+| C-03 | The committed card is the exact render of that string | `scripts/og-card.js` + `memberCardSpec` from the umbrella working copy, `fitTracking: true`; re-measured after committing: no ink outside the content box, `python3 test/social_preview.py` → `OK: docs/assets/social-preview.png is 1200x630, 8342 bytes` | **observed** |
+| C-04 | The sensor gap is closed — and was watched failing before it was believed | `test/card_ink.py` against the PREVIOUSLY committed card → `accent paints at x=1199, y=190 — 84px past the right edge of the content box (x=1115), and reaches the canvas edge, so characters were cut off entirely`, exit **1**; the pre-change `test/social_preview.py` against that same file → `OK: … 1200x630, 8686 bytes`, exit **0**. Both directions run, not reasoned about | **observed** |
+| C-05 | The guard cannot pass by looking at nothing | `python3 test/card_ink.py --self-test` → four lines: a clean synthetic card accepted, **1px** past the box refused, ink to the canvas edge refused, and a blank image refused by the positive assertion (`the accent bar covers 0 of the 504 left-gutter pixels`) rather than silently cleared | **observed** |
+| C-06 | The entry point refuses a clipped card end to end, with the plant proved to land | new `validate.yml` step copies the tree, paints one accent pixel at `x=1199, y=300`, `plant_guard.py verify` exits 0 (the tree changed), and `test/social_preview.py` in the copy exits **1** with the same message. Run locally before commit: step exit **0** | **observed** |
+| C-07 | The shared mechanism stays shared | `test/card_ink.py` is a separate module because the umbrella's `check_a_copied_mechanism_declares_its_divergence` stops comparing copies below `SHARED_SIMILARITY = 0.90` — for all nine at once, the base being this repository's copy. `test/social_preview.py` grew from 811 to **965** bytes; `difflib.SequenceMatcher(...).quick_ratio()` against each of the eight siblings → **0.9133**, and `diverges: none` stays mechanically true (no module-level constant added) | **observed** |
+| C-08 | The whole gate is green on the bumped tree | `npm test` → exit **0**, `OK: agent-stack structurally valid (13 checks = 9 named + 4 per-skill, 4 skill(s), v0.18.2)`, `PASS: plant_guard — 9 cases`, `PASS: installer — 11 case(s)`, every residue line `left nothing`; `python3 test/evals_validate.py` and `--self-test` both OK; `claude plugin validate . --strict` and `plugins/agent-stack --strict` → `✔ Validation passed`; version sync 0.18.2 across `package.json`, `.claude-plugin/marketplace.json`, `plugins/agent-stack/.claude-plugin/plugin.json` | **observed** |
+
+**Owed by the umbrella, not by this repository.** `test/site_test.js` byte-compares this
+card against a render from `skills.json`, so the umbrella is red until its coordinator
+makes two edits in the pin commit: set agent-stack's `role` to the 60-char string above,
+and **remove `agent-stack` from `LEGACY_FIT` in `scripts/site.js`**. The second is not
+optional and not a preference — the legacy metric renders `npx skills add
+ssheleg/agent-stack` at scale 5, painting to `x=1131`, which this release's own new check
+refuses (measured: `muted (body line) paints at x=1131, y=431 — 16px past the right edge`).
+The umbrella's own comment already names this release as the moment that entry retires.
+
+---
+
 ## Shipped state — v0.18.0 (2026-08-31)
 
 Measured on the release-candidate tree before the tag exists. B-124 from the

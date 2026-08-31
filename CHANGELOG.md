@@ -1,3 +1,47 @@
+## v0.18.2 — the card lost eleven characters and the check that watched it counted bytes
+
+`docs/assets/social-preview.png` — the image every link to this repository renders —
+had its eyebrow line **cut off at the canvas**. The line is generated from the umbrella's
+`role` cell for this pack, 91 characters of it; at the smallest scale the renderer will
+use, that needs **1354px of a 1200px canvas**. Eleven characters were never drawn. The
+card read *"…AND THE WALLET UNDER"* and stopped.
+
+Verified here rather than taken on report: decoding the committed PNG puts accent ink in
+column **x=1199 of 1200**, and re-running the renderer's own metric confirms the pen would
+have finished at x=1354 with `" LLM RESALE"` past the edge. **No scale fixes it** —
+`fitScale` floors at 2 and was already there — so the text itself had to get shorter.
+
+**The role string is now 60 characters:** `orchestration, prompts, evals, protocols, and
+the LLM wallet`. It names all four skills where the old one named three (the harness was
+missing from its own pack's one-line description), and it paints to x=919, leaving 196px
+— 19% — of margin inside the content box. The umbrella owns that cell; this release ships
+the card rendered from it, and the pin that makes them agree is the umbrella's.
+
+**The sensor gap is the real repair.** `test/social_preview.py` checked the PNG
+signature, the chunk order, the byte count and the dimensions — and was green over a
+clipped card for as long as one existed, because none of those readings is about text.
+`test/card_ink.py` decodes the image and measures where ink actually lands: every painted
+pixel must sit inside the content box, with exactly one deliberate exception (the accent
+bar that bleeds to the left edge), and the bar must be *present* so a blank or
+mis-decoded image cannot pass by having nothing in the gutters. Clipping cannot hide from
+it — losing even one glyph means the line already painted 70px into the right gutter.
+
+Watched failing before it was believed: the guard refuses the previously committed card
+by name (*"accent paints at x=1199, y=190 — 84px past the right edge of the content box …
+and reaches the canvas edge, so characters were cut off entirely"*), and the old check
+accepts the same file. A new negative self-test in `validate.yml` plants one pixel in the
+last column of a repo copy and requires `test/social_preview.py` to refuse it, with
+`plant_guard.py verify` confirming the plant landed.
+
+`test/card_ink.py` is a separate module **on purpose, and must stay one**:
+`test/social_preview.py` is a shared mechanism across nine repositories, and the
+umbrella's divergence check stops comparing copies that fall below 90% similarity — for
+all nine at once. Inlining a PNG decoder there would have disabled that guard on eight
+repositories that never asked for it. The shared file gains two lines; measured
+similarity to its eight siblings is **0.9133** against the 0.90 floor.
+
+Closes board row **B-118**, deferred from v0.17.1 by coordinator decision.
+
 ## v0.18.1 — the board row a sibling's gate refused
 
 v0.18.0's B-124 row landed in the **wrong table** — the board carries two, an
