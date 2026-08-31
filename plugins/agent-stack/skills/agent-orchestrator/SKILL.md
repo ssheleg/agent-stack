@@ -86,7 +86,8 @@ was gathered rather than returning nothing. The full listing is in
 - **In-loop trimming**: At ~80% capacity, collapse older assistant+tool pairs into one-liner summaries
 - **Token limit recovery**: On `LLMTokenLimitError`, compress to 60% and retry once. If still fails, return partial answer
 - **Max iterations guard**: Always have a hard limit. On exhaustion, compose best-effort answer from data gathered so far
-- **Iteration refund**: a recoverable provider error is not charged to that guard
+- **Iteration refund**: a recoverable provider error is not charged to that guard — the
+  money still is, and accounting on the success path alone under-counts the worst runs
 - **Budget awareness**: tell the model what is left, or 300 steps performs like 30
 
 ---

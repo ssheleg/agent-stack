@@ -1,3 +1,41 @@
+## v0.21.0 — the risk one tool cannot show you, and the money an iteration refund does not cover
+
+Two findings, both of them about a rule that is right on one axis and silently assumed to
+cover a second.
+
+**Tool annotations are a risk vocabulary, and their defaults are asymmetric on purpose.**
+`readOnlyHint` **false**, `destructiveHint` **true**, `idempotentHint` **false**,
+`openWorldHint` **true** — so a server author who omits annotations entirely has declared
+the *most dangerous* shape. That is the correct fail-closed choice and the opposite of what
+most authors think they are doing: annotation **narrows** an assumption, silence widens it.
+And every one is a hint rather than a contract — the specification says a client must treat
+them as untrusted unless the server is, so an annotation may inform a UI or a policy default
+and may never be the thing that decides whether a destructive call runs.
+
+**The lethal trifecta now has a name here.** Private data, untrusted content, and the
+ability to communicate externally: any two are safe, all three in one session are an
+exfiltration path that no prompt-level instruction reliably closes. It lands in
+`agent-harness/references/tools.md` rather than in a permission section for a structural
+reason — **it is a property of the tool set assembled in a session, so per-tool analysis
+cannot see it by construction.** Every tool can pass its own review and the combination
+still be unsafe; adding a `fetch(url)` beside a private-data reader closes the triangle and
+will not look like a security change. `agent-interop/references/gateway.md` gains the
+composer's half: a gateway's whole value is assembling many servers into one surface, which
+is exactly the operation that can create a risk none of its inputs had, so **granting a role
+one more server is a trifecta question, not only a least-privilege one.**
+
+**Refund the iteration, charge the money.** Our loop refunds an iteration on a recoverable
+provider error — a 502 should not consume one of the ten attempts. That is right, and it
+says nothing about money: the provider still billed the call. A response that arrived and
+then failed to parse was generated, metered and charged. The observed failure is precise —
+a harness charged its cost on the **success path** of `query()`, so a format error meant the
+cost was never added, and the code compensated inside the exception handler. Where a cost
+ceiling is the *primary* bound (that harness ships `cost_limit = 3.0` with the step limit
+**off**), a leak there is a leak in the only guard. Accounting belongs in a `finally`, and
+**a budget that under-counts is worse than one that over-counts**: over-counting stops a run
+early and visibly, under-counting is invisible until the invoice and biases toward the
+failing runs, which are the expensive ones.
+
 ## v0.20.0 — what a trajectory cannot carry across a vendor, and where the capability goes
 
 Three findings from the harvest, all landing on the same question: **which model does what,

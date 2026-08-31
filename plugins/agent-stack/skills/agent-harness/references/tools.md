@@ -126,6 +126,48 @@ the mistake cannot be made**, rather than documenting the mistake.
 - A required `confirm: true` on a destructive action, so a partially-formed call fails
   closed.
 
+## Annotations, and the risk one tool cannot show you
+
+MCP tools carry four hints, and their defaults are asymmetric on purpose:
+
+| Hint | Default | So an unannotated tool is assumed to be |
+|---|---|---|
+| `readOnlyHint` | `false` | one that writes |
+| `destructiveHint` | `true` | destructive |
+| `idempotentHint` | `false` | unsafe to repeat |
+| `openWorldHint` | `true` | reaching outside your system |
+
+**A server author who omits annotations entirely has declared the most dangerous shape**,
+which is the correct fail-closed choice and the opposite of what most authors assume they
+are doing. Annotate to *narrow* the assumption; silence widens it.
+
+**Every one is a hint, not a contract.** The specification is explicit that a client must
+treat descriptions and annotations as untrusted unless the server itself is trusted — so an
+annotation informs a UI and a policy default, and may never be the thing that decides
+whether a destructive call runs.
+
+### The lethal trifecta — a property of the session, not of a tool
+
+Three capabilities that are individually ordinary and jointly an exfiltration path:
+
+1. access to **private data**,
+2. exposure to **untrusted content**,
+3. the ability to **communicate externally**.
+
+Any two are safe. All three in one session mean untrusted content can instruct the agent to
+read private data and send it out, and no prompt-level instruction reliably prevents it.
+
+**The reason it belongs here rather than in a permission check:** the trifecta is a property
+of *the tool set assembled in a session*, so **per-tool analysis cannot see it**. Every tool
+can pass its own review and the combination still be unsafe — which is why a review that
+walks a server's tools one at a time answers a different question than "what can this
+session do". Look at the set, and at what a gateway composes into it.
+
+**The practical consequence for a tool author:** a tool that only reads private data is
+fine; adding a `fetch(url)` beside it is what closes the triangle, and it will not look like
+a security change in review.
+
+
 ## Evaluating tools
 
 Tools deserve **thorough documentation and testing**, and testing means running the agent
@@ -150,5 +192,7 @@ Fix the interface, not the prompt, when the fault is in this table.
   can do nothing with.
 - **Treating tool output as trusted.** It is attacker-controlled input if the server is; the
   specification says descriptions and annotations are untrusted unless the server is.
+- **Reviewing tools one at a time.** The lethal trifecta is a property of the assembled set;
+  a per-tool review cannot see it by construction.
 - **Adding a tool to fix a prompt problem.** The set grows, selection degrades, and the
   original defect is still there.
