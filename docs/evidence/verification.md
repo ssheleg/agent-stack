@@ -10,6 +10,23 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Shipped state — v0.18.0 (2026-08-31)
+
+Measured on the release-candidate tree before the tag exists. B-124 from the
+2026-08-31 harness-engineering harvest: the skill had no `references/` directory and no
+statistics layer at all.
+
+| REQ | What ships | How it was confirmed | Confirmed |
+|---|---|---|---|
+| ST-1 | `agent-evals` gains its first reference, `references/statistics.md`, and the gate's two-way check binds it | `ls plugins/agent-stack/skills/agent-evals/references/` → `statistics.md`; `npm test` → rc=0 with `validate.py`'s references↔SKILL.md agreement passing in both directions (a link to a missing file and an unlinked orphan both fail it) | **observed** |
+| ST-2 | Every figure in the reference is computed, not restated | recomputed before writing: `SE(0.70,100)=0.0458` → **±8.98 pp**, and ±4.49 / ±2.84 pp at n=400 / n=1000; `pass@5 = 1−0.4⁵ = 0.98976`; `pass^5 = 0.6⁵ = 0.07776`, a **91.2-point** gap; `0.75³ = 0.421875` | **observed** |
+| ST-3 | The independence assumption behind `pass^k` is stated as false, with the published data that falsifies it | τ-bench airline Pass^k for claude-3-5-sonnet is 0.460 / 0.326 / 0.263 / 0.225; `0.460^k` gives 0.460 / 0.212 / 0.097 / 0.045 — the observed curve falls far slower, so trials are positively correlated and `pass^k` cannot be exponentiated from `pass^1`. **Not in the source that prompted this**; it came out of recomputing the table | **observed** |
+| ST-4 | §5's trajectory rule sits between both measured edges rather than being deleted | `grep -c "Right tools, right order" SKILL.md` → **0**; the section now carries Anthropic's *"too rigid"* quote AND Claw-Eval's 44%/13% for trajectory-blind grading, resolving to *read the trajectory; do not match it* — a set and a forbidden list, never an order | **observed** |
+| ST-5 | §2's axis table no longer prescribes an order matcher, and the one place order IS the subject says so | the Trajectory row reads *"what the run must not do, and what it must have touched — never the order"*; the single-step example keeps *"must call `find_meeting_times` first"* with a sentence explaining that at that granularity the fixture is one decision | **observed** |
+| ST-6 | The checklist gains the line that makes the reference reachable from the gate a reader runs | `grep -c "statistics.md" SKILL.md` → 2 (checklist line + References table); body ~4343 tokens, inside the 4750 working limit | **observed** |
+
+---
+
 ## Shipped state — v0.17.1 (2026-08-31)
 
 Measured on the release-candidate tree before the tag exists. Wave-3 of the 2026-08-29

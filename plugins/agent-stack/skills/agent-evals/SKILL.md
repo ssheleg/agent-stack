@@ -63,6 +63,10 @@ point — tool name, argument shape.
 > "Schedule a meeting with Harrison tomorrow morning", with `find_meeting_times`,
 > `schedule_meeting` and `send_email` available, must call `find_meeting_times` first.
 
+This is the one granularity where *first* is a legitimate assertion: the fixture is a
+single decision, so the ordering claim is the subject rather than a proxy for it. Across a
+whole trajectory it stops being one — see §5.
+
 Cheap, deterministic, CI-blocking. **Precondition: a stable agent architecture.** These
 break on a graph refactor, and a suite that fails on every refactor gets deleted.
 
@@ -72,7 +76,7 @@ Assert on three axes at once, with three different mechanisms:
 
 | Axis | Assert | With |
 |---|---|---|
-| Trajectory | tool-call sequence — `read_file` → `edit_file` → `run_tests` | set/subset/order matchers |
+| Trajectory | what the run **must not** do, and what it must have touched — never the order | set/subset matchers, forbidden-call lists |
 | Final response | quality, tone, policy compliance | rubric or judge |
 | **State change** | the memory row exists, the file was written, the artifact is there | direct inspection of the side effect |
 
@@ -147,8 +151,20 @@ That is what makes a judge reproducible and a disagreement resolvable.
 assertions, tool-call correctness — all deterministic, all faster and cheaper than a model
 call. Send to a judge only what cannot be decided by code.
 
-**Judge the trajectory, not just the answer.** Right tools, right order, right arguments.
-An agent that reaches a correct answer through three wrong tool calls is a latent outage.
+**Read the trajectory; do not match it.** An agent that reaches a correct answer through
+three wrong tool calls is a latent outage — and asserting the *sequence* to catch that is
+measurably the wrong instrument. Anthropic names the instinct and rejects its strict form:
+exact tool-order assertions are *"too rigid and results in overly brittle tests, as agents
+regularly find valid approaches that eval designers didn't anticipate"*, and the worked
+case is an agent that solved a τ²-bench booking task through a policy loophole, failing
+the eval as written while serving the user better. Grade **what was produced and what
+changed**, and let the path vary.
+
+The opposite edge is measured too, so this is not "grade the final answer": a grader blind
+to the trajectory misses **44% of safety violations and 13% of robustness failures**,
+because a policy breach on the way to a correct result leaves no trace in the outcome. Use
+the trajectory for the claims the outcome cannot carry — a forbidden call, a missing
+confirmation, a secret read — as a **set and a forbidden list**, never as an order.
 
 **Calibrate the judge before trusting it.** Collect human labels on the same traces,
 measure agreement, iterate the judge prompt until agreement is high — *then* let it score
@@ -304,6 +320,16 @@ None of the above runs without these, and they are the part people skip:
 - [ ] Every production failure minimised into a permanent fixture
 - [ ] Annotation queue with filters, and the two reviewer roles kept separate
 - [ ] Simulated users trained on real transcripts, with adversarial personas
+- [ ] Every comparison that changes a decision states `n`, `k`, the reducer and the noise
+      band — `references/statistics.md`; a three-point gap on a hundred cases is noise
+
+---
+
+## References
+
+| Load | When |
+|---|---|
+| [`references/statistics.md`](references/statistics.md) | a number is about to change a decision — how many runs before a difference is real, `pass@k` vs `pass^k` and why trials are not independent, paired comparison, the harness as a variable, and what a given piece of evidence authorises next |
 
 ---
 

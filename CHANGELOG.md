@@ -1,3 +1,51 @@
+## v0.18.0 — how many runs before a difference is real, and the trajectory rule between its two measured edges
+
+`agent-evals` shipped 315 lines of doctrine about **what** to assert with **no
+`references/` directory at all**, and said nothing anywhere about how many times to run
+anything. A skill whose whole job is answering *did it get better* had no way to say
+whether a number was a result or noise.
+
+**`references/statistics.md`** is that layer, and every figure in it was recomputed rather
+than quoted:
+
+- `SE(p) = √(p(1−p)/n)` — at n=100, p=0.70 the 95% band is **±8.98 pp**, so a 73%-vs-70%
+  comparison on a hundred cases is a number inside its own noise. Error falls as `1/√n`,
+  which makes the remedy *more tasks*, not more argument.
+- **`pass@k` and `pass^k` differ by 91 points on the same agent** — at p=0.6, k=5 they are
+  99.0% and 7.8%. The first is a capability ceiling a human picks from; the second is what
+  a payment or a permission change needs. An operation with side effects may not "retry
+  until it works", so `pass@k` is not available to it as a metric at all.
+- **Trials are not independent, and the published data proves it.** τ-bench's airline
+  Pass^k for claude-3-5-sonnet runs 0.460 → 0.326 → 0.263 → 0.225, where independence from
+  Pass^1 would predict 0.460 → 0.212 → 0.097 → 0.045. Successes cluster by task, not by
+  trial. So `pass^k` cannot be computed from `pass^1`, and Anthropic's `0.75³ ≈ 42%` is the
+  right shape for an argument and the wrong number for a gate. **This one is ours** — it
+  came out of recomputing the table rather than restating it.
+- Pairing on the same tasks and the same 3–5 seeds with McNemar or a paired bootstrap,
+  because the task-difficulty variance the previous point measures is exactly what pairing
+  removes.
+- **The harness is a variable**: 6 pp between the most- and least-resourced setups on
+  Terminal-Bench 2.0 (p<0.01), moving within noise from 1× to 3× (p=0.40) and lifting ~4 pp
+  from 3× to uncapped — because generous headroom lets the agent attempt strategies a tight
+  cap forbids. Two caps measure two agents. The remedy is a floor *and* a ceiling.
+- A ladder for what a given piece of evidence authorises next, ending on the rule people
+  skip: **4/4 on a slice is not 100% system-wide.**
+
+**§5's trajectory rule moved between two measurements rather than being deleted.** It read
+*"Judge the trajectory, not just the answer. Right tools, right order, right arguments."*
+Anthropic calls exact tool-order assertions *"too rigid … agents regularly find valid
+approaches that eval designers didn't anticipate"*, with a worked case of an agent that
+solved a τ²-bench booking task through a policy loophole and failed the eval while serving
+the user better. But the opposite edge is measured too: a grader blind to the trajectory
+misses **44% of safety violations and 13% of robustness failures**. So the rule now reads
+*read the trajectory; do not match it* — assert what was produced and what changed, and use
+the trajectory as a **set and a forbidden list** for the claims an outcome cannot carry.
+§2's axis table lost its `→` sequence example for the same reason.
+
+The single-step example keeps its *"must call `find_meeting_times` first"*, with a sentence
+saying why: at that granularity the fixture **is** one decision, so ordering is the subject
+rather than a proxy for it. Across a trajectory it stops being one.
+
 # Changelog
 
 ## v0.17.1 — the evals run for the first time, and the tails go to zero
