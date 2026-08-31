@@ -1,3 +1,25 @@
+## v0.19.1 — the class the umbrella had been catching for us, twice
+
+`B-126`'s board row shipped in v0.19.0 with **nine cells against the eight its header
+declares**, and the umbrella's validator refused the re-pin. That is the **second** time in
+three releases: `B-124` did the same in v0.18.0, also caught by the umbrella rather than
+here.
+
+**A class seen twice becomes a script.** `check_ledger_tables_keep_their_shape()` counts the
+cells of every row in `docs/evidence/*.md` against the header its table declares, splitting
+on an unescaped `|` exactly as a reader does — so a member now refuses what a sibling had
+been catching on its behalf.
+
+**It found a pre-existing defect on its first run**, older than either of mine:
+`verification.md`'s row 016 quotes a shell pipeline inside backticks — `… \| grep -c '^ - name:'`
+— and that bare `|` had been splitting the row into five cells since it was written.
+
+**Both of my own breakages were the same underlying mistake, and it was not markdown.**
+v0.18.0's came from a grep pattern pasted into a cell. This one came from a Python edit
+where adjacent string literals were written across lines *without parentheses*, so only the
+first fragment bound to the variable and the replacement left an orphaned tail — carrying a
+bare `|` with it. The row was malformed because the edit that wrote it was silently partial.
+
 ## v0.19.0 — the prompt cache is an architectural constraint, and the gate that never watched the body
 
 Fourteen findings from nine independent bundles of the 2026-08-31 harvest said the same

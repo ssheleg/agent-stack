@@ -936,6 +936,39 @@ def _released_versions(changelog):
     return {m for m in re.findall(r"(?m)^##+\s+\[?v?(\d+\.\d+\.\d+)", changelog)}
 
 
+def check_ledger_tables_keep_their_shape():
+    """A markdown row whose cell count drifts reads as a different row entirely.
+
+    Seen TWICE from this repository, both times caught by the UMBRELLA rather than
+    here — B-124 (a grep pattern's `|` in a board row) and B-126 (an orphaned
+    fragment left by a failed string replacement, which also carried a bare `|`).
+    The family's rule is that a class seen twice becomes a script, so this is the
+    script: the member now refuses what a sibling had been catching for it.
+
+    A `|` inside a cell must be escaped as `\|`; the neighbouring rows already do
+    it. Splitting on an unescaped pipe is exactly how a reader — and the umbrella —
+    counts the columns, so the check counts them the same way.
+    """
+    for rel in ("docs/evidence/backlog.md", "docs/evidence/verification.md"):
+        path = os.path.join(ROOT, rel)
+        if not os.path.isfile(path):
+            continue
+        width = None
+        for n, line in enumerate(open(path, encoding="utf-8").read().split("\n"), 1):
+            if not line.startswith("|"):
+                continue
+            cells = len(re.split(r"(?<!\\)\|", line)) - 2
+            if re.fullmatch(r"\|[-\s|:]+\|", line):
+                continue
+            if line.startswith("| id ") or line.startswith("| REQ "):
+                width = cells
+                continue
+            if width is not None and cells != width:
+                fail(f"{rel}:{n}: row has {cells} cells against the {width} its own header "
+                     "declares — escape a `|` inside a cell as `\\|`, or the columns after "
+                     "it shift and Status reads as whatever landed in its place")
+
+
 def check_the_ledger_matches_what_shipped():
     path = os.path.join(ROOT, LEDGER)
     if not os.path.isfile(path):
@@ -1081,6 +1114,7 @@ def check_shipped_front_matter_survives_a_real_reader():
         _disclose_routing(f"front matter vs a strict reader — {(proc.stderr or 'the checker could not look').strip()}")
 
 
+check_ledger_tables_keep_their_shape()
 check_shipped_front_matter_survives_a_real_reader()
 
 

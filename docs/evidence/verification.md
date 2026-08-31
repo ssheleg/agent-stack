@@ -10,6 +10,19 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Shipped state — v0.19.1 (2026-08-31)
+
+Measured on the release-candidate tree before the tag exists. A class caught by the umbrella twice
+in three releases, made into a check here.
+
+| REQ | What ships | How it was confirmed | Confirmed |
+|---|---|---|---|
+| TG-1 | The member refuses a ledger row whose cell count drifts, which the umbrella had been catching for it | `check_ledger_tables_keep_their_shape()` counts every row in `docs/evidence/*.md` against its header, splitting on an unescaped pipe exactly as a reader does; plant of one bare pipe into B-126 → `row has 9 cells against the 8`. Second occurrence of the class: B-124 in v0.18.0, B-126 in v0.19.0, both refused by `sshlg-skills` rather than here | **watched failing** |
+| TG-2 | It found a pre-existing defect on its first run, older than either of mine | `verification.md` rows **015 and 016** each quote a shell pipeline inside backticks, and the bare pipe had been splitting both into five cells since they were written. Both escaped; `python3 test/validate.py` → `OK … 14 checks = 10 named + 4 per-skill` | **observed** |
+| TG-3 | The real cause of my own two breakages is recorded, and it was not markdown | v0.18.0's came from a grep pattern pasted into a cell; v0.19.0's from a Python edit where adjacent string literals were written across lines **without parentheses**, so only the first fragment bound and the replacement left an orphaned tail carrying a bare pipe. The row was malformed because the edit that wrote it was silently partial | **observed** |
+
+---
+
 ## Shipped state — v0.19.0 (2026-08-31)
 
 Measured on the release-candidate tree before the tag exists. B-126 from the 2026-08-31
@@ -140,8 +153,8 @@ untouched, so every row below states which artifact it was measured on.
 | 012 | AG-09, measured with the family's auditor | Before: **1019 / 986 / 983** chars against `DESC_TARGET = 970` in `make-skill/scripts/audit_skill.py` — one skill with **five** characters of headroom before the hard 1024 cap. After: **964 / 963 / 970**, and `audit_skill.py --house` reports `0 GAP, 14 PASS` for `agent-orchestrator`, `agent-interop` and `agent-harness` and `0 GAP, 13 PASS` for `agent-evals` | **verified** |
 | 013 | AG-09, that no trigger was lost | Quoted trigger phrases counted from the parsed YAML before and after, per skill: `agent-orchestrator` 19 → 19, `agent-evals` 12 → 12, `agent-interop` 14 → 14, `lost: []` and `gained: []` in all three. Only connective prose was compressed; the `>-` folded scalars were re-wrapped and each round-trips through `yaml.safe_load` to the exact intended string | **verified** |
 | 014 | AG-09, the limit as a gate rather than an opinion | `test/validate.py` refuses a description past `DESC_WORKING_LIMIT = 970`, sourced by name to make-skill's `DESC_TARGET` rather than re-decided here. Watched at **exit 1** on a description padded to **1014** chars — under the hard cap, over the working limit, the band the old 1024-only check could not see. One negative self-test in `validate.yml` | **verified** |
-| 015 | the validator's own check count, which was a restated number | `checks = 9 + len(skill_dirs)` was a hand-bumped literal, and the hand had missed: five ledger rows quote it as evidence that a check was added, and the check added on 2026-08-20 did not move it. Counted from this module's globals now — and the true count at `7937c35` was **10**: `git show v0.12.0:test/validate.py | grep -c '^def check_'` → **6** named plus 4 per-skill, against the **13** the shipped artifact prints. Three drifted apart, and the literal was the loosest of them. This row was written claiming 11 before that command was run — corrected in the same change, which is the only reason to run it. The historical rows are left as they were measured; the literal is the thing that was wrong, and it is gone | **verified** |
-| 016 | `python3 -c 'import yaml; yaml.safe_load(open(".github/workflows/validate.yml"))'` | Parses. Counted against the shipped artifact rather than guessed: `git show v0.12.0:.github/workflows/validate.yml | grep -c '^      - name:'` → **27**, now **34**, so **7** steps were added and every one is a negative self-test (19 → **26** by `grep -c 'name: Negative self-test'`; **51** occurrences of the string overall, since each step names itself three times). This row first said 8, and the `git show` was run because it claimed a number | **verified** |
+| 015 | the validator's own check count, which was a restated number | `checks = 9 + len(skill_dirs)` was a hand-bumped literal, and the hand had missed: five ledger rows quote it as evidence that a check was added, and the check added on 2026-08-20 did not move it. Counted from this module's globals now — and the true count at `7937c35` was **10**: `git show v0.12.0:test/validate.py \| grep -c '^def check_'` → **6** named plus 4 per-skill, against the **13** the shipped artifact prints. Three drifted apart, and the literal was the loosest of them. This row was written claiming 11 before that command was run — corrected in the same change, which is the only reason to run it. The historical rows are left as they were measured; the literal is the thing that was wrong, and it is gone | **verified** |
+| 016 | `python3 -c 'import yaml; yaml.safe_load(open(".github/workflows/validate.yml"))'` | Parses. Counted against the shipped artifact rather than guessed: `git show v0.12.0:.github/workflows/validate.yml \| grep -c '^      - name:'` → **27**, now **34**, so **7** steps were added and every one is a negative self-test (19 → **26** by `grep -c 'name: Negative self-test'`; **51** occurrences of the string overall, since each step names itself three times). This row first said 8, and the `git show` was run because it claimed a number | **verified** |
 
 **17 of 17 verified. 0 at `never`.** Each row names the artifact it was measured on: rows
 010 and 011 on the shipped v0.12.0 tarball, the rest on this tree at the commit that carries
