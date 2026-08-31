@@ -147,6 +147,25 @@ authorization** — the last being the per-tool control that a generic gateway l
 That is the strongest single argument for it in a cluster that already runs Gateway API: the
 routing objects are ones your platform team already reviews.
 
+## The gateway is where the lethal trifecta gets assembled
+
+A gateway's whole value is composing many servers into one surface, and that is exactly the
+operation that can create a risk none of its inputs had. The **lethal trifecta** — private
+data, untrusted content, and the ability to communicate externally — is a property of the
+**tool set in a session**, so every upstream can pass its own review and the composition
+still be unsafe.
+
+Two consequences for whoever runs the gateway:
+
+- **A role is a trifecta decision, not only a least-privilege one.** Granting a role one
+  more server is the moment to ask which of the three corners it just completed — not
+  whether that server is individually trustworthy.
+- **Per-tool annotations do not answer it.** They are hints about one tool (`readOnlyHint`,
+  `destructiveHint`, `idempotentHint`, `openWorldHint`, and their defaults assume the
+  dangerous shape — `agent-harness/references/tools.md`), and no combination of per-tool
+  hints computes a session-level property.
+
+
 ## Traps
 
 - **Introducing a gateway and leaving the direct paths open.** The policy is then advisory.

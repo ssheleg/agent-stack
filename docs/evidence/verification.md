@@ -10,6 +10,20 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Shipped state — v0.21.0 (2026-08-31)
+
+Measured on the release-candidate tree before the tag exists. Queue positions 5–6, both ARCH.
+
+| REQ | What ships | How it was confirmed | Confirmed |
+|---|---|---|---|
+| TR-1 | The four annotation hints and their asymmetric defaults are stated, with the consequence | `tools.md` → *Annotations, and the risk one tool cannot show you* carries the table (`readOnlyHint` false, `destructiveHint` true, `idempotentHint` false, `openWorldHint` true) and the reading that follows: an unannotated tool has declared the most dangerous shape | **observed** |
+| TR-2 | A hint may inform a default and may never decide a destructive call | the same section states the specification's untrusted-unless-the-server-is rule as a limit on what an annotation is allowed to gate | **observed** |
+| TR-3 | The lethal trifecta has a name and lives where per-tool review can be shown not to reach it | `grep -c 'lethal trifecta' tools.md` → **2**; a seventh entry in *Traps* names per-tool review as unable to see it by construction; `gateway.md` gains the composer's half before its own *Traps* | **observed** |
+| TR-4 | The iteration refund no longer implies a money refund | `llm-proxy-billing.md` → *Refund the iteration, charge the money* with the observed success-path accounting failure and the `finally` rule; SKILL.md §2's bullet carries the pairing in one clause; `grep -c refund` across the skill still resolves to one home for the mechanism | **observed** |
+| TR-5 | The body stayed inside the working limit without a third displacement | auditor `0 GAP, 14 PASS`, body **4655/4750** — the two additions were written into references and one clause, deliberately, because B-129 records that this body is at capacity | **observed** |
+
+---
+
 ## Shipped state — v0.20.0 (2026-08-31)
 
 Measured on the release-candidate tree before the tag exists. Queue positions 3–4 of the

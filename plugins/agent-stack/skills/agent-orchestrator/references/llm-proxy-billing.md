@@ -24,6 +24,7 @@ the patterns hold for any upstream that issues per-tenant keys with limits.
 - [Discovering spend you do not control](#discovering-spend-you-do-not-control)
 - [Guardrails: budgets, loops, auto-pause](#guardrails-budgets-loops-auto-pause)
 - [Key lifecycle and healing](#key-lifecycle-and-healing)
+- [Refund the iteration, charge the money](#refund-the-iteration-charge-the-money)
 - [The refund waterfall](#the-refund-waterfall)
 - [Model routing and fallbacks](#model-routing-and-fallbacks)
 
@@ -225,6 +226,41 @@ A table like that in your own docs is what stops the eleventh event from being
 handled three different ways.
 
 ---
+
+## Refund the iteration, charge the money
+
+These are two axes and it is easy to ship one rule for both.
+
+`agent-orchestrator`'s loop **refunds the iteration** on a recoverable provider error: a
+502 should not consume one of the ten attempts the agent has to finish its work. That is
+right, and it says nothing about money.
+
+**The provider still billed the call.** A response that arrived and then failed to parse
+was generated, metered and charged upstream; so was the one that arrived truncated, and the
+one whose tool call was malformed. The tempting symmetry — *the attempt did not count, so
+it did not cost* — is how a spend guard under-counts on exactly the runs that go worst.
+
+The failure mode is specific and worth naming, because it hides where nobody looks:
+
+> A harness charged `self.cost` on the **success path** of its `query()`. When parsing the
+> response raised a format error, `query()` never returned, so the cost was never added —
+> and the code compensated for it explicitly inside the exception handler. Where a cost
+> ceiling is the *primary* bound — that harness ships `cost_limit = 3.0` with the step
+> limit **off** — a leak in that accounting is a leak in the only guard there is.
+
+The rule, in one line each:
+
+- **Iteration:** refunded on a recoverable provider error, never on a misconfiguration.
+- **Money:** charged whenever the provider generated tokens, including on every path that
+  raises after the response arrived.
+- **Therefore:** accounting belongs in a `finally`, or in the exception handler as well as
+  the success path. If the only place your cost is added is the line after a successful
+  parse, the guard is quietly optimistic.
+
+A budget that under-counts is worse than one that over-counts: over-counting stops a run
+early and is visible immediately; under-counting is invisible until the invoice, and it
+biases toward the failing runs, which are the expensive ones.
+
 
 ## The refund waterfall
 
