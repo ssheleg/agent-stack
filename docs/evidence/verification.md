@@ -10,6 +10,24 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Shipped state — v0.23.0 (2026-09-01)
+
+Measured on the release-candidate tree before the tag exists. The observability bundle's
+ten findings, which had one home between them and no coverage here.
+
+| REQ | What ships | How it was confirmed | Confirmed |
+|---|---|---|---|
+| OT-1 | §7 gains the wire format it never named | before: `grep -ri opentelemetry plugins/agent-stack/skills/` → one table cell in `agent-interop/references/mcp.md`; after: `references/otel-genai.md` plus a declared row and a pointer from §7 | **observed** |
+| OT-2 | The spec's status is recorded rather than assumed | the file states the move to a separate repository, `Schema URL: TODO`, and that **every** `gen_ai.*` attribute is Development while only borrowed core attributes are Stable — with the instruction to pin and expect migration | **observed** |
+| OT-3 | The field §7 requires and the standard omits is named, with its extension | `gen_ai.evaluation.result` carries no scorer attribute; OpenInference's `annotation.annotator_kind` (HUMAN/LLM/CODE) matches SKILL.md:296's `human`/`llm_judge`/`code_check` exactly, and the file says carry it as a documented extension rather than drop the requirement | **observed** |
+| OT-4 | The content default is stated **and checked against a shipping implementation** | the spec's own default is to record nothing; OpenLLMetry's `is_content_tracing_enabled()` returns `(os.getenv("TRACELOOP_TRACE_CONTENT") or "true")` — unset means **true** — read from `traceloop-sdk/traceloop/sdk/config/__init__.py` on 2026-08-31, so the most-used implementation ships the inverse of the spec | **observed** |
+| OT-5 | The upload hook's two properties are carried, because they decide the design | it runs independently of the opt-in flags **and** regardless of the sampling decision, so it is the last scrubbing point and fires on spans nobody reads; and a masking hook cannot change the span name, which is built from tool and MCP target names | **observed** |
+| OT-6 | Cost is stated as a join that goes wrong in both directions | no cost attribute exists; usage splits across eleven token fields; `input + output` bills cache reads at full price and misses reasoning tokens and cache writes; `gen_ai.client.token.usage` carries a **MUST NOT report** when counts are unobtainable, matching `audit.md`'s absence-over-zero rule | **observed** |
+| OT-7 | Two overloaded words are disambiguated | *OpenTelemetry-based* — Phoenix emits OpenInference, OpenLLMetry emits `gen_ai.*` plus `traceloop.*`, neither a subset of the other; *replay* — durable execution, trace playground, and this skill's fixture replay, which `audit.md` had asked for without naming | **observed** |
+| OT-8 | The body stayed inside the working limit | auditor `0 GAP, 14 PASS`, body **4631/4750**; the finding went into a reference and one pointer sentence | **observed** |
+
+---
+
 ## Shipped state — v0.22.0 (2026-08-31)
 
 Measured on the release-candidate tree before the tag exists. Queue positions 7–8, both ARCH.

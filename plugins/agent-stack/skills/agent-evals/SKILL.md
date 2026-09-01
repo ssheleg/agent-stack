@@ -288,6 +288,10 @@ predictive.
 
 ## 7. What to instrument first
 
+**The wire format for all of this is `references/otel-genai.md`** — and it is worth
+reading before the first span, because two of the things this section requires (a score's
+source, a trustworthy cost) are the two the standard does not carry.
+
 None of the above runs without these, and they are the part people skip:
 
 - **A durable trace store, queryable by id, filterable by score and time.** The live
@@ -330,6 +334,7 @@ None of the above runs without these, and they are the part people skip:
 | Load | When |
 |---|---|
 | [`references/statistics.md`](references/statistics.md) | a number is about to change a decision — how many runs before a difference is real, `pass@k` vs `pass^k` and why trials are not independent, paired comparison, the harness as a variable, and what a given piece of evidence authorises next |
+| [`references/otel-genai.md`](references/otel-genai.md) | you are **instrumenting an agent for someone else to read** — span-name formulas and the closed operation enum, the evaluation event that has no field for who scored, the three content tiers and the upload hook that runs even on dropped spans, the eleven token attributes and why cost is a join you can get wrong in both directions, and why "OpenTelemetry-based" is not one vocabulary |
 
 ---
 
