@@ -1,3 +1,52 @@
+## v0.23.0 — the wire format for §7, and the three things it will not carry
+
+`agent-evals` §7 said *what* to instrument in four bullets and named no format.
+`references/otel-genai.md` is the format — and the reason it is worth its own file is not
+the field list but the three places the standard refuses to carry what this skill requires.
+
+**Read the status before encoding any of it.** The conventions have moved out of the main
+`semantic-conventions` repository into their own, whose README lists **Schema URL: `TODO`**,
+and every document is `Status: Development`. On the inference span the only `Stable`
+attributes are the ones borrowed from core semconv; **every `gen_ai.*` attribute is
+Development**. Adopt it anyway — a moving standard beats a private vocabulary nobody else's
+tooling reads — but pin the version and treat any branch on a `gen_ai.*` name as code with
+an expiry date.
+
+**The evaluation event has no field for who produced the score.** `gen_ai.evaluation.result`
+carries a name, a value, a low-cardinality label and an explanation, and nothing about the
+scorer — while §7 requires exactly that (`human` | `llm_judge` | `code_check`), because a
+score with no source cannot be calibrated or audited. OpenInference has the field under
+another name, `annotation.annotator_kind`, with our three values. The reference says to carry
+it as a documented extension rather than drop the requirement: a judge score and a human
+label that are indistinguishable on the wire get averaged by somebody downstream, which is
+what §5's calibration exists to prevent.
+
+**There is no cost attribute at all**, and usage is eleven numbers rather than one —
+`input_tokens`, `output_tokens`, `reasoning.output_tokens`, `cache_read.input_tokens`,
+`cache_write.input_tokens`, plus per-modality splits. **A cost from `input + output` alone is
+wrong in both directions**: it bills cache reads at full price and misses reasoning tokens
+and cache writes entirely. `gen_ai.client.token.usage` carries a hard **MUST NOT report**
+when counts are unobtainable — absence over a fabricated zero, the rule `audit.md` already
+states for attribution.
+
+**And two seams that decide a design rather than a field.** The content-upload hook *"SHOULD
+operate independently of the opt-in flags"* and *"SHOULD be invoked regardless of the span
+sampling decision"* — so it is the last scrubbing point and it fires on spans nobody will
+read; a masking hook meanwhile **cannot change the span name**, which is built from tool and
+MCP target names, so redaction and naming are one decision. Verified against a shipping
+implementation rather than assumed: OpenLLMetry's `is_content_tracing_enabled()` returns
+**true when its environment variable is unset**, the opposite of the spec's default, so
+prompts are captured unless you turn them off (`traceloop-sdk/traceloop/sdk/config/__init__.py`,
+read 2026-08-31).
+
+**Finally, two words that mean three things each.** *"OpenTelemetry-based"* answers a
+transport question and no semantic one: Phoenix emits OpenInference, OpenLLMetry emits
+`gen_ai.*` plus `traceloop.*`, neither is a subset of the other, and a trace assembled from
+both is two disconnected halves under one trace id. And *"replay"* is durable execution
+(recorded results, nothing re-runs), a trace playground (the call re-runs against the live
+provider), or this skill's fixture replay (an assertion over a stored run) — `audit.md` asks
+whether a run can be replayed without saying which, and the reference names the three.
+
 ## v0.22.0 — the failures named from outside, and the control that is absence
 
 **`graph-engineering.md` was argued entirely from what breaks, with no citation behind it.**
