@@ -937,7 +937,7 @@ def _released_versions(changelog):
 
 
 def check_ledger_tables_keep_their_shape():
-    """A markdown row whose cell count drifts reads as a different row entirely.
+    r"""A markdown row whose cell count drifts reads as a different row entirely.
 
     Seen TWICE from this repository, both times caught by the UMBRELLA rather than
     here — B-124 (a grep pattern's `|` in a board row) and B-126 (an orphaned
@@ -1016,6 +1016,44 @@ def check_the_ledger_matches_what_shipped():
                      "cut is worse than one that says nothing")
 
 
+def check_the_registry_card_names_the_version_that_ships():
+    """`SKILL-CARD.md` is the entry a stranger decides from, and it went ten releases stale.
+
+    The card carries the fields Anthropic's Skills-for-enterprise guidance asks every
+    organisation to keep — "written so somebody who did not build this can decide". It said
+    `0.13.5` while `package.json` shipped `0.23.0`: **ten minor releases** of behaviour the
+    card does not describe, at the root of a public repository, in exactly the field that
+    dates it.
+
+    Nothing read it. The version moves in `package.json`, `plugin.json` and
+    `marketplace.json` on every release and the card was in no list, so it could only drift.
+    Measured 2026-09-01 across the family: four of nine cards were behind, this one worst.
+    """
+    card = os.path.join(ROOT, "SKILL-CARD.md")
+    if not os.path.isfile(card):
+        return                      # not every member ships one; absence is not drift
+    pkg = os.path.join(ROOT, "package.json")
+    if not os.path.isfile(pkg):
+        return
+    with open(pkg, encoding="utf-8") as fh:
+        ships = json.load(fh).get("version")
+    with open(card, encoding="utf-8") as fh:
+        text = fh.read()
+    row = r"\|\s*\*{0,2}Version\*{0,2}\s*\|\s*`?([0-9]+\.[0-9]+\.[0-9]+)`?\s*\|"
+    m = re.search(row, text)
+    if not m:
+        fail("SKILL-CARD.md: no `Version` row this check can read — the card is the entry a "
+             "stranger decides from, and a version it does not state is one that cannot go "
+             "stale visibly. Write it as a table row.")
+        return
+    if m.group(1) != ships:
+        fail(f"SKILL-CARD.md: the registry card says {m.group(1)} and package.json ships "
+             f"{ships} — the card is what somebody who did not build this decides from, so "
+             "the one field that dates it may not lag. Bump it in the same change as the "
+             "manifests.")
+
+
+check_the_registry_card_names_the_version_that_ships()
 check_the_ledger_matches_what_shipped()
 
 # --------------------------------------------------------------- hygiene

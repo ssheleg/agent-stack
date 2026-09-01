@@ -1,3 +1,24 @@
+## v0.23.1 — the registry card stopped being ten releases stale
+
+`SKILL-CARD.md` carries the fields Anthropic's Skills-for-enterprise guidance asks every
+organisation to keep — *"written so somebody who did not build this can decide"*. It said
+**`0.13.5`** while this package shipped **`0.23.0`**: ten minor releases of behaviour the
+card does not describe, at the root of a public repository, in exactly the field that
+dates it.
+
+**Nothing read it, so it could only drift.** The version moves in `package.json`,
+`plugin.json` and `marketplace.json` on every release; the card was in no list. Measured
+2026-09-01 across the family: four of nine cards were behind, this one worst.
+
+The check refuses a card whose `Version` row disagrees with `package.json`, and refuses a
+card that states no version at all — one a reader cannot see go stale is worse than one
+that lags visibly. Watched failing before it shipped.
+
+**And one thing found on the way**: `test/validate.py` carried an invalid escape sequence
+in a docstring — `\|` in a non-raw string — which Python already warns about and future
+versions will reject. In a file that exists to refuse malformed rows, from a paragraph
+explaining how to escape a pipe. Now raw; the file compiles with zero escape warnings.
+
 ## v0.23.0 — the wire format for §7, and the three things it will not carry
 
 `agent-evals` §7 said *what* to instrument in four bullets and named no format.
