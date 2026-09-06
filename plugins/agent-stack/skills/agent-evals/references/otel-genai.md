@@ -134,7 +134,7 @@ per-modality `text.*` / `image.*` / `audio.*` splits including
 
 **A cost computed from `input_tokens + output_tokens` alone is wrong in both directions.** It
 bills cache reads at full price — they are the cheap ones — and it misses reasoning tokens and
-cache writes entirely. `references/kv-cache.md` in `agent-orchestrator` is the other half of
+cache writes entirely. `../agent-orchestrator/references/kv-cache.md` is the other half of
 this: the cache read is the case worth getting right, because at scale it is most of the
 traffic.
 

@@ -1,3 +1,36 @@
+## v0.23.2 — a path that resolves only from the neighbour's directory, and the description with no room left
+
+Family audit 2026-09-06 (wave AUDIT-WAVE-0906) brought three findings for this member.
+Two changed files; the third changed a board instead.
+
+**Two references pointed at `references/kv-cache.md` from directories where it does not
+exist.** `agent-evals/references/otel-genai.md:137` and
+`agent-interop/references/mcp-scale.md:92` both named the bare path; the file lives only
+in sibling `agent-orchestrator`. The prose around each named the sibling, so a reader
+could recover the target — but the path as written resolves to nothing from either
+skill's own root, and a bare `references/x.md` means *this skill's file* by the
+validator's own rule (`test/validate.py:263-267`). The check never saw them because it
+reads SKILL.md alone; these sat in reference files nothing scans. Both now read
+`../agent-orchestrator/references/kv-cache.md`, which resolves from each skill's root —
+and the leading `../` keeps the validator's lookbehind from reading it as a claim on a
+local file.
+
+**`agent-interop`'s description sat at exactly 970/970 — the working limit with zero
+headroom** — so the next trigger, the next boundary clause, any edit at all would have
+fought the gate before doing its work. Eleven characters of connective prose trimmed
+("another agent" → "an agent"; two list-internal "and"s → commas): now **959/970**, with
+every quoted trigger phrase untouched — **14 before, 14 after**, English and Russian,
+counted by re-folding the YAML scalar rather than by eyeballing the diff.
+
+**The audit also asked for a debulk of `agent-orchestrator` and `agent-evals`, and that
+was declined rather than done blind.** Re-measured at this commit: **4655/4750** (98.0%)
+and **4631/4750** (97.5%), both `0 GAP`. The family precedent (B-141 class) is that
+manufacturing headroom with no pending edit is negative-value work: room bought today is
+spent by nobody, and a trim chosen without the edit it serves cuts on the wrong line.
+Filed as board row **B-135** — the debulk belongs to the release that next edits these
+bodies, beside B-129's standing record that the durable remedy for `agent-orchestrator`
+is a split, not a trim.
+
 ## v0.23.1 — the registry card stopped being ten releases stale
 
 `SKILL-CARD.md` carries the fields Anthropic's Skills-for-enterprise guidance asks every
