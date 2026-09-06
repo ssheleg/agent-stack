@@ -2,11 +2,11 @@
 name: agent-interop
 description: >-
   Use when an agent must talk to something outside its own process — building or consuming an
-  MCP server, exposing or calling another agent over A2A, publishing to the MCP Registry, or
+  MCP server, exposing or calling an agent over A2A, publishing to the MCP Registry, or
   putting a gateway in front of agent traffic. Carries the MCP 2026-07-28 wire surface and what it
   deprecated (server/discover, stateless per-request _meta, elicitation in form and URL mode,
   subscriptions/listen; sampling, roots, logging and dynamic client registration going),
-  A2A 1.0 agent cards, task states and three bindings, registry namespaces and server.json, tool
+  A2A 1.0 agent cards, task states, three bindings, registry namespaces, server.json, tool
   federation, and what a gateway must do that an API gateway does not. Triggers - "MCP server",
   "MCP client", "A2A", "agent card", "agent interoperability", "MCP registry", "server.json",
   "agentgateway", "tool federation", "MCP-сервер", "карточка агента", "интероперабельность

@@ -10,6 +10,21 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Shipped state — v0.23.2 (2026-09-06)
+
+Measured on the release-candidate tree before the tag exists. Family audit wave
+AUDIT-WAVE-0906: two dead pointers, one description at zero headroom, and a debulk
+declined on precedent.
+
+| REQ | What ships | How it was confirmed | Confirmed |
+|---|---|---|---|
+| AW-1 | The two in-pack pointers to `references/kv-cache.md` resolve from the skills that carry them | before: `otel-genai.md:137` and `mcp-scale.md:92` named the bare path, which resolves only inside `agent-orchestrator`; after: both read `../agent-orchestrator/references/kv-cache.md` and the target exists at `plugins/agent-stack/skills/agent-orchestrator/references/kv-cache.md`; `grep -rn 'references/kv-cache' plugins/agent-stack/skills/` shows no remaining bare form outside `agent-orchestrator` itself | **observed** |
+| AW-2 | `agent-interop`'s description has headroom again, with no advertised word dropped | `audit_skill.py --house` before: `970/970` (zero headroom); after: **959/970**, `0 GAP, 15 PASS`; quoted trigger phrases counted by re-folding the YAML scalar: **14 → 14**, English and Russian all present | **observed** |
+| AW-3 | The debulk the audit asked for is on the board, not in the diff | board row **B-135** (blast 1, age 0, effort 2, P **0.5**) files it to the release that next edits the bodies, citing the B-141-class precedent; the bodies re-measured at this commit: **4655/4750** (98.0%) and **4631/4750** (97.5%), both `0 GAP` — the audit's ~98% and ~97.5% confirmed | **observed** |
+| AW-4 | Every version surface moved together | `package.json`, `plugins/agent-stack/.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json` and `SKILL-CARD.md` all read `0.23.2`; `python3 test/validate.py` exits 0, which includes the card-version check v0.23.1 installed | **observed** |
+
+---
+
 ## Shipped state — v0.23.0 (2026-09-01)
 
 Measured on the release-candidate tree before the tag exists. The observability bundle's

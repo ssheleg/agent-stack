@@ -88,8 +88,8 @@ tokens than the definitions you so carefully removed.
 mitigations below were approximating: `defer_loading` keeps deferred definitions out of the
 system-prompt prefix and appends discovered ones inline as `tool_reference` blocks, leaving the
 cached prefix untouched (at least one tool must stay non-deferred — all-deferred is a 400). The
-economics, the arithmetic and the other invalidators are in `agent-orchestrator`'s
-`references/kv-cache.md`.
+economics, the arithmetic and the other invalidators are in
+`../agent-orchestrator/references/kv-cache.md`.
 
 Three mitigations, in the order they are usually right:
 
