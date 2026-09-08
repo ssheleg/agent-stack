@@ -6,7 +6,7 @@ description: >-
   loops, pipelines with human checkpoints, provider routing with fallback/retry, memory
   architecture, retrieval and decay, context budgets, sub-agent coordination, error hierarchies; the
   work as a graph — parallel layers, fake edges, a checker before convergence; for resale:
-  tiered wallets, one markup boundary, two-phase commit across database and provider API,
+  tiered wallets, one markup boundary, the saga across database and provider API,
   spend-delta polling, budget and loop guards, per-tenant keys. Triggers - "agent system",
   "orchestrator", "tool calling", "sub-agent", "LLM router", "fallback chain", "human in the
   loop", "memory layer", "LLM billing", "token wallet", "агентная система", "оркестратор",

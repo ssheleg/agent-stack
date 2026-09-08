@@ -1,7 +1,7 @@
 # Reselling LLM access — metering, wallets and guardrails
 
 **Load this when** the product resells LLM access: tiered wallets and the single
-boundary where markup applies, two-phase commit across a database and a provider API
+boundary where markup applies, the saga across a database and a provider API
 with compensating transactions, advisory locking, optimistic concurrency for reclaims,
 spend-delta polling and its three cases, budget / loop / auto-pause guardrails,
 per-tenant key lifecycle and healing, the refund waterfall, and model-routing
@@ -18,7 +18,7 @@ the patterns hold for any upstream that issues per-tenant keys with limits.
 ## Contents
 
 - [The tiered wallet](#the-tiered-wallet)
-- [Two-phase commit across a DB and an external API](#two-phase-commit-across-a-db-and-an-external-api)
+- [The saga across a DB and an external API](#the-saga-across-a-db-and-an-external-api)
 - [Serializing concurrent transfers](#serializing-concurrent-transfers)
 - [Optimistic concurrency for reclaims](#optimistic-concurrency-for-reclaims)
 - [Discovering spend you do not control](#discovering-spend-you-do-not-control)
@@ -67,29 +67,49 @@ the constant changes.
 
 ---
 
-## Two-phase commit across a DB and an external API
+## The saga across a DB and an external API
 
-You have a database you can roll back and an HTTP API you cannot. Order matters,
-and so does what you do when step 2 fails.
+You have a database you can roll back and an HTTP API you cannot. That pair is
+a **saga** — local transactions stitched together by compensations — and it is
+not two-phase commit: 2PC needs a coordinator both participants obey, and the
+provider's API never agreed to prepare/commit. Naming it 2PC is how the next
+defect ships, because 2PC has no *unknown* outcome, and an HTTP call to a
+system you do not control has one all the time.
 
-**DB first, API second, compensate on failure:**
+Every operation that touches the provider carries an **`operation_id`**, minted
+inside the DB transaction, and a state that moves
+`pending → applied | unknown | compensated`:
 
 1. Acquire the lock (below).
 2. Read fresh balances **inside** the transaction — not before it.
 3. Compute the transfer and apply the markup once.
-4. Zero the source tier, increment the destination, write an audit row.
+4. Zero the source tier, increment the destination, write the intent row —
+   `operation_id`, state `pending` — an outbox entry, not a log line.
 5. Commit.
-6. Call the provider to raise the key limit.
-7. **On API failure: a compensating transaction restores every DB value and
-   writes a `compensation` audit row.**
+6. Call the provider to raise the key limit, idempotently where the API allows
+   (send the `operation_id` as the idempotency key).
+7. **On an outcome that proves the call did not apply** — a 4xx validation
+   refusal, a "no such key" — a compensating transaction restores every DB
+   value, writes a `compensation` audit row, and marks the operation
+   `compensated`.
+8. **On an AMBIGUOUS outcome — a timeout, a connection reset after send, a
+   5xx — the operation is marked `unknown` and is NOT compensated.** The
+   provider may have applied the change: compensating on a guess restores a
+   ledger the key no longer matches, and the money drifts in the direction you
+   cannot see. `unknown` resolves only by **reconciliation** — read the
+   provider's actual state (the key's real limit), then mark `applied` or
+   compensate on evidence. Until it resolves, the operation blocks retries of
+   itself: a retry of an `unknown` is how one top-up applies twice.
 
 The alternative — API first, DB second — leaves money on the key that your
 ledger does not know about, and no amount of retrying finds it again. The
-compensating transaction is not optional politeness; it is the only thing that
-makes step 6 recoverable.
+compensating transaction makes the *known* failure recoverable; the `unknown`
+state is what keeps the ambiguous one honest.
 
-Log both the intent and the compensation. An audit trail that records only
-successes cannot answer "where did the $35 go" six weeks later.
+Log the intent, the outcome and the compensation, keyed by `operation_id`. An
+audit trail that records only successes cannot answer "where did the $35 go"
+six weeks later — and one that cannot say "we do not know yet" answers it
+wrongly.
 
 ---
 
