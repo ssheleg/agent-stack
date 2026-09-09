@@ -1,0 +1,201 @@
+{
+ "contract": "outcome-case/1 (schemas/outcome-case.schema.json + test/outcome_harness.py in ssheleg/sshlg-skills)",
+ "note": "Outcome corpus for agent-orchestrator (FIX-EV-01.26), anchored to the audit's own findings AS-01/AS-02/AS-03/AS-04/AS-05. Judged on ARTIFACTS via the family harness: the runner records the actual output oracle verdict AND the raw result per case; with/without-skill arms are the harness's baseline contract. Nothing in the production skill was changed for grader convenience.",
+ "arms": {
+  "baseline": "same prompts, skill absent",
+  "current": "same prompts, skill installed"
+ },
+ "cases": [
+  {
+   "schema_version": "outcome-case/1",
+   "id": "AO-OUT-001-positive-saga-not-2pc",
+   "skill": "agent-orchestrator",
+   "prompt": {
+    "text": "Design fault injection for a saga wrongly called two-phase commit: inject a fault after the DB commit, after the upstream effect but before its response, during two concurrent topups, and between retries. Assert ledger conservation, AT MOST ONE external effect per operation_id, and that an UNKNOWN HTTP outcome stays PENDING for reconciliation rather than being compensated as a failure (AS-01). Write saga-faults.md."
+   },
+   "environment": {
+    "model": "inherit",
+    "host": "any",
+    "case_digest": "5a75c23fe846694ef751bd0a16ac797bd7de6d0610cbf29e8b20c52ef0bdc6fc"
+   },
+   "checks": {
+    "tool": [
+     {
+      "name": "python3 present",
+      "command": "python3 -c 'pass'"
+     }
+    ],
+    "load_trace": {
+     "expect_loaded": [
+      "agent-orchestrator"
+     ],
+     "expect_not_loaded": []
+    },
+    "outcome": [
+     {
+      "name": "report exists",
+      "kind": "artifact-exists",
+      "target": "saga-faults.md"
+     },
+     {
+      "name": "unknown stays pending, not compensated (AS-01)",
+      "kind": "artifact-contains",
+      "target": "saga-faults.md",
+      "expect": "pending"
+     },
+     {
+      "name": "at most one external effect per operation_id (AS-01)",
+      "kind": "artifact-contains",
+      "target": "saga-faults.md",
+      "expect": "operation_id"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "outcome-case/1",
+   "id": "AO-OUT-002-negative-routing",
+   "skill": "agent-orchestrator",
+   "prompt": {
+    "text": "Explain in two sentences what a webhook is."
+   },
+   "environment": {
+    "model": "inherit",
+    "host": "any",
+    "case_digest": "a5da94aa03520bb6226ea88328a75ab6d7e3985c73a0e90a1379bf168fead57e"
+   },
+   "checks": {
+    "tool": [
+     {
+      "name": "python3 present",
+      "command": "python3 -c 'pass'"
+     }
+    ],
+    "load_trace": {
+     "expect_loaded": [],
+     "expect_not_loaded": [
+      "agent-orchestrator"
+     ]
+    },
+    "outcome": [
+     {
+      "name": "no orchestrator artifact appears",
+      "kind": "command-exit-0",
+      "target": "test ! -f saga-faults.md"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "outcome-case/1",
+   "id": "AO-OUT-003-zero-baseline-is-not-missing",
+   "skill": "agent-orchestrator",
+   "prompt": {
+    "text": "For a metered balance, distinguish an uninitialized key from an initialized zero: run uninitialized→5, initialized(0)→5, 5→8, 8→2 on the same key and a generation change, and for each give the expected ledger row and state — the first real spend of a new key must be counted, not lost (AS-02). Write baseline-cases.md."
+   },
+   "environment": {
+    "model": "inherit",
+    "host": "any",
+    "case_digest": "c0e22afca6dec4c16ba9d51ffbc35cfe8db196863ed60acd1813bb647a1f3827"
+   },
+   "checks": {
+    "tool": [
+     {
+      "name": "python3 present",
+      "command": "python3 -c 'pass'"
+     }
+    ],
+    "load_trace": {
+     "expect_loaded": [
+      "agent-orchestrator"
+     ],
+     "expect_not_loaded": []
+    },
+    "outcome": [
+     {
+      "name": "the first spend of a new key is counted (AS-02)",
+      "kind": "artifact-contains",
+      "target": "baseline-cases.md",
+      "expect": "uninitialized"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "outcome-case/1",
+   "id": "AO-OUT-004-lexical-similarity-does-not-merge-opposites",
+   "skill": "agent-orchestrator",
+   "prompt": {
+    "text": "Build a multilingual memory corpus with negation, changed numbers/units, exceptions, different subjects and stale verified facts: no silent merge of contradictions, a correction wins ONLY in its own scope, and the old fact stays in history (AS-03). Write memory-conflicts.md."
+   },
+   "environment": {
+    "model": "inherit",
+    "host": "any",
+    "case_digest": "ae08a3670a0ac382b65e0fc51ec46bcb94ce839a94a2283dc095df3dab8d4225"
+   },
+   "checks": {
+    "tool": [
+     {
+      "name": "python3 present",
+      "command": "python3 -c 'pass'"
+     }
+    ],
+    "load_trace": {
+     "expect_loaded": [
+      "agent-orchestrator"
+     ],
+     "expect_not_loaded": []
+    },
+    "outcome": [
+     {
+      "name": "a correction wins only in its scope, old fact kept (AS-03)",
+      "kind": "artifact-contains",
+      "target": "memory-conflicts.md",
+      "expect": "scope"
+     },
+     {
+      "name": "no silent merge of opposites (AS-03)",
+      "kind": "artifact-contains",
+      "target": "memory-conflicts.md",
+      "expect": "negation"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "outcome-case/1",
+   "id": "AO-OUT-005-noop-fake-edge-preserves-control-state",
+   "skill": "agent-orchestrator",
+   "prompt": {
+    "text": "Audit a work-graph's fake-edge pruner: backup->migration, approval->charge, lease->edit and the serialization of two writes must SURVIVE even with no explicit payload, while two independent read-only reviews run in parallel (AS-04). Do NOT redesign the graph — write edge-audit.md only."
+   },
+   "environment": {
+    "model": "inherit",
+    "host": "any",
+    "case_digest": "9a1f65a9604f93b0ec30c737e9daabe29e93d95a2cb50ddebdfb0211f0803de5"
+   },
+   "checks": {
+    "tool": [
+     {
+      "name": "python3 present",
+      "command": "python3 -c 'pass'"
+     }
+    ],
+    "load_trace": {
+     "expect_loaded": [
+      "agent-orchestrator"
+     ],
+     "expect_not_loaded": []
+    },
+    "outcome": [
+     {
+      "name": "control/state edges survive without payload (AS-04)",
+      "kind": "artifact-contains",
+      "target": "edge-audit.md",
+      "expect": "approval"
+     }
+    ]
+   }
+  }
+ ]
+}
