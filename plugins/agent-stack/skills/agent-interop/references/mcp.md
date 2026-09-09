@@ -219,7 +219,11 @@ Opt-in, negotiated, and worth checking before inventing an equivalent:
 
 - **Tasks** — a durable handle for long-running requests: poll for status, supply input
   mid-flight, retrieve the result later. This is the answer to "my tool takes ten minutes",
-  and it exists so you do not hold a connection open or invent a job table.
+  and it exists so you do not hold a connection open or invent a job table. **Duration is a
+  TASKS-capability question, never a reason to switch to A2A**: a long-running FIXED job you
+  own is MCP-with-Tasks. But Tasks is an OPT-IN, NEGOTIATED extension — check the client/SDK
+  actually supports it before building on it; where it is unsupported, the fallback is a
+  chunked job or a caller-polled job id over plain `tools/call`, not a protocol change.
 - **MCP Apps** — interactive UI rendered inline in the conversation.
 - **Skills over MCP** — structured instruction sets discovered and consumed through MCP,
   which is how a server ships Agent Skills rather than only tools.

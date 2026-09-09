@@ -6,7 +6,7 @@ description: >-
   loops, pipelines with human checkpoints, provider routing with fallback/retry, memory
   architecture, retrieval and decay, context budgets, sub-agent coordination, error hierarchies; the
   work as a graph — parallel layers, fake edges, a checker before convergence; for resale:
-  tiered wallets, one markup boundary, two-phase commit across database and provider API,
+  tiered wallets, one markup boundary, the saga across database and provider API,
   spend-delta polling, budget and loop guards, per-tenant keys. Triggers - "agent system",
   "orchestrator", "tool calling", "sub-agent", "LLM router", "fallback chain", "human in the
   loop", "memory layer", "LLM billing", "token wallet", "агентная система", "оркестратор",
@@ -282,10 +282,13 @@ comes from, and what this host actually executes are in
 
 Four rules, and these are the ones that change code:
 
-- **Label every edge with what crosses it. No payload, no edge.** Run the fake-edge test
-  over any chain you inherited: write the steps as boxes, ask of each arrow whether data
-  from A actually enters B, and delete the arrows that only encode the order somebody
-  typed. Two or three per workflow is the normal yield.
+- **Type every edge: data, control, authorization or resource.** Run the fake-edge
+  test over any chain you inherited — and delete an arrow only when it carries NONE
+  of the four: no payload, no causal constraint, no permission, no shared resource.
+  backup→migration, approval→charge and lease→edit carry no bytes and are real;
+  the arrows that only encode the order somebody typed are the two or three per
+  workflow the test normally yields. Before a fan-out, compare read/write sets —
+  read-only branches parallelise, two writers of one thing were a resource edge.
 - **`depends_on` is a claim, so execute by layer.** §5's executor walked `plan.stages` in
   list order beside a model that declared its dependencies — which serialises a plan that
   went to the trouble of saying it need not be. Kahn the graph; a cycle fails the plan
@@ -294,9 +297,11 @@ Four rules, and these are the ones that change code:
   returns a hallucination, and the synthesis node cannot tell: it combines all three and
   answers confidently. The checker decides *usable / not usable* and nothing else, and
   the convergence depends on **the checker**, never directly on a branch.
-- **Static unless you can name what forces dynamic.** A graph that picks its own next
-  nodes cannot be audited afterwards, because the shape that ran is not the shape anyone
-  drew. Where a run has to be explainable, that settles it.
+- **Static unless you can name what forces dynamic** — for predictability, not
+  auditability. A run is auditable when it SAVES its execution record (nodes/edges/events
+  that ran, the policy version, deterministic budget/depth/node caps, provenance); a
+  dynamic graph that keeps that record is auditable too. A design diagram alone is never
+  evidence: the shape drawn is not the shape that ran.
 
 ---
 

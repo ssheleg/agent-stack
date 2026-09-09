@@ -1,7 +1,7 @@
 # Reselling LLM access — metering, wallets and guardrails
 
 **Load this when** the product resells LLM access: tiered wallets and the single
-boundary where markup applies, two-phase commit across a database and a provider API
+boundary where markup applies, the saga across a database and a provider API
 with compensating transactions, advisory locking, optimistic concurrency for reclaims,
 spend-delta polling and its three cases, budget / loop / auto-pause guardrails,
 per-tenant key lifecycle and healing, the refund waterfall, and model-routing
@@ -18,7 +18,8 @@ the patterns hold for any upstream that issues per-tenant keys with limits.
 ## Contents
 
 - [The tiered wallet](#the-tiered-wallet)
-- [Two-phase commit across a DB and an external API](#two-phase-commit-across-a-db-and-an-external-api)
+- [The saga across a DB and an external API](#the-saga-across-a-db-and-an-external-api)
+- [Reconciling an unknown](#reconciling-an-unknown)
 - [Serializing concurrent transfers](#serializing-concurrent-transfers)
 - [Optimistic concurrency for reclaims](#optimistic-concurrency-for-reclaims)
 - [Discovering spend you do not control](#discovering-spend-you-do-not-control)
@@ -67,29 +68,76 @@ the constant changes.
 
 ---
 
-## Two-phase commit across a DB and an external API
+## The saga across a DB and an external API
 
-You have a database you can roll back and an HTTP API you cannot. Order matters,
-and so does what you do when step 2 fails.
+You have a database you can roll back and an HTTP API you cannot. That pair is
+a **saga** — local transactions stitched together by compensations — and it is
+not two-phase commit: 2PC needs a coordinator both participants obey, and the
+provider's API never agreed to prepare/commit. Naming it 2PC is how the next
+defect ships, because 2PC has no *unknown* outcome, and an HTTP call to a
+system you do not control has one all the time.
 
-**DB first, API second, compensate on failure:**
+Every operation that touches the provider carries an **`operation_id`**, minted
+inside the DB transaction, and a state that moves
+`pending → applied | unknown | compensated`:
 
 1. Acquire the lock (below).
 2. Read fresh balances **inside** the transaction — not before it.
 3. Compute the transfer and apply the markup once.
-4. Zero the source tier, increment the destination, write an audit row.
+4. Zero the source tier, increment the destination, write the intent row —
+   `operation_id`, state `pending` — an outbox entry, not a log line.
 5. Commit.
-6. Call the provider to raise the key limit.
-7. **On API failure: a compensating transaction restores every DB value and
-   writes a `compensation` audit row.**
+6. Call the provider to raise the key limit, idempotently where the API allows
+   (send the `operation_id` as the idempotency key).
+7. **On an outcome that proves the call did not apply** — a 4xx validation
+   refusal, a "no such key" — a compensating transaction restores every DB
+   value, writes a `compensation` audit row, and marks the operation
+   `compensated`.
+8. **On an AMBIGUOUS outcome — a timeout, a connection reset after send, a
+   5xx — the operation is marked `unknown` and is NOT compensated.** The
+   provider may have applied the change: compensating on a guess restores a
+   ledger the key no longer matches, and the money drifts in the direction you
+   cannot see. `unknown` resolves only by **reconciliation** — read the
+   provider's actual state (the key's real limit), then mark `applied` or
+   compensate on evidence. Until it resolves, the operation blocks retries of
+   itself: a retry of an `unknown` is how one top-up applies twice.
 
 The alternative — API first, DB second — leaves money on the key that your
 ledger does not know about, and no amount of retrying finds it again. The
-compensating transaction is not optional politeness; it is the only thing that
-makes step 6 recoverable.
+compensating transaction makes the *known* failure recoverable; the `unknown`
+state is what keeps the ambiguous one honest.
 
-Log both the intent and the compensation. An audit trail that records only
-successes cannot answer "where did the $35 go" six weeks later.
+Log the intent, the outcome and the compensation, keyed by `operation_id`. An
+audit trail that records only successes cannot answer "where did the $35 go"
+six weeks later — and one that cannot say "we do not know yet" answers it
+wrongly.
+
+## Reconciling an unknown
+
+Three rules, and every one exists because a late HTTP response is a message
+from the past:
+
+- **Ask by the operation's own idempotency key.** Reconciliation queries the
+  provider for what happened to THIS `operation_id` — never "read the limit
+  and guess whose change it reflects". Ambient state is the sum of every
+  operation that ever landed; only the key isolates yours.
+- **The tenant's ledger carries a revision, and every resolve is a CAS.** A
+  reconcile or compensation writes only if the revision it read is still
+  current; a late or concurrent response that lost the race aborts and
+  re-reads, it never blind-writes. Without this, the response to operation A —
+  arriving after operation B moved the same tenant's ledger — "restores"
+  values B already superseded, and the compensation itself becomes the
+  corruption.
+- **Compensate only your own confirmed operation.** A compensation names its
+  `operation_id`, reverses exactly that operation's delta, and runs only after
+  reconciliation confirmed THAT operation did not apply. A response for A is
+  never grounds to touch B's rows — however tempting the arithmetic looks.
+
+**Repeated reconciliation is idempotent.** `unknown → applied` and
+`unknown → compensated` are one-way edges: resolving an already-resolved
+operation reads its state and stops — zero new writes, zero new audit rows. A
+reconciler that runs twice (and it will: cron plus a manual "Sync now" is the
+normal case, not the weird one) must find nothing left to do the second time.
 
 ---
 
@@ -141,16 +189,30 @@ discover spend by **polling a cumulative counter and taking the delta**:
 delta = currentUsage - lastRecordedUsage
 ```
 
-Three cases, and only the first is obvious:
+**Zero is a value, not an absence.** The baseline row carries three fields
+BESIDE the sum — `baseline_initialized`, `observed_at`, and
+`provider_key_generation` (the key's id or created-at, whatever the provider
+lets you read) — because `lastRecordedUsage == 0` has two meanings that cost
+money to conflate: "never watched" and "watched from zero". Testing the sum
+for zero eats the first REAL spend of every key you watched from birth,
+silently, as "seeding".
 
-- `lastRecordedUsage == 0 && currentUsage > 0` → **seed the baseline, record
-  nothing.** Recording it charges the tenant for everything spent before you
-  started watching.
-- `currentUsage > lastRecordedUsage` → record `delta`, then immediately enforce
-  budgets (below).
-- `currentUsage < lastRecordedUsage` → the key was recreated. **Resync the
-  baseline, record nothing.** A negative delta treated as spend credits money
-  that was never returned.
+Four cases, decided by the flags, never by the sum:
+
+- `!baseline_initialized` → **seed the baseline, record nothing**, set
+  `baseline_initialized`, stamp `observed_at` and the generation. Recording
+  here charges the tenant for everything spent before you started watching.
+- initialized, `currentUsage > lastRecordedUsage` → record `delta` — including
+  the very first delta of a key whose baseline is a genuine 0 — then
+  immediately enforce budgets (below).
+- initialized, `currentUsage < lastRecordedUsage`, **generation changed** →
+  the key really was recreated: resync the baseline to the new generation,
+  record nothing. The new key's next increase is recorded normally.
+- initialized, `currentUsage < lastRecordedUsage`, **same generation** →
+  **ANOMALY.** Do not resync, do not record, do not guess "recreated" — a
+  counter that went backwards on the same key is the provider disagreeing
+  with your ledger, and reconciliation (above) owns it. A guessed resync here
+  quietly forgives the difference forever.
 
 Sync your stored limit from the provider's authoritative value on the same pass —
 under the lock, with a re-read, so the sync does not clobber a transfer that

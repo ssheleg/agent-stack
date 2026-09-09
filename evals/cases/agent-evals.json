@@ -1,0 +1,201 @@
+{
+ "contract": "outcome-case/1 (schemas/outcome-case.schema.json + test/outcome_harness.py in ssheleg/sshlg-skills)",
+ "note": "Outcome corpus for agent-evals (FIX-EV-01.23), anchored to the audit's own findings AS-06..AS-10. Judged on ARTIFACTS via the family harness: the runner records the actual output oracle verdict AND the raw result per case; with/without-skill arms are the harness's baseline contract. Nothing in the production skill was changed for grader convenience.",
+ "arms": {
+  "baseline": "same prompts, skill absent",
+  "current": "same prompts, skill installed"
+ },
+ "cases": [
+  {
+   "schema_version": "outcome-case/1",
+   "id": "AE-OUT-001-positive-greenfield-corpus",
+   "skill": "agent-evals",
+   "prompt": {
+    "text": "Design the first-release eval corpus for a greenfield agent feature with ZERO production traces: it must contain at least happy, adversarial and failure/retry trials, and an empty corpus or unexecuted observables must NOT close the gate (AS-06). Write corpus-plan.md naming the three trial kinds."
+   },
+   "environment": {
+    "model": "inherit",
+    "host": "any",
+    "case_digest": "9c9b2b8cc1279d8aad31920cef652d116b4dee56375afb17c931e7a98c4254fa"
+   },
+   "checks": {
+    "tool": [
+     {
+      "name": "python3 present",
+      "command": "python3 -c 'pass'"
+     }
+    ],
+    "load_trace": {
+     "expect_loaded": [
+      "agent-evals"
+     ],
+     "expect_not_loaded": []
+    },
+    "outcome": [
+     {
+      "name": "plan exists",
+      "kind": "artifact-exists",
+      "target": "corpus-plan.md"
+     },
+     {
+      "name": "adversarial trials are in the minimum (AS-06)",
+      "kind": "artifact-contains",
+      "target": "corpus-plan.md",
+      "expect": "adversarial"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "outcome-case/1",
+   "id": "AE-OUT-002-negative-routing",
+   "skill": "agent-evals",
+   "prompt": {
+    "text": "Explain in two sentences what a webhook is."
+   },
+   "environment": {
+    "model": "inherit",
+    "host": "any",
+    "case_digest": "a5da94aa03520bb6226ea88328a75ab6d7e3985c73a0e90a1379bf168fead57e"
+   },
+   "checks": {
+    "tool": [
+     {
+      "name": "python3 present",
+      "command": "python3 -c 'pass'"
+     }
+    ],
+    "load_trace": {
+     "expect_loaded": [],
+     "expect_not_loaded": [
+      "agent-evals"
+     ]
+    },
+    "outcome": [
+     {
+      "name": "no eval artifact appears",
+      "kind": "command-exit-0",
+      "target": "test ! -f corpus-plan.md"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "outcome-case/1",
+   "id": "AE-OUT-003-order-sensitivity",
+   "skill": "agent-evals",
+   "prompt": {
+    "text": "Write an order-sensitivity rubric for a tool-use trace: swapping two independent READ calls must pass, but swapping confirm/charge or acquire/write must FAIL the test; keep the negative example beside the rubric (AS-07). Write order-rubric.md."
+   },
+   "environment": {
+    "model": "inherit",
+    "host": "any",
+    "case_digest": "7e694bd8ee320239cc92768a4fd32705ddb1726aa4d2589d563fa4cf82c5f0b2"
+   },
+   "checks": {
+    "tool": [
+     {
+      "name": "python3 present",
+      "command": "python3 -c 'pass'"
+     }
+    ],
+    "load_trace": {
+     "expect_loaded": [
+      "agent-evals"
+     ],
+     "expect_not_loaded": []
+    },
+    "outcome": [
+     {
+      "name": "the causal pair fails on swap (AS-07)",
+      "kind": "artifact-contains",
+      "target": "order-rubric.md",
+      "expect": "confirm"
+     },
+     {
+      "name": "the negative example is kept beside the rubric (AS-07)",
+      "kind": "artifact-contains",
+      "target": "order-rubric.md",
+      "expect": "negative"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "outcome-case/1",
+   "id": "AE-OUT-004-noop-statistics-stay-honest",
+   "skill": "agent-evals",
+   "prompt": {
+    "text": "Given eval results with n=1 and n=3 trials, state the uncertainty honestly: no zero-width intervals at boundary p=0 or p=1 (AS-08). Do NOT redesign anything — write stats-note.md only."
+   },
+   "environment": {
+    "model": "inherit",
+    "host": "any",
+    "case_digest": "4bf7a16749ab1f193672bebe3d00e3a1ef517071fae7d44ff78cf60504b34e80"
+   },
+   "checks": {
+    "tool": [
+     {
+      "name": "python3 present",
+      "command": "python3 -c 'pass'"
+     }
+    ],
+    "load_trace": {
+     "expect_loaded": [
+      "agent-evals"
+     ],
+     "expect_not_loaded": []
+    },
+    "outcome": [
+     {
+      "name": "boundary n gives no zero uncertainty (AS-08)",
+      "kind": "artifact-contains",
+      "target": "stats-note.md",
+      "expect": "uncertainty"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "outcome-case/1",
+   "id": "AE-OUT-005-regrade-is-not-a-candidate-check",
+   "skill": "agent-evals",
+   "prompt": {
+    "text": "A gate re-checks an OLD answer while claiming to verify a NEW candidate: mutate the candidate to a knowingly wrong tool and show the gate result must change; a regrade of an old trace must be labelled as such, never as a candidate check (AS-10). Write regrade-note.md."
+   },
+   "environment": {
+    "model": "inherit",
+    "host": "any",
+    "case_digest": "f3df1644a20d9ee2cb326c3b55ae95ac5a4c83aa0dfc889d6f280713abf88b83"
+   },
+   "checks": {
+    "tool": [
+     {
+      "name": "python3 present",
+      "command": "python3 -c 'pass'"
+     }
+    ],
+    "load_trace": {
+     "expect_loaded": [
+      "agent-evals"
+     ],
+     "expect_not_loaded": []
+    },
+    "outcome": [
+     {
+      "name": "mutating the candidate changes the gate (AS-10)",
+      "kind": "artifact-contains",
+      "target": "regrade-note.md",
+      "expect": "mutat"
+     },
+     {
+      "name": "regrade of an old trace is labelled (AS-10)",
+      "kind": "artifact-contains",
+      "target": "regrade-note.md",
+      "expect": "regrade"
+     }
+    ]
+   }
+  }
+ ]
+}

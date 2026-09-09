@@ -33,13 +33,16 @@ forwards and backwards, which is why they live together here.
 
 ---
 
-## Rule zero — most agent bugs are prompt bugs wearing a stack trace
+## Rule zero — check the prompt first (a diagnostic heuristic, with exceptions)
 
-The instinct when an agent misbehaves is to change the code. The measured reality, in every
-source this skill was built from, is that the largest behavioural changes come from the
-text: **"the biggest performance improvements often come from clearly explaining tool usage
-in the system prompt"**, and **"even small refinements to tool descriptions can yield
-dramatic improvements."**
+The instinct when an agent misbehaves is to change the code. The sources this skill was
+built from pull the other way: **"the biggest performance improvements often come from
+clearly explaining tool usage in the system prompt"**, and **"even small refinements to
+tool descriptions can yield dramatic improvements."** That is vendor guidance about where
+leverage OFTEN lives, not a measured share of defects — so it orders the DIAGNOSIS, never
+the verdict. **The exceptions are the findings a prompt cannot touch:** a deterministic
+race, a hardcoded secret, a timeout wired to the wrong operation — source-level invariant
+violations are code bugs, provable by reading, and no rewording treats them.
 
 Before adding a retry, a router, or a sub-agent, check in this order:
 
@@ -97,11 +100,15 @@ A **static** graph has every node and edge decided up front; a **dynamic** one g
 nodes read their own output and decide what comes next.
 
 **Static first, always** — go dynamic only after the static version hits a wall you can
-name, because dynamic is more powerful and much harder to control. And one row of that
-decision is hard rather than preferential: **a run that has to be auditable is static.**
-A dynamic graph's executed shape is not the shape anybody drew, so *"here is the design"*
-and *"here is what happened"* stop being the same document, and every claim about the run
-becomes unfalsifiable from outside.
+name, because dynamic is more powerful and much harder to control. But **auditability is
+NOT the same axis as static structure** — that conflates the plan drawn beforehand with
+the execution graph saved afterward. A run is auditable when its EXECUTION RECORD is
+complete: every node, edge and event that actually ran, the policy version in force, and
+deterministic bounds (budget / depth / node caps) with provenance. A static graph is the
+PREFERENCE because its executed shape usually matches the drawn one; a dynamic graph is
+auditable too when it keeps that record within those caps. What is never evidence is a
+design DIAGRAM on its own — *"here is what I planned"* is not *"here is what happened"*,
+in either mode.
 
 The six-row table, the rest of the model — the fake-edge test, the diamond, the checker
 node before a convergence — and what a host actually executes when it fans out are one
@@ -145,8 +152,12 @@ The long version is `references/audit.md`. The shape:
    Monday. This is the same rule `agent-evals` applies to eval rubrics and
    `seo-aeo-audit` to sites.
 
-**The finding that ends most audits early:** the system has no evals. Everything downstream
-is then unfalsifiable — including this audit. Say so first, and make it the first item.
+**The finding most audits surface first:** the system has no evals. That is a finding
+about UNKNOWN RELIABILITY — every *behavioural estimate* downstream is unfalsifiable,
+including this audit's. It does NOT dissolve what is provable at the source: a
+demonstrable double charge, a hardcoded secret, a deterministic race keep their own
+findings and their own priority, set by the concrete harm — a general "no evals" never
+masks a specific proven harm.
 
 ---
 
@@ -189,7 +200,7 @@ prompt.
 ## Checklist — a harness worth shipping
 
 - [ ] Workflow-versus-agent decided deliberately, and the simpler option was actually tried
-- [ ] Static-versus-dynamic decided too, and a run that must be auditable is static
+- [ ] Static-versus-dynamic decided too — static preferred for predictability; a run that must be auditable keeps a complete execution record (not merely a static shape)
 - [ ] System prompt at the **right altitude** — heuristics, not hardcoded branches, not vague hope
 - [ ] Every status, category and enum the agent must produce is **enumerated in the prompt**
 - [ ] Today's date, and any other volatile context, injected rather than assumed

@@ -2,9 +2,10 @@
   "name": "@ssheleg/agent-stack",
   "version": "0.23.2",
   "scripts": {
-    "test": "python3 test/validate.py && python3 test/plant_guard_test.py && node test/installer_test.js"
+    "test": "python3 test/validate.py && python3 test/plant_guard_test.py && node test/installer_test.js && npm run test:audit",
+    "test:audit": "for t in test/audit_regressions/*.py; do python3 \"$t\" || exit 1; done"
   },
-  "description": "Production patterns for AI agent orchestrators — tool-calling loops, multi-stage pipelines with checkpoints, LLM provider routing with fallback, four-layer memory with confidence decay — plus the wallet side of reselling LLM access. This package is the installer CLI.",
+  "description": "Production patterns for AI agent orchestrators \u2014 tool-calling loops, multi-stage pipelines with checkpoints, LLM provider routing with fallback, four-layer memory with confidence decay \u2014 plus the wallet side of reselling LLM access. This package is the installer CLI.",
   "bin": {
     "agent-stack": "bin/agent-stack.js"
   },

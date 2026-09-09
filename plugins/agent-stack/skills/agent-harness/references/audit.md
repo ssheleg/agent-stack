@@ -88,10 +88,21 @@ Walk them in order. Later tracks assume earlier ones.
 - Is tool output treated as **untrusted input**?
 - Can an audit row prove a control was applied — does it carry the **policy version**?
 - Is there a deterministic limit anywhere consequential, or only probabilistic content checks?
+- **The lethal trifecta is a specific EXFILTRATION pattern, not a full threat
+  model.** Private data + untrusted content + external comms in one session is
+  the exfiltration triangle — but a session MISSING one leg is not thereby
+  "safe". Audit **capabilities and effects SEPARATELY**: untrusted content +
+  a write capability, with no private data at all, is an unrelated destructive
+  effect (injected content corrupts state or takes a damaging action) and is
+  its OWN finding. "Only two of the three, therefore a PASS" is the mistake —
+  removing a trifecta leg removes THAT exfiltration path, not every risk.
 
 ### 7 — Evidence
 
-- **Are there evals?** If not, this is finding number one and everything else is unfalsifiable.
+- **Are there evals?** If not, that is finding number one — about unknown reliability: every
+  *behavioural estimate* in this audit is then unfalsifiable. Findings proven at the source
+  (an invariant read off the code, a deterministic reproduction) stand on their own and are
+  prioritized by their concrete harm, not discounted under the general finding.
 - Do they judge the **trajectory**, or only the final answer?
 - Has any production failure become a permanent fixture?
 - Is a judge calibrated against human labels, or trusted because it is a judge?
@@ -109,6 +120,13 @@ Every finding carries one, and the tier is part of the finding:
 
 **Never present judgement as measured.** A finding whose tier is honest survives the meeting
 where it is challenged; one that is inflated loses the whole report.
+
+Orthogonal to the tier, name the PROOF CLASS, because it decides what "no evals" does to
+the finding: a **source-level invariant proof** (the race, the hardcoded secret, the
+miswired timeout — read off the code) and a **deterministic reproduction** (a script that
+shows the double charge every run) survive a system with no evals untouched; only a
+**behavioural estimate** ("the agent usually recovers") needs an eval suite to be
+falsifiable — and inherits the no-evals finding until one exists.
 
 ## Priority — four axes, and no scalar
 
@@ -172,6 +190,10 @@ a finding whose tier is `judgement` says so there rather than being quietly disc
 - **Grading instead of planning.** A score ends the conversation the audit was meant to
   start — including a score assembled from honest axes. Publish the axes; do not multiply
   them.
-- **Confusing "no evals" with "not measured yet."** It is the root finding; put it first,
-  because every other conclusion inherits it.
+- **Confusing "no evals" with "not measured yet."** It is the root finding for every
+  behavioural estimate, which inherits it. A source-level proof or deterministic
+  reproduction does NOT inherit it — burying a demonstrable double charge under a general
+  "everything is unfalsifiable" is how the one finding with a victim gets deprioritized.
+- **Treating a broken unit invariant with a prompt change.** Rule zero orders the
+  diagnosis; it does not convert a code bug into a wording bug.
 - **Reading a silent scanner as a clean system.** It is silent about what it can see.

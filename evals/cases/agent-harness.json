@@ -1,0 +1,213 @@
+{
+ "contract": "outcome-case/1 (schemas/outcome-case.schema.json + test/outcome_harness.py in ssheleg/sshlg-skills)",
+ "note": "Outcome corpus for agent-harness (FIX-EV-01.24), anchored to the audit's own findings AS-04/AS-05/AS-11/AS-14. Judged on ARTIFACTS via the family harness: the runner records the actual output oracle verdict AND the raw result per case; with/without-skill arms are the harness's baseline contract. Nothing in the production skill was changed for grader convenience.",
+ "arms": {
+  "baseline": "same prompts, skill absent",
+  "current": "same prompts, skill installed"
+ },
+ "cases": [
+  {
+   "schema_version": "outcome-case/1",
+   "id": "AH-OUT-001-positive-control-and-state-edges-survive",
+   "skill": "agent-harness",
+   "prompt": {
+    "text": "Write graph negative tests for a work graph where a fake-edge pruner may drop only payload-less edges that are truly independent: backup->migration, approval->charge, lease->edit and the serialization of two writes to one file must SURVIVE pruning, while two independent read-only reviews really run in parallel (AS-04). Write edge-tests.md naming each preserved edge."
+   },
+   "environment": {
+    "model": "inherit",
+    "host": "any",
+    "case_digest": "0e9d6830cafc08fcef64614dc857310a61f6ae8f936834a85f04c088a48909b3"
+   },
+   "checks": {
+    "tool": [
+     {
+      "name": "python3 present",
+      "command": "python3 -c 'pass'"
+     }
+    ],
+    "load_trace": {
+     "expect_loaded": [
+      "agent-harness"
+     ],
+     "expect_not_loaded": []
+    },
+    "outcome": [
+     {
+      "name": "report exists",
+      "kind": "artifact-exists",
+      "target": "edge-tests.md"
+     },
+     {
+      "name": "the approval->charge edge survives (AS-04)",
+      "kind": "artifact-contains",
+      "target": "edge-tests.md",
+      "expect": "approval"
+     },
+     {
+      "name": "write serialization survives (AS-04)",
+      "kind": "artifact-contains",
+      "target": "edge-tests.md",
+      "expect": "serial"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "outcome-case/1",
+   "id": "AH-OUT-002-negative-routing",
+   "skill": "agent-harness",
+   "prompt": {
+    "text": "Explain in two sentences what a webhook is."
+   },
+   "environment": {
+    "model": "inherit",
+    "host": "any",
+    "case_digest": "a5da94aa03520bb6226ea88328a75ab6d7e3985c73a0e90a1379bf168fead57e"
+   },
+   "checks": {
+    "tool": [
+     {
+      "name": "python3 present",
+      "command": "python3 -c 'pass'"
+     }
+    ],
+    "load_trace": {
+     "expect_loaded": [],
+     "expect_not_loaded": [
+      "agent-harness"
+     ]
+    },
+    "outcome": [
+     {
+      "name": "no harness artifact appears",
+      "kind": "command-exit-0",
+      "target": "test ! -f edge-tests.md"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "outcome-case/1",
+   "id": "AH-OUT-003-auditability-is-reconstruction-not-a-diagram",
+   "skill": "agent-harness",
+   "prompt": {
+    "text": "Run the SAME reconstruction audit over one static and one dynamic orchestration scenario: deleting an event or an edge must be detected in BOTH; a design diagram on its own earns no PASS (AS-05). Write reconstruction-audit.md."
+   },
+   "environment": {
+    "model": "inherit",
+    "host": "any",
+    "case_digest": "f8330cbba332a62fce62b6f60c83e5c0e7f7564faefeb870e83e62d71c941cfa"
+   },
+   "checks": {
+    "tool": [
+     {
+      "name": "python3 present",
+      "command": "python3 -c 'pass'"
+     }
+    ],
+    "load_trace": {
+     "expect_loaded": [
+      "agent-harness"
+     ],
+     "expect_not_loaded": []
+    },
+    "outcome": [
+     {
+      "name": "deletion detected in both (AS-05)",
+      "kind": "artifact-contains",
+      "target": "reconstruction-audit.md",
+      "expect": "dynamic"
+     },
+     {
+      "name": "a diagram alone is no PASS (AS-05)",
+      "kind": "artifact-contains",
+      "target": "reconstruction-audit.md",
+      "expect": "diagram"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "outcome-case/1",
+   "id": "AH-OUT-004-confirm-true-is-not-a-grant",
+   "skill": "agent-harness",
+   "prompt": {
+    "text": "Write the trifecta threat tests: an agent-authored confirm:true WITHOUT a grant is rejected; a replay with changed arguments is rejected; a pre-authorized action passes; and untrusted-content->destructive-write is tested INDEPENDENTLY of private-data access (AS-11). Write trifecta-tests.md."
+   },
+   "environment": {
+    "model": "inherit",
+    "host": "any",
+    "case_digest": "d130f04d7cf05a478451b05b83d32ed7bc2b8b01b1f4a386b5608ef7d2033bb4"
+   },
+   "checks": {
+    "tool": [
+     {
+      "name": "python3 present",
+      "command": "python3 -c 'pass'"
+     }
+    ],
+    "load_trace": {
+     "expect_loaded": [
+      "agent-harness"
+     ],
+     "expect_not_loaded": []
+    },
+    "outcome": [
+     {
+      "name": "agent-authored confirm rejected (AS-11)",
+      "kind": "artifact-contains",
+      "target": "trifecta-tests.md",
+      "expect": "confirm"
+     },
+     {
+      "name": "changed-arguments replay rejected (AS-11)",
+      "kind": "artifact-contains",
+      "target": "trifecta-tests.md",
+      "expect": "replay"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "outcome-case/1",
+   "id": "AH-OUT-005-noop-no-evals-hides-no-double-charge",
+   "skill": "agent-harness",
+   "prompt": {
+    "text": "A synthetic repo has NO evals but a demonstrable double charge: report BOTH findings and do not let the general 'no evals' verdict swallow the direct harm; a broken unit invariant is not cured by editing a prompt (AS-14). Do NOT redesign anything — write audit-verdicts.md only."
+   },
+   "environment": {
+    "model": "inherit",
+    "host": "any",
+    "case_digest": "ece116ea5dd09fa90d625de5236221e032395f58d309f615dcefaa7a2b135bb1"
+   },
+   "checks": {
+    "tool": [
+     {
+      "name": "python3 present",
+      "command": "python3 -c 'pass'"
+     }
+    ],
+    "load_trace": {
+     "expect_loaded": [
+      "agent-harness"
+     ],
+     "expect_not_loaded": []
+    },
+    "outcome": [
+     {
+      "name": "the double charge stays its own finding (AS-14)",
+      "kind": "artifact-contains",
+      "target": "audit-verdicts.md",
+      "expect": "double charge"
+     },
+     {
+      "name": "prompt edits cure no invariant (AS-14)",
+      "kind": "artifact-contains",
+      "target": "audit-verdicts.md",
+      "expect": "prompt"
+     }
+    ]
+   }
+  }
+ ]
+}

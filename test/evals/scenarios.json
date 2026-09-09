@@ -1,5 +1,5 @@
 {
-  "note": "Score each expected_behavior line independently. These are authored evaluations, not executed results.",
+  "note": "Score each expected_behavior line independently. These are authored OBSERVABLES, not executed results — specification-ready. Release-readiness needs EXECUTED trials over a corpus; the greenfield seed corpus is fixtures/bootstrap-corpus.json (curated/synthetic/manual, provenance-marked, supplemented by production). See agent-evals SKILL.md §6.",
   "scenarios": [
     {
       "id": "s01",

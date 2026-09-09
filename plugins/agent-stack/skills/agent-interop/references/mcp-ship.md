@@ -13,10 +13,46 @@ repeat it.
 
 ## Contents
 
+- Every example names its SDK — distribution, import, tested version, lifecycle
 - Mounting into an existing web app
 - Auth middleware and a health endpoint
 - Client configuration
 - Debugging a client that will not connect
+
+## Every example names its SDK — distribution, import, tested version, lifecycle
+
+`FastMCP` exists in TWO distributions, and they are not the same package: the
+official `mcp` SDK (`from mcp.server.fastmcp import FastMCP`) and the
+standalone `fastmcp` package, whose 2.x renamed the server class and moved the
+transport args out of the constructor. A snippet that names only the class
+names neither. Every executable example in this file is written against **the
+official `mcp` SDK, pinned**:
+
+```text
+# requirements.txt — the pin IS the example's identity
+mcp==1.12.3          # the version these snippets were verified against (2026-08-13);
+starlette==0.47.*    # re-pin only together with a re-run of the acceptance below
+uvicorn==0.35.*
+```
+
+```python
+from mcp.server.fastmcp import FastMCP   # official SDK — NOT `from fastmcp import FastMCP`
+```
+
+- **Current path (v2/current spec, pinned SDK above):** the snippets below,
+  as written.
+- **v1 / standalone-`fastmcp` migration:** explicitly **out of scope** here.
+  Supporting it means its OWN fixture verified against its own pin — renaming
+  imports and hoping is how the constructor-args move ships a 404.
+- **Lifecycle, in the verified order:** create the server → register tools →
+  build the ASGI app → register `/health` on the OUTER app → wrap with the
+  auth middleware → mount → serve. The health route registers BEFORE the auth
+  wrap, or the probe that says "up" needs a credential to say it.
+- **Proof is a localhost protocol call, never a string in markdown.** The
+  acceptance boots the pinned example in a clean env and asserts:
+  `GET /health` → 200 · unauthenticated `/mcp` → 401 · then `initialize`,
+  `tools/list` and one `tools/call` succeed against `http://127.0.0.1`. A
+  snippet nobody booted is a hope with syntax highlighting.
 
 ## Mounting into an existing web app
 

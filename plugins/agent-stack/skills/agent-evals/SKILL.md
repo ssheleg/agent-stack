@@ -76,7 +76,7 @@ Assert on three axes at once, with three different mechanisms:
 
 | Axis | Assert | With |
 |---|---|---|
-| Trajectory | what the run **must not** do, and what it must have touched — never the order | set/subset matchers, forbidden-call lists |
+| Trajectory | what the run **must not** do, what it must have touched, and the mandatory **happens-before** edges — never the full exact order | set/subset matchers, forbidden-call lists, partial-order (a before b) |
 | Final response | quality, tone, policy compliance | rubric or judge |
 | **State change** | the memory row exists, the file was written, the artifact is there | direct inspection of the side effect |
 
@@ -152,19 +152,26 @@ assertions, tool-call correctness — all deterministic, all faster and cheaper 
 call. Send to a judge only what cannot be decided by code.
 
 **Read the trajectory; do not match it.** An agent that reaches a correct answer through
-three wrong tool calls is a latent outage — and asserting the *sequence* to catch that is
-measurably the wrong instrument. Anthropic names the instinct and rejects its strict form:
-exact tool-order assertions are *"too rigid and results in overly brittle tests, as agents
-regularly find valid approaches that eval designers didn't anticipate"*, and the worked
+three wrong tool calls is a latent outage — and asserting the *exact sequence* to catch
+that is measurably the wrong instrument. Anthropic rejects its strict form: exact
+tool-order assertions are *"too rigid and results in overly brittle tests, as agents
+regularly find valid approaches that eval designers didn't anticipate"* — the worked
 case is an agent that solved a τ²-bench booking task through a policy loophole, failing
 the eval as written while serving the user better. Grade **what was produced and what
-changed**, and let the path vary.
+changed**, and let the incidental path vary.
 
-The opposite edge is measured too, so this is not "grade the final answer": a grader blind
-to the trajectory misses **44% of safety violations and 13% of robustness failures**,
+The opposite edge is measured too: a grader blind to the trajectory misses **44% of safety violations and 13% of robustness failures**,
 because a policy breach on the way to a correct result leaves no trace in the outcome. Use
 the trajectory for the claims the outcome cannot carry — a forbidden call, a missing
-confirmation, a secret read — as a **set and a forbidden list**, never as an order.
+confirmation, a secret read — as a **set and a forbidden list**.
+
+What is forbidden is the redundant **exact global sequence**, not order as such.
+A few **happens-before** edges are semantically mandatory: authorization
+precedes its effect, a fresh read precedes the write depending on it, a
+transaction commits before what publishes it. Assert those as a **partial
+order** (a before b), never a total one — reordering two independent reads must
+pass, reordering confirm/charge or acquire/write must fail — and keep the
+negative example (a confirm-after-charge trace) beside the rubric.
 
 **Calibrate the judge before trusting it.** Collect human labels on the same traces,
 measure agreement, iterate the judge prompt until agreement is high — *then* let it score
@@ -253,10 +260,16 @@ with no production in it is imagination.** The requirement itself gets its id an
 definition of done from `task-pipeline`'s REQ spine — what this pack owns is the
 observable's *form*, not the register it hangs on.
 
-**The first release has no production, so its offline gate is observables only** (§3). That
-is not the corpus rule suspended for a special case: the corpus is empty because nothing has
-run yet, and it fills from the first real traces. Inventing *inputs* to fill it sooner would
-still be imagination.
+**The first release has no production — so it runs against a SEED corpus, and
+observable-only is not release-ready.** A criterion with no input proves
+no capability, so a greenfield feature seeds a curated/synthetic/manual corpus with at least a **happy**, an **adversarial** and a
+**failure/retry** trial. Each seed input carries its **provenance**
+(`curated`/`synthetic`/`manual`) and is SUPPLEMENTED by production traces,
+never declared full coverage. The release gate requires EXECUTED trials;
+observables with nothing run against them are `specification-ready`, not
+`release-ready`. A corrupted fixture, input or runner is a `TEST_ERROR`,
+never a behaviour pass/fail; cases are isolated, so B's result never depends
+on whether A ran.
 
 **Never author the suite up front** — the *corpus*, that is: the inputs. Every production
 failure and every thumbs-down becomes a fixture:
@@ -300,7 +313,11 @@ None of the above runs without these, and they are the part people skip:
   of `human` | `llm_judge` | `code_check`. A score with no source cannot be calibrated,
   audited, or trusted differently from its neighbours.
 - **Whole prompts, not just messages** — instructions, tool schemas and context as they
-  were sent. A fixture cannot be replayed from a summary.
+  were sent. A fixture cannot be replayed from a summary. And a CANDIDATE's
+  version, output and score are their own records beside the old trace — a
+  regrade of the stored output is labelled regrade, never "the candidate
+  passed": only executing the candidate against the frozen fixture (a real,
+  stochastic call, costed in the receipt) can say the decision changed.
 - **State snapshots at turn boundaries**, so a thread test can assert what carried.
 
 ---

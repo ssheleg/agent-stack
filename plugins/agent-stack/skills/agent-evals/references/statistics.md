@@ -38,8 +38,31 @@ The 95% band is roughly `±1.96 · SE`. Computed, not quoted:
 
 ```python
 import math
-def band(p, n): return 1.96 * math.sqrt(p * (1 - p) / n) * 100   # percentage points
+
+def band(p, n):
+    """Wald approximation, percentage points. Valid only for moderate n with p
+    away from the boundary (rule of thumb: n*p >= 10 and n*(1-p) >= 10). At
+    p=0 or p=1 it returns ZERO width — which is exactly wrong: a run that has
+    never failed is not a run with no uncertainty."""
+    return 1.96 * math.sqrt(p * (1 - p) / n) * 100
+
+def wilson(p, n, z=1.96):
+    """Wilson score interval — the DEFAULT for a proportion. Nonzero width at
+    the boundary, honest at small n; use exact (Clopper–Pearson) when n is
+    tiny and the decision is expensive. n == 0 is total uncertainty (0, 1),
+    never a zero-width claim."""
+    if n == 0:
+        return (0.0, 1.0)
+    denom = 1 + z * z / n
+    centre = (p + z * z / (2 * n)) / denom
+    half = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / denom
+    return (max(0.0, centre - half), min(1.0, centre + half))
 ```
+
+The table above is Wald and inherits its limits; **a zero or tiny sample is not
+a universal bound.** `wilson(0.0, 5)` spans up to ≈43% — five clean runs still
+leave nearly half the range open — where Wald would print ±0.0 and read as
+certainty.
 
 **So "the new one gets 73% where the old one got 70%, on a hundred cases" is not a
 result.** It is a number inside its own noise. The error shrinks as `1/√n`, which is the
@@ -49,9 +72,12 @@ argument.** Quadrupling the set halves the band.
 A corollary worth stating because leaderboards invite the opposite: **differences below
 about 3 pp deserve scepticism until both configurations are documented and matched.**
 
-> The formula assumes independent cases. A benchmark whose tasks share a fixture, an
-> environment or a generator violates that, and the true band is wider than this. Wider,
-> never narrower — so the table is a floor on your uncertainty, not a ceiling.
+> The formula assumes independent (iid) cases. A benchmark whose tasks share a
+> fixture, an environment or a generator violates that, and under the usual
+> assumption — POSITIVE intra-cluster correlation, which is what shared
+> fixtures produce — the true band is wider than this, so treat the table as a
+> floor. That is an assumption, not a theorem: engineered negative dependence
+> can narrow a band, it just never happens by accident in a shared fixture.
 
 ## pass@k and pass^k are different questions
 
@@ -78,6 +104,13 @@ If a failed attempt leaves a charge, a message or a mutated row behind, `pass@k`
 available to you as a metric — you cannot pick the best of five refunds. Sample in a
 sandbox or a rollback-capable environment, and count **every** failure.
 
+**Both are computed over TASK-LEVEL trials.** k repeated trials of one task
+estimate that task's own p_i; the benchmark number is the mean over TASKS of
+the per-task pass@k (or pass^k). Pooling repeated trials of one task into the
+denominator as if each were a new task inflates n with copies of the same
+difficulty — the trials are not independent tasks, and counting them as tasks
+is how a small suite pretends to be a large one.
+
 **A report that gives k without saying which k it means is unreadable.** *k independent
 samples of one task* and *k consecutive tasks on one live pipeline* are different claims.
 
@@ -103,9 +136,12 @@ Two consequences, and they cut in opposite directions:
 
 - **You cannot compute `pass^k` from `pass^1`.** Exponentiating a headline rate gives a
   number far below the truth. Measure `pass^k` directly, at the k you care about.
-- **Anthropic's `0.75³ ≈ 42%` is a worst case, not a forecast.** It is the right shape for
-  an argument — *consistency is a much harder bar* — and the wrong number to put in a
-  release gate.
+- **Anthropic's `0.75³ ≈ 42%` is the INDEPENDENCE BASELINE, not a bound.** Real
+  curves usually sit above it because successes cluster by task (positive
+  dependence), but that is an empirical pattern, not a guarantee — engineered
+  negative dependence can fall below it. The right shape for an argument —
+  *consistency is a much harder bar* — and the wrong number to put in a release
+  gate either way.
 
 The other half of independence is the harness, not the task: Anthropic requires each trial
 start from a clean environment, because *"unnecessary shared state between runs (leftover
@@ -115,8 +151,13 @@ metric mean anything.
 
 ## Pairing: same tasks, same seeds, per-task deltas
 
-**Never subtract two independent averages.** Run both configurations over the *same* task
-list with the *same* fixed seeds, record a per-task win/loss/tie, and test the deltas.
+**Prefer pairing — and never subtract two averages WITHOUT an interval.** Run
+both configurations over the *same* task list with the *same* fixed seeds,
+record a per-task win/loss/tie, and test the deltas: pairing cancels the
+per-task difficulty variance and needs far fewer runs. An UNPAIRED comparison
+of two independent averages is still legitimate when pairing is impossible —
+it just pays for it with the wider two-sample band, and the sin is quoting the
+subtraction bare, as if the band were zero.
 
 ```
 for task in tasks:            # identical list
@@ -137,6 +178,34 @@ for task in tasks:            # identical list
 
 **Ship on three conditions, not one:** the difference exceeds the noise band, it survives
 the paired analysis, and it reproduces on a rerun.
+
+## The design decides the method — and the receipt names both
+
+Paired, clustered and unpaired are three DIFFERENT corpus structures, and a
+test method borrowed from the wrong one produces confident nonsense. The
+result's receipt names the design AND the method, and they must match:
+
+| Corpus structure | Matching method | Mismatch that looks fine and is not |
+|---|---|---|
+| **paired** — same tasks, same seeds, per-task deltas | McNemar (binary) or a paired bootstrap over the DELTAS | running McNemar on two independent runs pairs rows that share nothing |
+| **clustered** — k dependent repeats per task | a cluster bootstrap that resamples TASKS (each task carries its repeats along) | bootstrapping TRIALS treats dependent repeats as iid and shrinks the band by ~√k for free |
+| **unpaired** — two independent samples | the two-sample (Welch) SE, wider band | quoting the paired-sized band for an unpaired design |
+
+**Dependent repeats are never claimed iid**, and a small sample never buys
+imaginary certainty — the Wilson bounds above are the floor either way.
+
+## Splits are spent once — case ids and groupings are FIXED
+
+The corpus's case IDs and their groupings (which task belongs to which cluster,
+which split) are frozen before any run and never regrouped to taste.
+
+- **Validation** MAY be used for tuning — that is what it is for.
+- **The final holdout is spent ONCE**, on the version already chosen. It is
+  never used to pick between versions; a holdout consulted per candidate is a
+  second validation set wearing a blindfold.
+- **A reused validation example can never be relabelled an "unseen final
+  test"** — the receipt says which split every number came from, and "unseen"
+  is a property of the RUN HISTORY, not of the label somebody wrote today.
 
 ## The harness is a variable, so pin it
 
