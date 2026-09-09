@@ -282,10 +282,13 @@ comes from, and what this host actually executes are in
 
 Four rules, and these are the ones that change code:
 
-- **Label every edge with what crosses it. No payload, no edge.** Run the fake-edge test
-  over any chain you inherited: write the steps as boxes, ask of each arrow whether data
-  from A actually enters B, and delete the arrows that only encode the order somebody
-  typed. Two or three per workflow is the normal yield.
+- **Type every edge: data, control, authorization or resource.** Run the fake-edge
+  test over any chain you inherited — and delete an arrow only when it carries NONE
+  of the four: no payload, no causal constraint, no permission, no shared resource.
+  backup→migration, approval→charge and lease→edit carry no bytes and are real;
+  the arrows that only encode the order somebody typed are the two or three per
+  workflow the test normally yields. Before a fan-out, compare read/write sets —
+  read-only branches parallelise, two writers of one thing were a resource edge.
 - **`depends_on` is a claim, so execute by layer.** §5's executor walked `plan.stages` in
   list order beside a model that declared its dependencies — which serialises a plan that
   went to the trouble of saying it need not be. Kahn the graph; a cycle fails the plan

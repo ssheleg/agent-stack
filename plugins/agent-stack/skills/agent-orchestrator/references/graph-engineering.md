@@ -120,24 +120,43 @@ already have and ask which of its waits are real.
 
 ## 3. The fake-edge test
 
-Five minutes, no tooling, and it is the highest-yield thing in this file.
+Five minutes, no tooling, and it is the highest-yield thing in this file —
+and its question is **typed**, because "does data cross?" alone deletes real
+constraints (AS-04). An edge is one of four kinds:
+
+| Kind | What crosses | Example that MUST survive |
+|---|---|---|
+| **data** | A's output enters B | findings → draft |
+| **control** | ordering only — a causal constraint with no bytes | backup → migration |
+| **authorization** | a decision that permits B | approval → charge |
+| **resource** | A and B touch one thing that tolerates one writer | two writes to one ledger |
 
 1. Write every step as a box.
 2. Draw an arrow between each pair of consecutive steps.
-3. For each arrow ask: **does data from A actually enter B?** — not *"does B come after
-   A"*.
-4. Yes → keep it, and **write the payload on the arrow**.
-5. No → delete it. That wait was free to give away and you were paying for it.
-6. Everything with no incoming arrow starts immediately.
+3. For each arrow ask, in order: does data from A enter B? does B's SAFETY
+   depend on A having finished (control)? does A PERMIT B (authorization)?
+   do A and B contend for one resource?
+4. Any yes → keep it, **type it, and write the rationale on the arrow** —
+   the payload for a data edge, the constraint for the other three.
+5. No to all four → delete it. That wait encoded the order somebody typed.
+6. Everything with no incoming arrow starts immediately — and **before any
+   fan-out, compare the branches' side-effect footprints and read/write
+   sets**: two read-only reviews genuinely parallelise; two writers of one
+   file were a resource edge nobody drew.
 7. Everything with no outgoing arrow is a final output.
 
-The tell that the test is being done honestly is step 4: if the payload cell is empty,
-the edge is fake, and the person drawing it now has to say so out loud rather than
-leaving the arrow in place because it looked orderly.
+The tell that the test is being done honestly is step 4: an arrow with no
+type and no rationale is fake, and the person drawing it now has to say so
+out loud rather than leaving it in place because it looked orderly. The
+inverse tell is step 5 done lazily: backup→migration, approval→charge and
+lease→edit all carry NO payload, and deleting them for that is how a
+migration runs against nothing — an empty payload cell justifies deletion
+only when there is also no causal, permissive or resource constraint.
 
-**Expect two or three fake edges in any workflow you have not run this against.** The
-classic is *"review file A, then review file B"*: it reads as a sequence, and the review
-of B never once looks at what A returned.
+**Expect two or three fake edges in any workflow you have not run this
+against.** The classic is *"review file A, then review file B"*: it reads as
+a sequence, the review of B never looks at what A returned, and both are
+read-only — no data, no control, no authorization, no resource.
 
 ## 4. The diamond
 
@@ -364,7 +383,12 @@ session:
 ## Workflow defaults
 
 - A node with no declared dependency starts immediately; do not serialise by habit.
-- Every declared dependency names the data it carries. No payload named ⇒ delete the edge.
+- Every declared dependency carries a type (data/control/authorization/resource)
+  and a rationale. Delete an edge only when it has none of the four — an empty
+  payload alone never justifies deletion: backup→migration carries no bytes and
+  is real.
+- Before a fan-out, compare the branches' side-effect footprints and read/write
+  sets; writers of one resource serialise, read-only branches run in parallel.
 - A checker sits between any parallel layer and the node that consumes it, and the
   consumer depends on the checker rather than on the layer.
 - A checker flags; it never silently passes an incomplete output.
