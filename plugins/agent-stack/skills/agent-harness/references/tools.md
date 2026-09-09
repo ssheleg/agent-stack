@@ -124,7 +124,12 @@ the mistake cannot be made**, rather than documenting the mistake.
 - An `enum` instead of a free-text field with a list of valid values in the description.
 - One tool that does the two-step correctly instead of two tools that must be ordered.
 - A required `confirm: true` on a destructive action, so a partially-formed call fails
-  closed.
+  closed. **But `confirm: true` is a SYNTAX GUARD, not user approval** — the MODEL can
+  set the boolean itself, so it proves only that the call is complete, never that a human
+  agreed. Real user approval is a **verifiable grant from a trusted control plane, bound to
+  the principal, action, exact arguments and an expiry** (or an already-existing user
+  authorization); a stale grant does NOT authorize changed arguments, and a client-supplied
+  boolean creates no authorization at all.
 
 ## Annotations, and the risk one tool cannot show you
 
@@ -154,8 +159,12 @@ Three capabilities that are individually ordinary and jointly an exfiltration pa
 2. exposure to **untrusted content**,
 3. the ability to **communicate externally**.
 
-Any two are safe. All three in one session mean untrusted content can instruct the agent to
-read private data and send it out, and no prompt-level instruction reliably prevents it.
+All three in one session mean untrusted content can instruct the agent to read private data
+and send it out, and no prompt-level instruction reliably prevents it. But the trifecta
+names a SUFFICIENT configuration for one SPECIFIC risk — private-data EXFILTRATION — not a
+complete security model: **"any two are safe" over-claims.** Untrusted content plus a write
+capability, with no access to private data at all, still lets injected content corrupt state
+or take a damaging action; drop any leg and you have removed THAT triangle, not every risk.
 
 **The reason it belongs here rather than in a permission check:** the trifecta is a property
 of *the tool set assembled in a session*, so **per-tool analysis cannot see it**. Every tool
