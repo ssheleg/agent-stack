@@ -88,6 +88,14 @@ Walk them in order. Later tracks assume earlier ones.
 - Is tool output treated as **untrusted input**?
 - Can an audit row prove a control was applied — does it carry the **policy version**?
 - Is there a deterministic limit anywhere consequential, or only probabilistic content checks?
+- **The lethal trifecta is a specific EXFILTRATION pattern, not a full threat
+  model.** Private data + untrusted content + external comms in one session is
+  the exfiltration triangle — but a session MISSING one leg is not thereby
+  "safe". Audit **capabilities and effects SEPARATELY**: untrusted content +
+  a write capability, with no private data at all, is an unrelated destructive
+  effect (injected content corrupts state or takes a damaging action) and is
+  its OWN finding. "Only two of the three, therefore a PASS" is the mistake —
+  removing a trifecta leg removes THAT exfiltration path, not every risk.
 
 ### 7 — Evidence
 
