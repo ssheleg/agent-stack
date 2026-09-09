@@ -146,9 +146,9 @@ Stated so this file is read as an extension and not as a replacement:
 | Forgetting, time-based | `patterns.md` → Confidence Management |
 | Global integration, cross-scope | `patterns.md` → Cross-Resource Learning Transfer |
 | **Frequency-based forgetting** | **nowhere — and the long-tail trap above is why that is a deliberate omission rather than a gap to close carelessly** |
-| **Temporal annotation instead of deletion** | **nowhere** — Conflict Resolution currently resolves rather than annotates |
+| **Temporal annotation instead of deletion** | `patterns.md` → Conflict Resolution — supersession sets `is_active=False` + `superseded_by` and the old record stays in history, reversible and reachable by explicit query |
 | **Dual-phase updating** | **nowhere** — the pack updates inline |
 
-The last three are named as absent rather than quietly added: each is a real change to a
+The remaining two are named as absent rather than quietly added: each is a real change to a
 mechanism that is in production, and this file's job is to say what the options are, not to
 change `patterns.md` from a survey.

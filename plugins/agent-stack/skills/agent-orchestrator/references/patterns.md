@@ -364,26 +364,36 @@ class LearningAnalyzer:
 
 ## Confidence Management
 
+Confidence measures **corroboration, not match frequency**: it moves only on
+evidence with independent provenance — another session, another agent, an
+observed outcome. Retrieving a record, or the agent restating it in its own
+words, bumps nothing: a self-generated repeat scored as confirmation is how an
+early mistake compounds into a "high-confidence" one.
+
 ```
 LEARNING CONFIDENCE:
-  Initial:     0.6
-  Confirmed:   +0.1 (cap 1.0)
-  Applied:     tracked (times_applied counter)
-  Contradicted: -0.3
-  Stale (30d): -0.02/month
-  Deactivated: below 0.2
+  Initial:       0.6
+  Corroborated:  +0.1 (cap 1.0) — independent provenance only;
+                 retrieval and self-repetition move nothing
+  Applied:       tracked (times_applied counter — a usage stat, not evidence)
+  Contradicted:  handled by the contradiction gate below, never a bare -0.3
+                 on a keyword match
+  Stale (30d):   -0.02/month
+  Deactivated:   below 0.2 — demoted from default retrieval, kept in history
 
 SESSION NOTE CONFIDENCE:
-  Initial:     0.7
-  Confirmed:   +0.1 (cap 1.0)
-  Verified:    +0.15 (exempt from decay)
-  Stale (60d): -0.1 per cycle
-  Floor:       0.1
+  Initial:       0.7
+  Corroborated:  +0.1 (cap 1.0), same provenance rule
+  Verified:      +0.15 — exempt from confidence DECAY, not from validity:
+                 a volatile fact past its freshness window leaves default
+                 retrieval whatever its confidence says
+  Stale (60d):   -0.1 per cycle
+  Floor:         0.1
 
 INSIGHT CONFIDENCE:
   Initial:     0.5
   Resurfaced:  +0.05
-  Confirmed:   +0.15
+  Corroborated: +0.15
   Dismissed:   -0.2
   Stale (30d): -0.05 per cycle
   Expired:     below 0.15
@@ -393,52 +403,82 @@ INSIGHT CONFIDENCE:
 
 ## Fuzzy Deduplication Pattern
 
-Used across all memory layers:
+**Similarity proposes; the contradiction gate disposes.** Lexical similarity
+is CANDIDATE RETRIEVAL only — it has no side effects. The measured
+counterexample that fixed this rule: *"Always allow external sharing of
+customer data"* and *"Never allow external sharing of customer data"* score
+`SequenceMatcher` similarity **0.8791** — far above any threshold — and the
+old on-match behaviour (bump confidence, keep the longer text, reactivate)
+would have REINFORCED the stale instruction with the user's own correction,
+and kept "Always" because it is one word longer.
 
 ```python
 from difflib import SequenceMatcher
 
 THRESHOLD = 0.75  # learnings/notes; 0.80 for insights
 
-async def find_similar(session, connection_id, category, subject, text):
+async def find_candidates(session, connection_id, category, subject, text):
+    """Returns candidates for the contradiction gate. Nothing else happens
+    here: no confidence bump, no text replacement, no reactivation."""
     candidates = await load_existing(session, connection_id, category, subject)
     text_lower = text.strip().lower()
-    best_match, best_ratio = None, 0.0
-    for c in candidates:
-        ratio = SequenceMatcher(None, c.text.strip().lower(), text_lower).ratio()
-        if ratio >= THRESHOLD and ratio > best_ratio:
-            best_match, best_ratio = c, ratio
-    return best_match
+    return [c for c in candidates
+            if SequenceMatcher(None, c.text.strip().lower(), text_lower).ratio()
+            >= THRESHOLD]
 
-# On match: bump confidence +0.1, keep longer text, set is_active=True
-# On no match: create new entry
+# Every candidate goes through the contradiction gate below.
+# Only the gate's verdict decides merge / supersede / coexist / create.
 ```
 
 ---
 
 ## Conflict Resolution Pattern
 
-Detect when new learning contradicts existing ones:
+A memory record carries five mandatory fields beside its text, and the gate
+reads THEM — never the prose:
+
+```
+MEMORY RECORD:
+  entity      what the statement is about   ("customer-data-sharing")
+  attribute   which property of it          ("external-sharing-policy")
+  scope       where it applies              ("project-A" | "global" | …)
+  provenance  who/what asserted it, when    (session, agent, outcome, user)
+  validity    observed_at + volatile|stable (+ freshness window if volatile)
+  value       the normalized position       ("allow" | "deny" | "30s" | …)
+```
 
 ```python
-CONFLICT_INDICATORS = {"use", "prefer", "always", "never", "should",
-                       "instead", "not", "avoid", "correct", "wrong"}
+def contradiction_gate(old, new):
+    if (old.entity, old.attribute) != (new.entity, new.attribute):
+        return "unrelated"      # similarity alone never merges anything
+    if not scopes_overlap(old.scope, new.scope):
+        return "coexist"        # a correction wins only in its own scope
+    if values_compatible(old.value, new.value):
+        return "corroborates"   # +confidence iff provenance is independent
+    return "contradicts"
 
-def resolve_conflicts(existing_learnings, new_lesson, new_confidence):
-    new_keywords = {w for w in new_lesson.lower().split() if w in CONFLICT_INDICATORS}
-    for old in existing_learnings:
-        old_keywords = {w for w in old.lesson.lower().split() if w in CONFLICT_INDICATORS}
-        shared = new_keywords & old_keywords
-        if not shared: continue
-
-        has_negation_flip = (
-            ("not" in new_keywords) != ("not" in old_keywords) or
-            ("never" in new_keywords) != ("never" in old_keywords) or
-            ("avoid" in new_keywords) != ("avoid" in old_keywords))
-
-        if has_negation_flip and old.confidence <= new_confidence:
-            old.is_active = False  # superseded
+def apply_verdict(verdict, old, new):
+    if verdict == "contradicts":
+        # Temporal supersession, reversible: the old record STAYS in history.
+        old.is_active = False
+        old.superseded_by = new.id     # never deleted, never bumped
+        return create(new)             # starts at its own initial confidence
+    if verdict == "corroborates" and independent(old.provenance, new.provenance):
+        old.confidence = min(1.0, old.confidence + 0.1)
+        old.provenance.append(new.provenance)
+        return old
+    if verdict in ("coexist", "unrelated"):
+        return create(new)             # both live; different scope or subject
+    return old                          # self-repetition: no change at all
 ```
+
+Keyword heuristics (negation flips, `always`/`never` pairs) may FLAG a pair
+for the gate; they never decide it. The second measured counterexample is
+why: *"Use Python"* and *"Never use production credentials"* share `use` and
+a negation flip, and the old keyword rule could supersede one with the other
+— two statements about different entities entirely. A number or unit change
+("timeout is 30s" → "timeout is 60s") is a contradiction the negation
+heuristic cannot see and the value comparison catches.
 
 ---
 
