@@ -235,10 +235,12 @@ The progression, and both ends are wrong:
   access control**.
 
 **What this pack already has, and what it is not.** `agent-sync` gives leases, race-free id
-reservation and a run journal: it decides *who may write this file right now*. That is
-coordination, and it is not shared memory — it says nothing about what an agent should be
-allowed to *read*, or whose experiential memory is trustworthy enough to act on. An agent
-system that needs both needs both.
+reservation and a run journal: it decides *who may write this file right now* — precisely,
+via a per-file **resource claim**, because a task lease authorizes the task and not the file
+(SY-04), and its guarantee is a real cross-machine compare-and-swap only under the git lease
+backend, advisory otherwise. That is coordination, and it is not shared memory — it says
+nothing about what an agent should be allowed to *read*, or whose experiential memory is
+trustworthy enough to act on. An agent system that needs both needs both.
 
 **The design rule:** make shared writes **attributed and scoped**. An entry carries who
 wrote it and under what role, and a reader may weigh it accordingly. Unattributed shared
