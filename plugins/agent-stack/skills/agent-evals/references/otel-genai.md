@@ -10,7 +10,7 @@ three places it will not carry what this skill requires.
 ## Contents
 
 - [Read this before encoding any of it](#read-this-before-encoding-any-of-it)
-- [Span names are formulas, and the operation list is closed](#span-names-are-formulas-and-the-operation-list-is-closed)
+- [Span names are formulas, and the operation set is well-known but extensible](#span-names-are-formulas-and-the-operation-set-is-well-known-but-extensible)
 - [The evaluation event, missing the field §7 requires](#the-evaluation-event-missing-the-field-7-requires)
 - [Content: three tiers, and a hook that runs when nothing else does](#content-three-tiers-and-a-hook-that-runs-when-nothing-else-does)
 - [Tokens are eleven numbers and money is none of them](#tokens-are-eleven-numbers-and-money-is-none-of-them)
@@ -31,11 +31,14 @@ inference span the only attributes marked `Stable` are the ones borrowed from co
 attribute is `Development`.**
 
 So: adopt it, because a moving standard beats a private vocabulary that will never be read
-by anyone else's tooling — and **pin the version you adopted and expect to migrate**. Treat
+by anyone else's tooling — and **pin the version you adopted and expect to migrate**. When
+you encode any field from this file, record the **semconv schema revision and the commit SHA
+you read it at, plus the observation date** beside your instrumentation — a `gen_ai.*` field
+quoted with no revision is a field with no expiry, and this whole spec is `Development`. Treat
 any code that branches on a `gen_ai.*` attribute as code with an expiry date, and re-read
 the spec before quoting a field name from this file.
 
-## Span names are formulas, and the operation list is closed
+## Span names are formulas, and the operation set is well-known but extensible
 
 Span names are computed, not free text:
 
@@ -48,10 +51,15 @@ Span names are computed, not free text:
 | agent creation | `create_agent {gen_ai.agent.name}` | — |
 | MCP | `{mcp.method.name} {target}`, target being the tool or prompt name | — |
 
-`gen_ai.operation.name` is a **closed 17-value enum** — `chat`, `text_completion`,
-`generate_content`, `embeddings`, `retrieval`, `fetch_response`, `execute_tool`,
-`create_agent`, `invoke_agent`, `plan` and the rest. A value outside it is not an extension,
-it is a name a backend cannot group by.
+`gen_ai.operation.name` is a **well-known SET, not a closed enum** — the semconv
+lists `chat`, `text_completion`, `generate_content`, `embeddings`, `retrieval`,
+`fetch_response`, `execute_tool`, `create_agent`, `invoke_agent`, `plan` and the
+rest, and a well-known value is preferred WHERE ONE FITS. But a provider
+operation with no matching well-known value is allowed to carry a custom value:
+it is not silently dropped, and an unknown value is stored RAW so a later
+schema revision can recognise it. A backend groups the well-known values and
+keeps the raw ones addressable — losing them is the failure, not carrying
+them.
 
 **Only two attributes are Required on an inference span.** Everything else that matters —
 the model that actually answered, token counts, finish reasons — is Recommended or
@@ -127,14 +135,20 @@ leaks through the one field it never inspected. Decide naming and redaction toge
 standardises tokens and never money, so cost is always a join against a price table living
 outside the trace — and that join is where the number goes wrong.
 
-Because usage is not one number. It is eleven: `gen_ai.usage.input_tokens`, `output_tokens`,
-`reasoning.output_tokens`, `cache_read.input_tokens`, `cache_write.input_tokens`, and
-per-modality `text.*` / `image.*` / `audio.*` splits including
-`image.cache_read.input_tokens`.
+Because usage is not one number, and the counters are of TWO kinds — TOTALS and
+DISJOINT BILLING BUCKETS, and confusing them double-counts. `input_tokens` and
+`output_tokens` are the totals; `reasoning.output_tokens` is a SUBSET of
+`output_tokens` (not an addition to it), and `cache_read.input_tokens` /
+`cache_write.input_tokens` are subsets of `input_tokens`. The per-modality
+`text.*` / `image.*` / `audio.*` splits (including `image.cache_read.input_tokens`)
+partition those same totals by modality — they are not extra tokens either.
 
-**A cost computed from `input_tokens + output_tokens` alone is wrong in both directions.** It
-bills cache reads at full price — they are the cheap ones — and it misses reasoning tokens and
-cache writes entirely. `../agent-orchestrator/references/kv-cache.md` is the other half of
+**A cost computed from `input_tokens + output_tokens` alone is wrong** because it
+prices the cached portion of the input at the full input rate — cache reads are
+the cheap ones. The fix is NOT to add reasoning or modality counters back onto
+the totals (that bills them twice): it is to **SUBTRACT the cached portion from
+the total and apply the provider's cache-read (and cache-write) rate to it**,
+pricing the remaining full-rate input and the output at their own rates. `../agent-orchestrator/references/kv-cache.md` is the other half of
 this: the cache read is the case worth getting right, because at scale it is most of the
 traffic.
 
