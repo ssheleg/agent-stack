@@ -152,6 +152,26 @@ pricing the remaining full-rate input and the output at their own rates. `../age
 this: the cache read is the case worth getting right, because at scale it is most of the
 traffic.
 
+**The worked receipt — a disjoint partition that reconciles.** Say `input_tokens
+= 1000` with `cache_read.input_tokens = 800`, and `output_tokens = 200` with
+`reasoning.output_tokens = 120`, at rates `$3 / $0.30 / $15` per 1k for
+full-input / cache-read / output:
+
+| Bucket | Tokens | Rate /1k | Cost |
+|---|---|---|---|
+| input, full-rate = `input − cache_read` | 200 | $3.00 | $0.60 |
+| `cache_read` (a subset of input) | 800 | $0.30 | $0.24 |
+| output (reasoning is a SUBSET, not added) | 200 | $15.00 | $3.00 |
+| **total** | | | **$3.84** |
+
+Two invariants a receipt MUST satisfy, and an independent example checks: the
+priced token buckets **sum back to the totals** — 200 + 800 = 1000 input, and
+output is 200 (reasoning's 120 is inside it, never a fourth line) — so no token
+is charged twice; and the naive `input + output` at the input/output rates
+($3.00 + $3.00 = $6.00) OVER-charges by pricing the 800 cached tokens at $3
+instead of $0.30. The receipt reconciles with the totals; the naive number does
+not.
+
 And `gen_ai.client.token.usage` carries a hard **MUST NOT report** when the counts are not
 obtainable. A zero is a claim; absence is the honest value. That is the same rule
 `agent-harness/references/audit.md` states for cost attribution — *missing attribution beats
