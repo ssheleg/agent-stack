@@ -189,16 +189,30 @@ discover spend by **polling a cumulative counter and taking the delta**:
 delta = currentUsage - lastRecordedUsage
 ```
 
-Three cases, and only the first is obvious:
+**Zero is a value, not an absence.** The baseline row carries three fields
+BESIDE the sum — `baseline_initialized`, `observed_at`, and
+`provider_key_generation` (the key's id or created-at, whatever the provider
+lets you read) — because `lastRecordedUsage == 0` has two meanings that cost
+money to conflate: "never watched" and "watched from zero". Testing the sum
+for zero eats the first REAL spend of every key you watched from birth,
+silently, as "seeding".
 
-- `lastRecordedUsage == 0 && currentUsage > 0` → **seed the baseline, record
-  nothing.** Recording it charges the tenant for everything spent before you
-  started watching.
-- `currentUsage > lastRecordedUsage` → record `delta`, then immediately enforce
-  budgets (below).
-- `currentUsage < lastRecordedUsage` → the key was recreated. **Resync the
-  baseline, record nothing.** A negative delta treated as spend credits money
-  that was never returned.
+Four cases, decided by the flags, never by the sum:
+
+- `!baseline_initialized` → **seed the baseline, record nothing**, set
+  `baseline_initialized`, stamp `observed_at` and the generation. Recording
+  here charges the tenant for everything spent before you started watching.
+- initialized, `currentUsage > lastRecordedUsage` → record `delta` — including
+  the very first delta of a key whose baseline is a genuine 0 — then
+  immediately enforce budgets (below).
+- initialized, `currentUsage < lastRecordedUsage`, **generation changed** →
+  the key really was recreated: resync the baseline to the new generation,
+  record nothing. The new key's next increase is recorded normally.
+- initialized, `currentUsage < lastRecordedUsage`, **same generation** →
+  **ANOMALY.** Do not resync, do not record, do not guess "recreated" — a
+  counter that went backwards on the same key is the provider disagreeing
+  with your ledger, and reconciliation (above) owns it. A guessed resync here
+  quietly forgives the difference forever.
 
 Sync your stored limit from the provider's authoritative value on the same pass —
 under the lock, with a re-read, so the sync does not clobber a transfer that
