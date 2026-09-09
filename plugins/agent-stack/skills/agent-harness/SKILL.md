@@ -97,11 +97,15 @@ A **static** graph has every node and edge decided up front; a **dynamic** one g
 nodes read their own output and decide what comes next.
 
 **Static first, always** — go dynamic only after the static version hits a wall you can
-name, because dynamic is more powerful and much harder to control. And one row of that
-decision is hard rather than preferential: **a run that has to be auditable is static.**
-A dynamic graph's executed shape is not the shape anybody drew, so *"here is the design"*
-and *"here is what happened"* stop being the same document, and every claim about the run
-becomes unfalsifiable from outside.
+name, because dynamic is more powerful and much harder to control. But **auditability is
+NOT the same axis as static structure** — that conflates the plan drawn beforehand with
+the execution graph saved afterward. A run is auditable when its EXECUTION RECORD is
+complete: every node, edge and event that actually ran, the policy version in force, and
+deterministic bounds (budget / depth / node caps) with provenance. A static graph is the
+PREFERENCE because its executed shape usually matches the drawn one; a dynamic graph is
+auditable too when it keeps that record within those caps. What is never evidence is a
+design DIAGRAM on its own — *"here is what I planned"* is not *"here is what happened"*,
+in either mode.
 
 The six-row table, the rest of the model — the fake-edge test, the diamond, the checker
 node before a convergence — and what a host actually executes when it fans out are one
@@ -189,7 +193,7 @@ prompt.
 ## Checklist — a harness worth shipping
 
 - [ ] Workflow-versus-agent decided deliberately, and the simpler option was actually tried
-- [ ] Static-versus-dynamic decided too, and a run that must be auditable is static
+- [ ] Static-versus-dynamic decided too — static preferred for predictability; a run that must be auditable keeps a complete execution record (not merely a static shape)
 - [ ] System prompt at the **right altitude** — heuristics, not hardcoded branches, not vague hope
 - [ ] Every status, category and enum the agent must produce is **enumerated in the prompt**
 - [ ] Today's date, and any other volatile context, injected rather than assumed

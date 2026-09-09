@@ -297,9 +297,11 @@ Four rules, and these are the ones that change code:
   returns a hallucination, and the synthesis node cannot tell: it combines all three and
   answers confidently. The checker decides *usable / not usable* and nothing else, and
   the convergence depends on **the checker**, never directly on a branch.
-- **Static unless you can name what forces dynamic.** A graph that picks its own next
-  nodes cannot be audited afterwards, because the shape that ran is not the shape anyone
-  drew. Where a run has to be explainable, that settles it.
+- **Static unless you can name what forces dynamic** — for predictability, not
+  auditability. A run is auditable when it SAVES its execution record (nodes/edges/events
+  that ran, the policy version, deterministic budget/depth/node caps, provenance); a
+  dynamic graph that keeps that record is auditable too. A design diagram alone is never
+  evidence: the shape drawn is not the shape that ran.
 
 ---
 

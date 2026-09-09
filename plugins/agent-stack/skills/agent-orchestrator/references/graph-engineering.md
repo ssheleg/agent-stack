@@ -282,13 +282,20 @@ grows: a node finishes, looks at what it found, and decides what should come nex
 | **static** | **always first** — switch only after the static version hits a wall you can name |
 | dynamic | the scope of the work depends on what is discovered along the way |
 | dynamic | a node must choose its successors from its own output |
-| **never dynamic** | **you will need to audit exactly what ran and why** |
+| prefer static | **you will need to audit exactly what ran and why** — but see below |
 
-The last row is a hard rule in this pack, not a preference. A dynamic graph's executed
-shape is not the shape anybody drew, so *"here is the graph"* and *"here is what
-happened"* stop being the same document — and every claim about the run becomes
-unfalsifiable from the outside. That is the same failure `agent-evals` names when a
-system has no durable trace.
+The last row is a PREFERENCE, not a hard ban — and the earlier draft got this wrong by
+equating auditability with static structure, which conflates the plan drawn beforehand
+with the execution graph saved afterward. **Auditability is a property of the RECORD, not
+of the shape:** a run is auditable when its execution record is complete (every node,
+edge and event that ran), the policy version is captured, and the run stayed inside
+deterministic bounds — a **budget, a depth cap and a node cap**, each with provenance. A
+static graph is preferred because its executed shape usually matches the drawn one and it
+is predictable; a DYNAMIC graph under those caps, saving that record, passes the same
+reconstruction audit — the SAME reconstruction that detects a deleted event or edge in
+either mode. What never passes, static or dynamic, is a design DIAGRAM on its own:
+*"here is the graph"* is not *"here is what happened"*. That is the same failure
+`agent-evals` names when a system has no durable trace.
 
 **Most workflows that feel like they need a dynamic graph need a better static one.**
 Dynamic is more powerful and much harder to control; it is the second reach, never the
