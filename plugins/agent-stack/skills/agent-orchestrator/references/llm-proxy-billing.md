@@ -19,6 +19,7 @@ the patterns hold for any upstream that issues per-tenant keys with limits.
 
 - [The tiered wallet](#the-tiered-wallet)
 - [The saga across a DB and an external API](#the-saga-across-a-db-and-an-external-api)
+- [Reconciling an unknown](#reconciling-an-unknown)
 - [Serializing concurrent transfers](#serializing-concurrent-transfers)
 - [Optimistic concurrency for reclaims](#optimistic-concurrency-for-reclaims)
 - [Discovering spend you do not control](#discovering-spend-you-do-not-control)
@@ -110,6 +111,33 @@ Log the intent, the outcome and the compensation, keyed by `operation_id`. An
 audit trail that records only successes cannot answer "where did the $35 go"
 six weeks later — and one that cannot say "we do not know yet" answers it
 wrongly.
+
+## Reconciling an unknown
+
+Three rules, and every one exists because a late HTTP response is a message
+from the past:
+
+- **Ask by the operation's own idempotency key.** Reconciliation queries the
+  provider for what happened to THIS `operation_id` — never "read the limit
+  and guess whose change it reflects". Ambient state is the sum of every
+  operation that ever landed; only the key isolates yours.
+- **The tenant's ledger carries a revision, and every resolve is a CAS.** A
+  reconcile or compensation writes only if the revision it read is still
+  current; a late or concurrent response that lost the race aborts and
+  re-reads, it never blind-writes. Without this, the response to operation A —
+  arriving after operation B moved the same tenant's ledger — "restores"
+  values B already superseded, and the compensation itself becomes the
+  corruption.
+- **Compensate only your own confirmed operation.** A compensation names its
+  `operation_id`, reverses exactly that operation's delta, and runs only after
+  reconciliation confirmed THAT operation did not apply. A response for A is
+  never grounds to touch B's rows — however tempting the arithmetic looks.
+
+**Repeated reconciliation is idempotent.** `unknown → applied` and
+`unknown → compensated` are one-way edges: resolving an already-resolved
+operation reads its state and stops — zero new writes, zero new audit rows. A
+reconciler that runs twice (and it will: cron plus a manual "Sync now" is the
+normal case, not the weird one) must find nothing left to do the second time.
 
 ---
 
