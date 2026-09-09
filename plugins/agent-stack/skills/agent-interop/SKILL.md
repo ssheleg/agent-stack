@@ -71,10 +71,29 @@ tasks, while MCP is more about agents using capabilities."* Real systems run bot
 server whose internals speak MCP — and that is the recommended architecture, not a
 compromise.
 
-**The tell that you picked wrong:** if you find yourself inventing a task lifecycle, a
-progress channel and a resumable handle on top of `tools/call`, you wanted A2A. If you find
-yourself publishing an agent card for something that is one HTTP call with a JSON schema,
-you wanted MCP.
+**The dispatch criterion is WHAT the other side is, not how long it runs.** MCP =
+a CAPABILITY / tool you control the shape of; A2A = an AUTONOMOUS PEER whose
+outcome you delegate and whose insides you cannot see. **Duration is a SECOND
+question, and it is about a Tasks CAPABILITY, not a protocol.** A long-running
+FIXED job you own — a ten-minute export, a batch transform — is MCP with the
+**Tasks** extension (a durable handle: poll, supply input mid-flight, retrieve
+later; see `references/mcp.md`), NOT A2A. So decide by the routing set, and
+never by the word *long-running*:
+
+- long-running FIXED export → **MCP Tasks, when the client/SDK negotiates that
+  extension**;
+- autonomous outsourced negotiation → **A2A** (you delegate the outcome, not
+  the steps);
+- **Tasks unsupported** by the reached client/SDK → an explicit fallback
+  (chunk the job, a job id the caller polls with a plain `tools/call`, or a
+  webhook) — reaching for A2A because Tasks is absent is picking a protocol to
+  dodge a missing extension.
+
+Check the client's ACTUALLY-negotiated extensions before building on Tasks;
+inventing a task lifecycle on top of `tools/call` when Tasks IS available is
+re-implementing the extension, and reaching for A2A when Tasks is merely
+unsupported is the mis-route this audit closes. Publishing an agent card for
+something that is one HTTP call with a JSON schema is still the MCP direction.
 
 ---
 
