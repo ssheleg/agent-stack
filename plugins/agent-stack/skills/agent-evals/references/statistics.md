@@ -179,6 +179,34 @@ for task in tasks:            # identical list
 **Ship on three conditions, not one:** the difference exceeds the noise band, it survives
 the paired analysis, and it reproduces on a rerun.
 
+## The design decides the method — and the receipt names both
+
+Paired, clustered and unpaired are three DIFFERENT corpus structures, and a
+test method borrowed from the wrong one produces confident nonsense. The
+result's receipt names the design AND the method, and they must match:
+
+| Corpus structure | Matching method | Mismatch that looks fine and is not |
+|---|---|---|
+| **paired** — same tasks, same seeds, per-task deltas | McNemar (binary) or a paired bootstrap over the DELTAS | running McNemar on two independent runs pairs rows that share nothing |
+| **clustered** — k dependent repeats per task | a cluster bootstrap that resamples TASKS (each task carries its repeats along) | bootstrapping TRIALS treats dependent repeats as iid and shrinks the band by ~√k for free |
+| **unpaired** — two independent samples | the two-sample (Welch) SE, wider band | quoting the paired-sized band for an unpaired design |
+
+**Dependent repeats are never claimed iid**, and a small sample never buys
+imaginary certainty — the Wilson bounds above are the floor either way.
+
+## Splits are spent once — case ids and groupings are FIXED
+
+The corpus's case IDs and their groupings (which task belongs to which cluster,
+which split) are frozen before any run and never regrouped to taste.
+
+- **Validation** MAY be used for tuning — that is what it is for.
+- **The final holdout is spent ONCE**, on the version already chosen. It is
+  never used to pick between versions; a holdout consulted per candidate is a
+  second validation set wearing a blindfold.
+- **A reused validation example can never be relabelled an "unseen final
+  test"** — the receipt says which split every number came from, and "unseen"
+  is a property of the RUN HISTORY, not of the label somebody wrote today.
+
 ## The harness is a variable, so pin it
 
 The container spec is part of the measurement. On Terminal-Bench 2.0 the gap between the
