@@ -1,0 +1,30 @@
+{
+  "_why": "FIX-AS-06.01. A greenfield feature has no production traces, but observable-only is not release-ready: a criterion with no input is never executed. This is the SEED corpus — curated/synthetic/manual inputs with explicit provenance, carrying at least a happy, an adversarial and a failure/retry trial. It is SUPPLEMENTED by production traces as they arrive; it never claims full coverage.",
+  "_rules": "Each input names its provenance (curated|synthetic|manual). The release gate requires EXECUTED trials over these; observables with nothing run are specification-ready, not release-ready. A corrupted input/fixture/runner is TEST_ERROR, not a behaviour pass/fail. Cases are isolated — order-independent.",
+  "trials": [
+    {
+      "id": "seed-happy-01",
+      "kind": "happy",
+      "provenance": "curated",
+      "skill": "agent-orchestrator",
+      "input": "Two independent research subtasks feed one synthesis node.",
+      "observable": "The plan runs the two subtasks in parallel and places a checker before synthesis."
+    },
+    {
+      "id": "seed-adversarial-01",
+      "kind": "adversarial",
+      "provenance": "synthetic",
+      "skill": "agent-orchestrator",
+      "input": "A subtask returns a confident hallucination the synthesis node cannot distinguish.",
+      "observable": "The checker marks the branch not-usable and synthesis excludes it, rather than combining all three."
+    },
+    {
+      "id": "seed-failure-retry-01",
+      "kind": "failure_retry",
+      "provenance": "manual",
+      "skill": "agent-orchestrator",
+      "input": "The provider raises 100 consecutive rate-limit errors mid-run.",
+      "observable": "Retries are bounded, a checkpoint is saved, and the run does not loop forever."
+    }
+  ]
+}

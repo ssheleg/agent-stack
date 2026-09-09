@@ -253,10 +253,16 @@ with no production in it is imagination.** The requirement itself gets its id an
 definition of done from `task-pipeline`'s REQ spine — what this pack owns is the
 observable's *form*, not the register it hangs on.
 
-**The first release has no production, so its offline gate is observables only** (§3). That
-is not the corpus rule suspended for a special case: the corpus is empty because nothing has
-run yet, and it fills from the first real traces. Inventing *inputs* to fill it sooner would
-still be imagination.
+**The first release has no production — so it runs against a SEED corpus, and
+observable-only is not release-ready.** A criterion with no input proves
+no capability, so a greenfield feature seeds a curated/synthetic/manual corpus with at least a **happy**, an **adversarial** and a
+**failure/retry** trial. Each seed input carries its **provenance**
+(`curated`/`synthetic`/`manual`) and is SUPPLEMENTED by production traces,
+never declared full coverage. The release gate requires EXECUTED trials;
+observables with nothing run against them are `specification-ready`, not
+`release-ready`. A corrupted fixture, input or runner is a `TEST_ERROR`,
+never a behaviour pass/fail; cases are isolated, so B's result never depends
+on whether A ran.
 
 **Never author the suite up front** — the *corpus*, that is: the inputs. Every production
 failure and every thumbs-down becomes a fixture:
