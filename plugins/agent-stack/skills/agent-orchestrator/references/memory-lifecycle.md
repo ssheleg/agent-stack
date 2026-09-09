@@ -18,7 +18,8 @@ long-term behaviour is a consequence of those frequencies, not of separate boxes
 - [3. Evolution — consolidation](#3-evolution--consolidation)
 - [4. Evolution — updating, and the stability–plasticity dilemma](#4-evolution--updating-and-the-stabilityplasticity-dilemma)
 - [5. Evolution — forgetting](#5-evolution--forgetting)
-- [6. What this pack already implements](#6-what-this-pack-already-implements)
+- [6. The temporal evidence lifecycle](#6-the-temporal-evidence-lifecycle)
+- [7. What this pack already implements](#7-what-this-pack-already-implements)
 
 ## 1. Formation — five ways to turn experience into an entry
 
@@ -134,7 +135,38 @@ constraint, many memory systems avoid directly deleting certain memories."*
 Deletion remains a **correctness and privacy** operation — a person asking to be forgotten
 is not a capacity decision, and `memory-architecture.md` §8 covers it.
 
-## 6. What this pack already implements
+## 6. The temporal evidence lifecycle
+
+One record's timeline, and the two events that are NOT on it:
+
+```
+born ──▶ corroborated ──▶ superseded ──▶ (restored)
+  │       (independent      (reversible:      un-supersede puts it back;
+  │        provenance        is_active=False,  nothing was deleted
+  │        only)             superseded_by)
+  └──▶ expired (volatile fact past its freshness window —
+        out of default retrieval WHATEVER its confidence,
+        verified included)
+```
+
+- **Retrieval is not a lifecycle event.** Reading a record — or the agent
+  restating it in its own words — moves nothing: not confidence, not
+  freshness, not activity. A self-generated repeat scored as confirmation is
+  the compounding error `patterns.md` → Confidence Management refuses; only
+  evidence with independent provenance corroborates.
+- **Supersession is an annotation, and it is reversible.** A new dated fact
+  sets `is_active=False` + `superseded_by` on the old one and KEEPS it: the
+  chain is walkable from either end, an explicit query still reaches the old
+  value, and restoring it (the correction turned out wrong) is clearing two
+  fields, not resurrecting a deleted row. The dated history is the audit
+  trail of what the system believed when.
+- **`verified` is about confidence, never about time.** A volatile fact —
+  a quota, a price, a rate limit — carries a freshness window from its
+  `validity` field, and past that window it leaves default retrieval even at
+  confidence 1.0. Verification exempts a record from confidence DECAY;
+  nothing exempts a fact about the present from the present.
+
+## 7. What this pack already implements
 
 Stated so this file is read as an extension and not as a replacement:
 
