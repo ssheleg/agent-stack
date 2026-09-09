@@ -33,13 +33,16 @@ forwards and backwards, which is why they live together here.
 
 ---
 
-## Rule zero — most agent bugs are prompt bugs wearing a stack trace
+## Rule zero — check the prompt first (a diagnostic heuristic, with exceptions)
 
-The instinct when an agent misbehaves is to change the code. The measured reality, in every
-source this skill was built from, is that the largest behavioural changes come from the
-text: **"the biggest performance improvements often come from clearly explaining tool usage
-in the system prompt"**, and **"even small refinements to tool descriptions can yield
-dramatic improvements."**
+The instinct when an agent misbehaves is to change the code. The sources this skill was
+built from pull the other way: **"the biggest performance improvements often come from
+clearly explaining tool usage in the system prompt"**, and **"even small refinements to
+tool descriptions can yield dramatic improvements."** That is vendor guidance about where
+leverage OFTEN lives, not a measured share of defects — so it orders the DIAGNOSIS, never
+the verdict. **The exceptions are the findings a prompt cannot touch:** a deterministic
+race, a hardcoded secret, a timeout wired to the wrong operation — source-level invariant
+violations are code bugs, provable by reading, and no rewording treats them.
 
 Before adding a retry, a router, or a sub-agent, check in this order:
 
@@ -149,8 +152,12 @@ The long version is `references/audit.md`. The shape:
    Monday. This is the same rule `agent-evals` applies to eval rubrics and
    `seo-aeo-audit` to sites.
 
-**The finding that ends most audits early:** the system has no evals. Everything downstream
-is then unfalsifiable — including this audit. Say so first, and make it the first item.
+**The finding most audits surface first:** the system has no evals. That is a finding
+about UNKNOWN RELIABILITY — every *behavioural estimate* downstream is unfalsifiable,
+including this audit's. It does NOT dissolve what is provable at the source: a
+demonstrable double charge, a hardcoded secret, a deterministic race keep their own
+findings and their own priority, set by the concrete harm — a general "no evals" never
+masks a specific proven harm.
 
 ---
 
