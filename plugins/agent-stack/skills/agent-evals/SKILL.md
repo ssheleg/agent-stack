@@ -313,7 +313,11 @@ None of the above runs without these, and they are the part people skip:
   of `human` | `llm_judge` | `code_check`. A score with no source cannot be calibrated,
   audited, or trusted differently from its neighbours.
 - **Whole prompts, not just messages** — instructions, tool schemas and context as they
-  were sent. A fixture cannot be replayed from a summary.
+  were sent. A fixture cannot be replayed from a summary. And a CANDIDATE's
+  version, output and score are their own records beside the old trace — a
+  regrade of the stored output is labelled regrade, never "the candidate
+  passed": only executing the candidate against the frozen fixture (a real,
+  stochastic call, costed in the receipt) can say the decision changed.
 - **State snapshots at turn boundaries**, so a thread test can assert what carried.
 
 ---

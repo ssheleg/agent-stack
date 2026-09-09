@@ -205,7 +205,14 @@ which:
 |---|---|---|---|
 | **Durable execution** (Temporal) | nothing — recorded results are replayed and only the failed step retries | free, deterministic | can I resume without redoing 20 web searches |
 | **Trace playground** (Phoenix) | the model call, against the live provider, with an edited prompt | a real call | would a different prompt have done better |
-| **Fixture replay** (this skill, §2 single-step) | an assertion over a stored run | free | did the decision at this point change |
+| **Regrade of a stored output** (this skill, §2 single-step) | nothing — a new assertion over the OLD output | free, deterministic | does the OLD output satisfy the changed rubric — **explicitly NOT a check of the candidate** |
+| **Candidate execution over a frozen fixture** | the CANDIDATE (new prompt / model / tool schema) against frozen inputs | a real model call, stochastic — say so in the receipt | did the candidate's decision change |
 
-They are not interchangeable, and a runbook that says *"replay the run"* has not said what it
-means. Name the sense.
+They are not interchangeable, and a runbook that says *"replay the run"* has not said what
+it means. Name the sense. The one this table exists to un-blur: **an old output does not
+change when the candidate changes** — a regrade re-marks yesterday's homework under a new
+rubric, and calling it "did the decision change" claims a candidate check that never ran.
+The test with teeth is the fourth row: mutate the candidate to a knowingly wrong tool, and
+the gate's result MUST change; a gate a candidate mutation cannot move is a regrade wearing
+the wrong label. The candidate's version, its output and its score are stored as their own
+records, never overwriting the old trace they are compared against.
