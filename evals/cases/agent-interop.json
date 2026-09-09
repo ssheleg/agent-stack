@@ -1,0 +1,206 @@
+{
+ "contract": "outcome-case/1 (schemas/outcome-case.schema.json + test/outcome_harness.py in ssheleg/sshlg-skills)",
+ "note": "Outcome corpus for agent-interop (FIX-EV-01.25), anchored to the audit's own findings AS-12/AS-13. Judged on ARTIFACTS via the family harness: the runner records the actual output oracle verdict AND the raw result per case; with/without-skill arms are the harness's baseline contract. The pinned-SDK run is probe-gated on a network/venv build — absent, it is NOT_RUN, never PASS. Nothing in the production skill was changed for grader convenience.",
+ "arms": {
+  "baseline": "same prompts, skill absent",
+  "current": "same prompts, skill installed"
+ },
+ "cases": [
+  {
+   "schema_version": "outcome-case/1",
+   "id": "AI-OUT-001-positive-pinned-mcp-example",
+   "skill": "agent-interop",
+   "prompt": {
+    "text": "Pin the MCP server example to an exact SDK from a clean requirements file and prove it in a fresh env: health returns 200, an unauthenticated endpoint returns 401, and discovery / tools/list / tools/call all pass; the old FastMCP constructor is either supported by its own fixture or declared out of scope (AS-12). Write mcp-proof.md."
+   },
+   "environment": {
+    "model": "inherit",
+    "host": "any",
+    "case_digest": "a772c9d4b94c6507a12121aad3c9619c3ec0de4d74a769d6ade4271bd286876a"
+   },
+   "checks": {
+    "tool": [
+     {
+      "name": "python3 present",
+      "command": "python3 -c 'pass'"
+     }
+    ],
+    "load_trace": {
+     "expect_loaded": [
+      "agent-interop"
+     ],
+     "expect_not_loaded": []
+    },
+    "outcome": [
+     {
+      "name": "proof exists",
+      "kind": "artifact-exists",
+      "target": "mcp-proof.md"
+     },
+     {
+      "name": "unauthenticated is 401 (AS-12)",
+      "kind": "artifact-contains",
+      "target": "mcp-proof.md",
+      "expect": "401"
+     },
+     {
+      "name": "the SDK is pinned, old constructor scoped (AS-12)",
+      "kind": "artifact-contains",
+      "target": "mcp-proof.md",
+      "expect": "out of scope"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "outcome-case/1",
+   "id": "AI-OUT-002-negative-routing",
+   "skill": "agent-interop",
+   "prompt": {
+    "text": "Explain in two sentences what a webhook is."
+   },
+   "environment": {
+    "model": "inherit",
+    "host": "any",
+    "case_digest": "a5da94aa03520bb6226ea88328a75ab6d7e3985c73a0e90a1379bf168fead57e"
+   },
+   "checks": {
+    "tool": [
+     {
+      "name": "python3 present",
+      "command": "python3 -c 'pass'"
+     }
+    ],
+    "load_trace": {
+     "expect_loaded": [],
+     "expect_not_loaded": [
+      "agent-interop"
+     ]
+    },
+    "outcome": [
+     {
+      "name": "no interop artifact appears",
+      "kind": "command-exit-0",
+      "target": "test ! -f mcp-proof.md"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "outcome-case/1",
+   "id": "AI-OUT-003-protocol-routing-not-by-the-word-long-running",
+   "skill": "agent-interop",
+   "prompt": {
+    "text": "Route three tasks to a protocol: a long-running fixed export goes to MCP Tasks WHEN supported; an autonomous outsourced negotiation goes to A2A; and when MCP Tasks is unsupported, take an explicit fallback. No case may be decided by the word 'long-running' alone (AS-13). Write routing-table.md."
+   },
+   "environment": {
+    "model": "inherit",
+    "host": "any",
+    "case_digest": "b6dce447ce64b3c4d2ec21614db5799a34cfd1708fe5c70958e757e78c27ec64"
+   },
+   "checks": {
+    "tool": [
+     {
+      "name": "python3 present",
+      "command": "python3 -c 'pass'"
+     }
+    ],
+    "load_trace": {
+     "expect_loaded": [
+      "agent-interop"
+     ],
+     "expect_not_loaded": []
+    },
+    "outcome": [
+     {
+      "name": "the fixed export routes to MCP Tasks (AS-13)",
+      "kind": "artifact-contains",
+      "target": "routing-table.md",
+      "expect": "MCP Tasks"
+     },
+     {
+      "name": "autonomous negotiation routes to A2A (AS-13)",
+      "kind": "artifact-contains",
+      "target": "routing-table.md",
+      "expect": "A2A"
+     },
+     {
+      "name": "an unsupported-Tasks explicit fallback exists (AS-13)",
+      "kind": "artifact-contains",
+      "target": "routing-table.md",
+      "expect": "fallback"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "outcome-case/1",
+   "id": "AI-OUT-004-noop-unsupported-tasks-fallback",
+   "skill": "agent-interop",
+   "prompt": {
+    "text": "For a host where MCP Tasks is NOT supported, a long-running fixed export must take the explicit fallback path, not be forced into A2A because it is long (AS-13). Do NOT redesign the protocols — write fallback-note.md only."
+   },
+   "environment": {
+    "model": "inherit",
+    "host": "any",
+    "case_digest": "c6c0ba7f0abe8996ea7d737a801a448e950bb2ef756d6269a5482028a31d3e6c"
+   },
+   "checks": {
+    "tool": [
+     {
+      "name": "python3 present",
+      "command": "python3 -c 'pass'"
+     }
+    ],
+    "load_trace": {
+     "expect_loaded": [
+      "agent-interop"
+     ],
+     "expect_not_loaded": []
+    },
+    "outcome": [
+     {
+      "name": "unsupported Tasks takes the fallback, not A2A (AS-13)",
+      "kind": "artifact-contains",
+      "target": "fallback-note.md",
+      "expect": "fallback"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "outcome-case/1",
+   "id": "AI-OUT-005-live-pinned-env-probe",
+   "skill": "agent-interop",
+   "prompt": {
+    "text": "In a network-capable env, build the pinned requirements into a fresh venv and run the MCP example's health check, expecting 200 (AS-12)."
+   },
+   "environment": {
+    "model": "inherit",
+    "host": "any",
+    "case_digest": "fc528213a243d3ddadc79c807bdf2156ef62f1b265ed5641eecae248cc45cf1c"
+   },
+   "checks": {
+    "tool": [
+     {
+      "name": "network+venv build available",
+      "command": "python3 -c \"import urllib.request,venv\" && test -n \"$AGENT_INTEROP_LIVE\""
+     }
+    ],
+    "load_trace": {
+     "expect_loaded": [
+      "agent-interop"
+     ],
+     "expect_not_loaded": []
+    },
+    "outcome": [
+     {
+      "name": "the pinned example builds and answers (probe-gated)",
+      "kind": "artifact-exists",
+      "target": "live-health.md"
+     }
+    ]
+   }
+  }
+ ]
+}
