@@ -10,7 +10,7 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
-## Shipped state — v0.24.0 (2026-09-10)
+## Shipped state — v0.24.2 (2026-09-10)
 
 Sherlock external-v3 (24 findings), each carrying its own executable regression.
 
