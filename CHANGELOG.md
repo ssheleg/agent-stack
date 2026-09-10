@@ -1,3 +1,12 @@
+## v0.24.2 — the ledger section names the version it ships
+
+The previous patch wrote the ledger section BEFORE bumping the version, so the
+section named the version that was being replaced and the lag it existed to
+close survived it. Order matters here: bump, then write the section against what
+is now declared.
+
+Nothing else changed.
+
 ## v0.24.1 — the ledger catches up to the version it ships
 
 A member's ledger is fixed in that member's own release. The umbrella's ratchet
