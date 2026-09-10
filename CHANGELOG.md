@@ -1,3 +1,13 @@
+## v0.24.1 — the ledger catches up to the version it ships
+
+A member's ledger is fixed in that member's own release. The umbrella's ratchet
+counts members whose ledger describes a version older than they ship, and the
+release wave of 2026-09-10 put this one on that list — its gate did not demand a
+section, the umbrella does.
+
+The v0.24.0 section is written now, naming what shipped and what
+confirmed it.
+
 ## 0.24.0 — the agent stack closes its audit findings
 
 Sherlock external-v3 (24 findings), each carrying its own executable regression
