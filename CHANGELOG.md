@@ -1,3 +1,12 @@
+## 0.24.0 — the agent stack closes its audit findings
+
+Sherlock external-v3 (24 findings), each carrying its own executable regression
+under `test/audit_regressions/`.
+
+CI now MEASURES the token budget with a real tokenizer instead of estimating it
+from character count — the pinned auditor had been issuing a token verdict from a
+chars/3.9 estimate, which is the defect that script's own doctrine names.
+
 ## v0.23.2 — a path that resolves only from the neighbour's directory, and the description with no room left
 
 Family audit 2026-09-06 (wave AUDIT-WAVE-0906) brought three findings for this member.
