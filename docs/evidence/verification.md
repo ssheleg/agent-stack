@@ -10,6 +10,16 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Shipped state — v0.24.0 (2026-09-10)
+
+Sherlock external-v3 (24 findings), each carrying its own executable regression.
+
+| REQ | What ships | How it was confirmed | Confirmed |
+|---|---|---|---|
+| SH-regressions | Every sherlock finding assigned here closes with an executable regression | `test/audit_regressions/` holds 23 suites; `npm test` runs all of them and exits 0 | **observed** |
+| SH-measure | The house skill audit MEASURES the token budget in CI rather than estimating it | the pinned auditor ran with no tokenizer and issued a token verdict from a chars/3.9 estimate, which gapped `agent-evals` (~4961) and `agent-orchestrator` (~4762) — both inside 4750 when measured (4374 and 4309). Pin moved to make-skill@5ca5c36 and the job installs tiktoken | **observed** — the estimate and the measurement disagreed on this repository, in CI |
+| Gate | The whole suite on this tree | `npm test` EXIT=0; `audit_skill.py --house` 0 GAP on all four skills | **observed** |
+
 ## Shipped state — v0.23.2 (2026-09-06)
 
 Measured on the release-candidate tree before the tag exists. Family audit wave
