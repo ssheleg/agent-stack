@@ -160,7 +160,7 @@ waterfall, and model-routing precedence.
 /plugin install agent-stack@agent-stack
 ```
 
-**npm installer** — copies both skills into `~/.claude/skills/`:
+**npm installer** — copies all four skills into `~/.claude/skills/`:
 
 ```bash
 npx @ssheleg/agent-stack
@@ -179,6 +179,26 @@ npx --yes sshlg-skills@latest update
 ```
 
 Restart your agent afterwards — skills load at session start.
+
+**Reaching a skill by name.** Claude Code routes on the description, and both
+invocation forms work: `/agent-stack:agent-orchestrator` names the plugin's copy
+explicitly, `/agent-orchestrator` the plain one. Which resolves depends on how this
+pack was installed, so both are written here rather than one promised.
+
+### What loads on demand
+
+Twenty-seven reference files ship with the four skills, each with a load trigger in
+its skill body. By skill:
+
+| Skill | References |
+|---|---|
+| `agent-orchestrator` | 12 — the tool-calling loop, memory and retrieval, context budgets, provider routing, the work graph, the resale wallet and the saga across database and provider API |
+| `agent-harness` | 7, plus `scripts/audit_agent.py` |
+| `agent-interop` | 6 — one per protocol surface, each pinning the revision it was read at |
+| `agent-evals` | 2 — `otel-genai.md` (the semantic conventions an eval reads) and `statistics.md` (when a difference is a difference) |
+
+A file with no load trigger in a body is a defect, not a bonus: the skill audit
+refuses one.
 
 ---
 

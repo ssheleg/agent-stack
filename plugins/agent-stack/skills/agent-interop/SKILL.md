@@ -41,7 +41,7 @@ against the live specification rather than recalled:
   still introduced `binds` as a core concept as of 2026-08-13.
 
 So: **every reference in this skill opens with a `**Spec pinned:**` line**, and
-`test/validate.py` fails the build without one. That is a mechanical check, not an
+This pack's repository validator fails the build without one. That is a mechanical check, not an
 aspiration — the class of error it prevents is the one where prose reads as current
 because nothing on the page says otherwise.
 
