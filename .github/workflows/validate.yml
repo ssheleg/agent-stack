@@ -31,6 +31,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # The body budget is MEASURED, never estimated: `test/validate.py` refuses to issue
+      # a verdict from chars/3.9 and discloses instead, so without this step the budget
+      # check stops gating quietly. The skill-audit job installs the same package for the
+      # same reason (make-skill v0.28.0).
+      - name: Install a real tokenizer (the budget is MEASURED, never estimated)
+        run: python3 -m pip install --quiet tiktoken
+
       - name: Structural validator
         run: python3 test/validate.py
 
