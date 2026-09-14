@@ -14,6 +14,9 @@ description: >-
   "аудит агента", "встроить агента". Not for the loop's plumbing, its evals, or its
   protocols — those are siblings.
 license: MIT
+compatibility: >-
+  scripts/audit_agent.py runs with python3 (standard library only); no network,
+  no package install. Everything else in this skill is prose and needs nothing.
 ---
 
 # Agent harness — what the agent is told, and how to audit what someone else told theirs
@@ -119,7 +122,7 @@ because a decision table with two homes is one that will disagree with itself.
 ## References
 
 Each opens with its own **Load this when** line and a revision stamp — this material moves,
-and `test/validate.py` fails the build on a reference that does not say when it was read.
+and this pack's repository validator fails the build on a reference that does not say when it was read.
 
 | File | Read it when |
 |---|---|

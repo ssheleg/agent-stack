@@ -10,6 +10,18 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Shipped state — v0.24.3 (2026-09-14)
+
+Hygiene from the 2026-09-13 family audit (HK-11).
+
+| REQ | What ships | How it was confirmed | Confirmed |
+|---|---|---|---|
+| HY-measure | The body budget is measured, never estimated | `_measure_body_tokens` uses tiktoken where installed and discloses where it is not. The drift it replaces: agent-evals ~4961 estimated / 4374 measured, agent-orchestrator ~4762 / 4309 | **observed** — two files were being reported past the working limit with 300+ tokens of headroom |
+| HY-resolve | No skill body names a file that does not ship inside it | `agent-harness/SKILL.md:122` and `agent-interop/SKILL.md:44` said `test/validate.py`, a repository file; both now say "this pack's repository validator" | **observed** |
+| HY-compat | A skill that needs an interpreter declares it | `agent-harness` ships `scripts/audit_agent.py` and now carries `compatibility` in front matter; `audit_skill.py --house` 0 GAP, 19 PASS | **observed** |
+| HY-shelf | The README names what loads on demand, counted from the tree | 27 reference files, per skill: orchestrator 12, harness 7, interop 6, evals 2 — the first draft of this table stated 12/4/7/4 from memory and was corrected against `ls` | **observed** — the counted number and the remembered one disagreed on three of four rows |
+| Gate | The whole suite on this tree | `npm test` EXIT=0; `OK: agent-stack structurally valid (15 checks …, v0.24.3)` | **observed** |
+
 ## Shipped state — v0.24.2 (2026-09-10)
 
 Sherlock external-v3 (24 findings), each carrying its own executable regression.

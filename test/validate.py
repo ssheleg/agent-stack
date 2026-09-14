@@ -93,6 +93,23 @@ def front_matter(path):
     return m.group(1), text
 
 
+def _measure_body_tokens(body):
+    """(count, how) — a real tokenizer where one is installed, the estimate otherwise.
+
+    The authority is the family auditor's `cl100k_base`. The divisor below was calibrated
+    against it once and drifted: on 2026-09-14 it read agent-evals at ~4961 and
+    agent-orchestrator at ~4762 where the tokenizer read 4374 and 4309.
+    """
+    try:
+        import tiktoken
+    except Exception:                                    # noqa: BLE001 - optional
+        return int(len(body) / 3.9), "estimate"
+    try:
+        return len(tiktoken.get_encoding("cl100k_base").encode(body)), "tiktoken:cl100k_base"
+    except Exception:                                    # noqa: BLE001 - a broken install is not a verdict
+        return int(len(body) / 3.9), "estimate"
+
+
 def scalar(block, key):
     """Read one front-matter scalar without a YAML dependency.
 
@@ -217,12 +234,22 @@ for name in skill_dirs:
     # -> 3.9), so this tracks the authority closely and slightly high. Re-derive it if the
     # auditor's tokenizer changes; do not widen it to make a failing file pass.
     body = text.split("---", 2)[2] if text.count("---") >= 2 else text
-    body_tokens = int(len(body) / 3.9)
-    if body_tokens > BODY_BUDGET_TOKENS:
-        fail(f"{name}/SKILL.md: body ~{body_tokens} tokens, past the {BODY_BUDGET_TOKENS} "
-             "budget — the answer at this point is a split, not a trim")
+    body_tokens, how = _measure_body_tokens(body)
+    if how == "estimate":
+        # A calibrated divisor is still an estimate, and the calibration expires: measured
+        # 2026-09-14, this one read agent-evals at ~4961 and agent-orchestrator at ~4762
+        # while the authority's tokenizer read 4374 and 4309 — two files reported past the
+        # working limit with 300+ tokens of real headroom. make-skill v0.28.0 closed the
+        # same defect in the family auditor by MEASURING; a verdict from the wrong
+        # instrument gets quoted as if it were one, so with no tokenizer this discloses
+        # instead of judging.
+        notes.append(f"{name}/SKILL.md: body budget NOT MEASURED (~{body_tokens} tokens by "
+                     "chars/3.9) — `pip install tiktoken` to gate it")
+    elif body_tokens > BODY_BUDGET_TOKENS:
+        fail(f"{name}/SKILL.md: body {body_tokens} tokens ({how}), past the "
+             f"{BODY_BUDGET_TOKENS} budget — the answer at this point is a split, not a trim")
     elif body_tokens > BODY_WORKING_TOKENS:
-        notes.append(f"{name}/SKILL.md: body ~{body_tokens} tokens, past the "
+        notes.append(f"{name}/SKILL.md: body {body_tokens} tokens ({how}), past the "
                      f"{BODY_WORKING_TOKENS} working limit ({BODY_BUDGET_TOKENS} budget) — "
                      "displace before the next addition")
 

@@ -1,3 +1,26 @@
+## 0.24.3 — the budget stops being estimated, and two skills stop naming a file they do not ship
+
+Hygiene from the 2026-09-13 family audit (HK-11).
+
+- **The body budget is MEASURED.** This gate divided by a calibrated 3.9 chars/token; the
+  calibration drifted. Measured 2026-09-14 against the authority's tokenizer:
+  `agent-evals` estimated **~4961** and measured **4374**; `agent-orchestrator` estimated
+  **~4762** and measured **4309** — two files reported past the working limit with 300+
+  tokens of real headroom. make-skill v0.28.0 closed the same defect in the family
+  auditor by measuring. With no tokenizer installed the check now **discloses** rather
+  than issuing a verdict from the wrong instrument.
+- **`agent-harness` and `agent-interop` named `test/validate.py`** — a repository file
+  that does not ship inside a skill, so it resolves at the repo root and nowhere an
+  installed reader stands. Both say "this pack's repository validator" now.
+- **`agent-harness` declares `compatibility`**: it ships `scripts/audit_agent.py`, and a
+  skill that needs an interpreter says so in front matter.
+- **`plugin.json`'s homepage** matches `package.json` and the forge
+  (`skills.sshlg.me/skills/agent-stack/`) instead of the GitHub URL.
+- **The README names what loads on demand** — 27 reference files, counted per skill from
+  the tree, not stated — and both invocation forms (`/agent-stack:<skill>` and
+  `/<skill>`), because which one resolves depends on how the pack was installed. The
+  installer line said "both skills" over a pack of four.
+
 ## v0.24.2 — the ledger section names the version it ships
 
 The previous patch wrote the ledger section BEFORE bumping the version, so the
