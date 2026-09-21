@@ -10,6 +10,34 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Shipped state — v0.25.2 (2026-09-21)
+
+Ledger correction for the ECC workbench-contract transfer. This release changes
+version metadata and records the requirements in their canonical ledger; the
+reference bytes are the same as the independently reviewed and published 0.25.1.
+The rows distinguish published evidence for those bytes from candidate validation.
+
+| REQ | What ships | How it was confirmed | Confirmed |
+|---|---|---|---|
+| ECC-1 | A pinned, selective ECC adoption record | [Research ledger](research/2026-09-21-ecc-harness.md) records commit 2b6e839771e53096d8451a213d40dc64ec8acac0, read scope, adaptation decisions and 15 SHA-256 digests; all 15 compared successfully to the frozen source | **observed** |
+| ECC-2 | Explicit kernel versus workbench harness boundary | `agent-harness/references/layers.md` and `workbench-contracts.md` distinguish host runtime and permissions from family work contracts; coordinating agent independently reviewed the change before PR #33 | **observed** — semantic review, not a model benchmark |
+| ECC-3 | Install ownership, bounded hooks, durable handoff and artifact-bound evaluation contracts | `npm test` and both strict Claude manifest checks passed for the published 0.25.1 reference; make-skill house audit returned 0 GAP / 19 PASS | **observed** — structural checks, not behavioral improvement |
+| ECC-4 | No new runtime, hooks or dependencies | Registry 0.25.1 tarball contains 40 files, all byte-identical to commit 0b76d1afc19c778db0228b1c0f383c2c1d6a9949; no research/private machine files; this patch does not change the skill tree | **observed** |
+| ECC-5 | Current canonical ledger in the release commit | Package, plugin, marketplace, skill card and this heading all name 0.25.2; `python3 test/validate.py` checks version and ledger validity | **observed** — `npm test` EXIT=0 on the 0.25.2 candidate, including `test/validate.py` |
+
+Published predecessor evidence and exact integrity are in the
+[release handoff](research/2026-09-21-ecc-handoff.md). v0.25.0 remains unreleased;
+its cancelled workflow is not a successful publication. Host installation and
+loaded receipts belong to the parent rollout, not these package checks.
+
+## Shipped state — v0.25.1 (2026-09-21)
+
+Published from 0b76d1afc19c778db0228b1c0f383c2c1d6a9949. Release workflow
+35584641319 passed all four jobs; npm returned version 0.25.1 and the same
+`gitHead`. A fresh checkout passed `npm test`; all 40 registry tarball files
+matched it byte-for-byte. The canonical ledger was updated only in 0.25.2,
+after the umbrella gate exposed that this section was missing.
+
 ## Shipped state — v0.24.3 (2026-09-14)
 
 Hygiene from the 2026-09-13 family audit (HK-11).

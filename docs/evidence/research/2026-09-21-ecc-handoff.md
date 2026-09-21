@@ -104,3 +104,11 @@ and submodule pin to 0.25.1 / 0b76d1a, then refresh installed skills and separat
 check the host's loaded receipt. Those operations belong to the parent and are
 not implied by this member publication. The tested research/reference contract
 has no new runtime or behavioral-model evaluation result.
+
+## Canonical ledger follow-up — 0.25.2
+
+The umbrella gate rejected the 0.25.1 member because its canonical verification
+ledger still named 0.24.3. The research handoff was insufficient. Version 0.25.2
+adds the matching ledger heading in the release commit without weakening the
+guard or changing the reviewed reference. The parent must use 0.25.2 after its
+exact registry verification; 0.25.1 evidence above remains historical.
