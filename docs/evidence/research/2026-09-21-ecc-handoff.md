@@ -112,3 +112,21 @@ ledger still named 0.24.3. The research handoff was insufficient. Version 0.25.2
 adds the matching ledger heading in the release commit without weakening the
 guard or changing the reviewed reference. The parent must use 0.25.2 after its
 exact registry verification; 0.25.1 evidence above remains historical.
+
+## Final release receipt — 0.25.2
+
+The ledger follow-up is published and verified. Final package/tag source:
+[`20cebb27f2824da6a95ae3f29241c76bb0ef61e6`](https://github.com/ssheleg/agent-stack/commit/20cebb27f2824da6a95ae3f29241c76bb0ef61e6),
+[PR #35](https://github.com/ssheleg/agent-stack/pull/35),
+[release workflow 35585945620](https://github.com/ssheleg/agent-stack/actions/runs/35585945620).
+All four jobs succeeded. npm returns version **0.25.2** and exactly that `gitHead`.
+The annotated v0.25.2 remote tag peels to it.
+
+A fresh checkout at that SHA passed `npm test`. The downloaded npm tarball's
+40 regular files all matched that checkout byte-for-byte; its canonical Git
+verification ledger begins with v0.25.2. Registry integrity:
+`sha512-TjBwXQvWAkAnSuaPyiRS82+128uk5EE1031J8mo1+XZoShc49nI5Pamugs92v7xD5fdNoJhcla50empEPznqOQ==`.
+
+Final next task: parent program pins **0.25.2 / 20cebb27**, regenerates its
+context receipt, and verifies installed versus loaded host versions separately.
+This final documentation receipt does not change the released package contents.
