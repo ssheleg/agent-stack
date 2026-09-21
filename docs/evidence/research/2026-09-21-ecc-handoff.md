@@ -62,3 +62,15 @@ Local-only residue: a read-only temporary ECC clone and package inventory JSON
 used for research remain outside Git. No credential or private project inventory
 was read for this packet. Local advisory coordination claims are released when
 this subtask hands back; the pre-existing foreign expired lease is left untouched.
+
+## Release correction
+
+Parent independently reviewed the new reference and authorized publication. PR
+#33 checks passed at 331f7eb. The initial merge method was rejected by GitHub,
+but a shell command sequence incorrectly continued and tagged the old c681ef3
+commit as v0.25.0. The queued release run 35584412545 was cancelled before
+publication. Repository rules refused deletion; no rules were bypassed and no
+force push was used. The immutable incorrect tag is preserved. Publication now
+targets **0.25.1** with the same reviewed content and this explicit correction.
+Future merge, head verification, tag creation and tag push are separate checked
+operations; a failed step cannot continue to the next mutation.
