@@ -1,3 +1,12 @@
+## 0.25.2 — the verification ledger follows the harness release
+
+- Add the current harness requirements to `docs/evidence/verification.md` in
+  the same commit as this release. The umbrella correctly refused 0.25.1 because
+  the member ledger still named 0.24.3; the dedicated research handoff did not
+  satisfy the canonical ledger contract.
+- Keep the published 0.25.1 evidence and the unreleased 0.25.0 tag incident
+  explicit. No runtime, reference behavior or dependency changes.
+
 ## 0.25.1 — workbench harness contracts, with a bounded ECC transfer
 
 - Distinguish a kernel harness from the operating layer around an existing agent.
