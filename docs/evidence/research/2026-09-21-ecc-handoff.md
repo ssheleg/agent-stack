@@ -74,3 +74,33 @@ force push was used. The immutable incorrect tag is preserved. Publication now
 targets **0.25.1** with the same reviewed content and this explicit correction.
 Future merge, head verification, tag creation and tag push are separate checked
 operations; a failed step cannot continue to the next mutation.
+
+## Published verification — supersedes pending release notes above
+
+Published **@ssheleg/agent-stack 0.25.1**, through
+[PR #33](https://github.com/ssheleg/agent-stack/pull/33), squash merged at
+[`0b76d1afc19c778db0228b1c0f383c2c1d6a9949`](https://github.com/ssheleg/agent-stack/commit/0b76d1afc19c778db0228b1c0f383c2c1d6a9949).
+[Release workflow 35584641319](https://github.com/ssheleg/agent-stack/actions/runs/35584641319)
+completed with validate, house audit, release and publish all successful.
+[GitHub release](https://github.com/ssheleg/agent-stack/releases/tag/v0.25.1).
+
+Observed 2026-09-21:
+
+- Remote annotated tag v0.25.1 peels to the exact merged SHA above.
+- Fresh GitHub checkout at that SHA: `npm test` passed; pack inventory contains
+  40 files, the new reference, no research ledger or private machine state.
+- `npm view @ssheleg/agent-stack@0.25.1 version gitHead dist.integrity --json`
+  reports version 0.25.1 and the exact merged SHA.
+- Registry tarball downloaded with `npm pack @ssheleg/agent-stack@0.25.1`:
+  every one of its 40 regular files matches the fresh checkout byte-for-byte.
+- Registry integrity:
+  `sha512-FeGZO3AGoRhu0DaHgwNKp8DHf4tT7u3lMS+n/hVc2bWdbP0f6i7prSI7Rzgo8r9WU66FnytUv93UfFEipFAggA==`.
+- **v0.25.0 is unreleased.** `npm view @ssheleg/agent-stack@0.25.0 version`
+  returns E404; its cancelled workflow has release and publish cancelled. The
+  incorrect protected tag remains at c681ef3; do not install from that tag.
+
+Exact next task for the parent program: set the umbrella's agent-stack version
+and submodule pin to 0.25.1 / 0b76d1a, then refresh installed skills and separately
+check the host's loaded receipt. Those operations belong to the parent and are
+not implied by this member publication. The tested research/reference contract
+has no new runtime or behavioral-model evaluation result.
