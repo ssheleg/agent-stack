@@ -35,7 +35,16 @@ will not converge no matter how long it runs.
 The distinction is not quality. A kernel is *supposed* to be smaller than a workbench; that
 is what makes it legible.
 
-## What a harness owns
+## The broader workbench meaning
+
+“Harness” also names an operating layer around an existing agent: skills, routing,
+work contracts, hooks, installation and evidence. This is the family’s umbrella
+meaning. It does not imply ownership of the model loop or OS permissions. The
+three-layer table above uses the narrower kernel meaning. State the meaning
+before comparing products; [workbench-contracts.md](workbench-contracts.md) gives
+the operational contract and selective ECC implementation lessons.
+
+## What a kernel harness owns
 
 If you are building at the kernel layer, these are yours and nobody else's:
 

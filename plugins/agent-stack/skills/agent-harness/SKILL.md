@@ -129,6 +129,7 @@ and this pack's repository validator fails the build on a reference that does no
 | [`references/system-prompt.md`](references/system-prompt.md) | you are **writing or fixing the prompt** — altitude, structure, vocabulary, dynamic context, and what changes for reasoning models |
 | [`references/tools.md`](references/tools.md) | the model **picks the wrong tool, or none** — the agent–computer interface: how many, named how, described how, returning what |
 | [`references/techniques.md`](references/techniques.md) | you are choosing between **ReAct, reflection, voting, planning** and the rest — every entry carries a verdict for production, not a benchmark score |
+| [`references/workbench-contracts.md`](references/workbench-contracts.md) | assembling a **harness around an existing agent** — install ownership, bounded hooks, handoff, artifact-bound evidence and observation limits; selective ECC methods |
 | [`references/layers.md`](references/layers.md) | deciding **what your harness owns** — kernel, workbench and product layers, and why permission boundaries are usually somebody else's job |
 | [`references/audit.md`](references/audit.md) | reviewing **an agent system you did not build** — seven tracks, evidence tiers, and a prioritized plan |
 | [`references/pi.md`](references/pi.md) | you want the doctrine above as a **worked implementation** — Pi's sessions, compaction, config, skills, trust and containerization, each matched to the rule it implements, and the places it deliberately disagrees |
@@ -202,6 +203,7 @@ prompt.
 
 ## Checklist — a harness worth shipping
 
+- [ ] Kernel or workbench harness named explicitly; installed, loaded and enforced capabilities distinguished
 - [ ] Workflow-versus-agent decided deliberately, and the simpler option was actually tried
 - [ ] Static-versus-dynamic decided too — static preferred for predictability; a run that must be auditable keeps a complete execution record (not merely a static shape)
 - [ ] System prompt at the **right altitude** — heuristics, not hardcoded branches, not vague hope
