@@ -1,3 +1,17 @@
+## 0.25.0 — workbench harness contracts, with a bounded ECC transfer
+
+- Distinguish a kernel harness from the operating layer around an existing agent.
+  The family is the latter; skills are components, not an OS security boundary.
+- Add an on-demand `agent-harness` reference for install ownership and loaded
+  state, bounded hooks and failure policy, evidence-bearing handoff, artifact-bound
+  eval receipts, replay limits and scoped learning. Existing family owners remain
+  authoritative; no duplicate runtime, schemas or receipt store is introduced.
+- Attribute the selective ECC review to commit
+  `2b6e839771e53096d8451a213d40dc64ec8acac0`; retain the adoption matrix,
+  source digests, acceptance cases and explicit limits in the research ledger.
+- No new hook, network dependency, telemetry or service is installed. Structural
+  checks are not represented as measured improvements in agent outcomes.
+
 ## 0.24.3 — the budget stops being estimated, and two skills stop naming a file they do not ship
 
 Hygiene from the 2026-09-13 family audit (HK-11).

@@ -25,7 +25,10 @@ add` puts this pack — at rank 500.
 Production patterns for building AI agent orchestrators — and for billing the
 LLM access they burn.
 
-Part of the [ssheleg skill family](https://github.com/ssheleg/sshlg-skills).
+Part of the [ssheleg agent harness](https://github.com/ssheleg/sshlg-skills):
+a workbench layer of routing, delivery contracts and evidence around existing
+agent hosts. This pack provides its agent-engineering skills. It does not replace
+the host runtime or provide an OS security boundary.
 
 ---
 
@@ -88,7 +91,7 @@ ACP, AGNTCY, AP2, Agent Skills — so an agent stops guessing.
 model, and the one where most agent bugs actually live: *the biggest performance
 improvements often come from clearly explaining tool usage in the system prompt*, and *even
 small refinements to tool descriptions can yield dramatic improvements*. Before adding a
-retry or a sub-agent, it asks four questions about the text. Seven references —
+retry or a sub-agent, it asks four questions about the text. Eight references —
 `system-prompt.md` (right altitude, enumerated vocabulary, and the three things reasoning
 models changed — starting with **do not add chain-of-thought**), `tools.md` (the
 agent–computer interface, with a worked before/after and poka-yoke), `techniques.md`
@@ -98,6 +101,10 @@ environment's job), `audit.md` (seven tracks, evidence tiers, a plan instead of 
 plus **`pi.md` and `pi-sdk.md`, the doctrine as a worked implementation**: Pi read end to
 end, each mechanism matched to the rule it instantiates, its divergences named, and the
 eight extension seams where a permission gate or a context rewrite can actually live.
+`workbench-contracts.md` adds the operating layer around a host: managed install
+ownership, bounded hooks, evidence-bearing handoff, artifact-bound evaluation and
+observation limits, adapted selectively from a pinned ECC review. These are design
+contracts; the pack installs no new hook, service or telemetry collector.
 
 It runs in both directions: **building a harness and auditing somebody else's are one
 checklist read forwards and backwards.** `scripts/audit_agent.py` is the mechanical half —
