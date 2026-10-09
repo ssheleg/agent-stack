@@ -63,8 +63,10 @@ missing-host and no-memory-write-authority fallbacks.
 
 ## Open work and exact next task
 
-Independent root review must ACCEPT this candidate before merge/tag/publication.
-After review, use the existing trusted tag release, verify registry integrity and
+Independent root review [ACCEPTED the candidate](review.md) at
+`c42bc97ab1eaa8dd80608bca63a86bb49653ea8a`. The review receipt and this status
+are documentation-only additions after that review. Next, wait for exact-head
+CI, use the existing trusted tag release, verify registry integrity and
 record exact source SHA/version. Parent owns hub pin and family updater; do not
 claim install/load acceptance from package publication. No outstanding runtime or
 private-memory edits belong to this branch.
