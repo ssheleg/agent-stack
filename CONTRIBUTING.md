@@ -1,132 +1,115 @@
 # Contributing
 
-Thanks for taking the time. This skill is mostly **knowledge** — twenty-one
-reference contracts plus a small standard-library auditor. That shapes what a
-good contribution looks like here.
+This repository ships agent-orchestrator, agent-evals, agent-interop and
+agent-harness: instructions, on-demand references, Python helpers and a Node
+installer. Change the smallest contract that owns the behavior.
 
-## The one rule that matters
+## Evidence and scope
 
-**Evidence or silence.** Every claim in this repo carries an evidence tier, and
-the tier is a promise about what backs the claim:
+Distinguish primary-source guidance, locally observed behavior, experiments and
+proposals. A fact needs a resolving source or reproducible check; include its
+observation/read date and applicable model, version or environment. An upstream
+benchmark is not a measured improvement in this package. Preserve contradictory
+evidence and report missing checks as NOT_RUN.
 
-These four definitions are quoted verbatim from
-`plugins/agent-stack/skills/agent-stack/references/evidence-tiers.md`, which
-is their single home. `test/validate.py` fails if the two copies drift.
+Keep historical evidence dated. Update current entry points when their underlying
+state changes, linking predecessors instead of silently rewriting old reports.
+Task evidence belongs under `docs/evidence/`; include scope, acceptance, checks
+actually run, open work and an explicit next step. Update the relevant current
+verification rows and README in the same change as the skill behavior.
 
-| Tier | What it means |
-|---|---|
-| `CONFIRMED` | Documented by the engine, or reproduced on this site with an observation you can point at (GSC output, log line, HTTP response, rendered DOM) |
-| `STUDY` | Published multi-site data with a stated method and sample size |
-| `FIELD` | A single practitioner case, one site, no control |
-| `HYPOTHESIS` | Mechanism plausible, evidence absent or contradictory |
+## Setup and local checks
 
-A PR that adds a claim without a tier, or with a tier the source does not
-support, will be asked to fix that before anything else. Single-case numbers are
-not forecasts. If two sources disagree, **both** get named and the claim is
-demoted to `HYPOTHESIS` — we do not pick a winner quietly.
+Use Python 3.9+ and Node 16+ for the local tools. The structural validator can
+report token-budget measurement as unavailable when no tokenizer is installed;
+that is weaker evidence, not a measured budget pass.
 
-Corollaries worth stating:
-
-- **Dates are part of the claim.** Anything about an algorithm, a surface or a
-  benchmark carries the date it was true. Undated figures rot invisibly.
-- **`benchmarks.md` owns the numbers.** One owner per fact; every other file
-  cross-references it by filename. Restating a figure in a second place is how
-  the two versions start to disagree.
-- **The myth guard is load-bearing.** `myths.md` lists tactics with published
-  counter-evidence. Adding one of them back needs stronger evidence than the
-  counter-evidence it contradicts — not an anecdote.
-- **Nothing manipulative.** Cloaking, review manipulation, click-signal spoofing
-  and friends appear only in `threats-and-defense.md`, written as *detect and
-  withstand*. Contributions that recommend them are declined.
-
-## Setup
-
-No dependencies. Python 3.9+ is all you need.
+From the repository root:
 
 ```bash
-git clone https://github.com/ssheleg/agent-stack && cd agent-stack
+npm test
 ```
 
-## Before you open a PR
-
-Both must pass:
+`package.json` owns this command: structural validation, planted-defect guard
+checks, installer fixtures and the discovered `test/audit_regressions/*.py` tests.
+For a focused structural check:
 
 ```bash
 python3 test/validate.py
 ```
 
-```bash
-python3 test/test_page_audit.py
-```
-
-`validate.py` checks structure, the four-way version sync, that all twenty-one
-references exist and every relative link resolves, that the templates embedded in
-`deliverable-templates.md` match the root copies, and that the auditor is
-standard-library only. `test_page_audit.py` runs the auditor against offline
-fixtures — including the URL-scheme guard, which exists because `urlopen` will
-happily read `file:///etc/passwd` if you let it.
-
-CI runs the same two plus negative self-tests that prove the validator can fail.
-
-
-### The family catalogue moves with the release
-
-`sshlg-skills` — the launcher that installs and updates the whole ssheleg family — pins every
-member's version in its own `skills.json`. **A release that does not bump that pin is invisible.**
-`npx sshlg-skills list` keeps reporting the previous version, `update` keeps installing it, and
-anyone comparing their install against `list` is told the wrong number with nothing to reveal it.
-
-So a release is not finished at `npm publish`:
+When the Claude CLI is available, validate both manifests:
 
 ```bash
-# in ssheleg/sshlg-skills
-#   1. bump this member's "version" in skills.json
-#   2. bump the launcher's own version, changelog, tag
-npm publish --access public
-npx --yes sshlg-skills@latest list   # the new number must appear here
+claude plugin validate . --strict
+claude plugin validate plugins/agent-stack --strict
 ```
 
-## Where things go
+Those manifest checks do not establish model behavior. When changing executable
+helpers, add meaningful positive and negative cases to the existing native tests.
+For instruction changes, record frozen counterexamples and distinguish manual
+content review from actual baseline/candidate agent replay. Do not add tests that
+merely restate every sentence of the new guidance.
 
-| Change | File |
+Before delivery, also run:
+
+```bash
+git diff --check
+npm pack --dry-run
+```
+
+The pack listing shows what consumers receive; required references must ship and
+private configuration or credentials must not. Existing hosted workflows govern
+CI and publication. Local checks, hosted checks, registry publication and a
+running host loading a skill are separate evidence.
+
+## Where a change belongs
+
+| Concern | Owner |
 |---|---|
-| A check inside an audit track | that track's reference (`technical-checks.md`, `aeo-geo.md`, …) |
-| A number, benchmark or dated figure | `benchmarks.md` — everything else links to it |
-| A tactic worth trying | `growth-plays.md`, with a tier and an effort estimate |
-| A tactic with counter-evidence | `myths.md`, with the counter-evidence |
-| A Google update | `algorithm-updates.md`, with start and completion dates |
-| Auditor behavior | `scripts/page_audit.py` **and** a fixture-backed test |
+| Loop, memory storage/retrieval, provider routing | `plugins/agent-stack/skills/agent-orchestrator/` |
+| Execution evidence and behavioral evaluation | `plugins/agent-stack/skills/agent-evals/` |
+| MCP, A2A, registry and gateway contracts | `plugins/agent-stack/skills/agent-interop/` |
+| Instructions, tool wording and harness audit | `plugins/agent-stack/skills/agent-harness/` |
+| Installer | `bin/agent-stack.js` and `test/installer_test.js` |
+| Structural guard | `test/validate.py` and its planted-defect coverage |
+| Task receipts and handoff | `docs/evidence/` |
 
-Adding a reference file means wiring it into `SKILL.md` and into
-`REQUIRED_REFERENCES` in the validator. A reference nothing links to is never
-loaded — progressive disclosure means the agent reads only what `SKILL.md` points
-at.
+Add references inside their owning skill directory and link directly from its
+`SKILL.md` with a load condition. Keep runtime metadata and bodies within the
+house budgets checked by the validator. References in agent-harness and
+agent-interop carry the `Spec pinned` revision stamp required by that validator.
+A stamp establishes what date is claimed, not that the prose is correct.
 
-## Coordinating with other agents
+## Coordination and release
 
-`docs/AGENT_SYNC.md` describes how coordination is wired in this repository and
-what it does **not** guarantee. It is generated from `.claude/agent-sync.json`:
-read it before editing a file that config guards, and regenerate it with
-`agent_sync.py setup` in the same change that alters the config.
+Read [docs/AGENT_SYNC.md](docs/AGENT_SYNC.md) and the live
+`.claude/agent-sync.json` before editing guarded files. Take the configured claim;
+state honestly whether coordination is advisory or enforced. Preserve unrelated
+work and use a separate branch/worktree for concurrent tasks.
 
-## Style
+Use conventional commits and a focused pull request. Before a release, synchronize
+`package.json`, `.claude-plugin/marketplace.json`,
+`plugins/agent-stack/.claude-plugin/plugin.json`, `SKILL-CARD.md` and the top
+`CHANGELOG.md` version. Run the native and both strict plugin checks, obtain
+independent review, then follow the existing repository integration policy.
+The tag-triggered `.github/workflows/release.yml` owns trusted publication;
+verify the published registry artifact instead of treating a pushed tag as done.
 
-- US spelling. A mixed standard has already cost one broken anchor here.
-- Plain sentences over hedged ones. Say what is known and what is not.
-- Cross-reference by filename, never by an invented anchor.
-- Conventional commits (`feat:`, `fix:`, `docs:`), one concern per PR.
-- Behavior changes update `README.md` and `CHANGELOG.md` in the same PR.
+The [sshlg-skills family](https://github.com/ssheleg/sshlg-skills) pins this member.
+Coordinate the member commit/version with its owner so the parent submodule,
+manifest and advertised version move together. Family publication and supported
+host updates have their own receipts; never claim a running session reloaded
+from installed-file checks alone.
 
-## Reporting problems
+## Reporting problems and license
 
-Bugs and ideas: [open an issue](https://github.com/ssheleg/agent-stack/issues).
-For a wrong or outdated claim, please include what the correct claim is and what
-backs it — that turns a report into a merge.
+Open non-sensitive issues at
+[ssheleg/agent-stack](https://github.com/ssheleg/agent-stack/issues), with the exact
+source revision, failing behavior and available evidence. Follow
+[SECURITY.md](SECURITY.md) for sensitive reports.
 
-Security issues: see [SECURITY.md](SECURITY.md); please do not open a public
-issue for those.
+Contributions are licensed under [MIT](LICENSE).
 
-## License
-
-By contributing you agree that your contributions are licensed under the
-[MIT License](LICENSE).
+The unrelated SEO contributor instructions replaced here remain available in the
+[0.25.4 snapshot](https://github.com/ssheleg/agent-stack/blob/7f0c2f942ded0c8922650883db7347d2cc695577/CONTRIBUTING.md).

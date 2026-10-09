@@ -88,10 +88,9 @@ an API gateway does not). Plus a link map, and a verdict on each neighbouring st
 ACP, AGNTCY, AP2, Agent Skills — so an agent stops guessing.
 
 **The harness skill** (`agent-harness/SKILL.md`) — the layer between the loop and the
-model, and the one where most agent bugs actually live: *the biggest performance
-improvements often come from clearly explaining tool usage in the system prompt*, and *even
-small refinements to tool descriptions can yield dramatic improvements*. Before adding a
-retry or a sub-agent, it asks four questions about the text. Eight references —
+model. It checks prompt and tool-description defects while keeping deterministic
+code bugs separate; the diagnostic order is not a measured share of defects.
+Its on-demand references include
 `system-prompt.md` (right altitude, enumerated vocabulary, and the three things reasoning
 models changed — starting with **do not add chain-of-thought**), `tools.md` (the
 agent–computer interface, with a worked before/after and poka-yoke), `techniques.md`
@@ -105,6 +104,9 @@ eight extension seams where a permission gate or a context rewrite can actually 
 ownership, bounded hooks, evidence-bearing handoff, artifact-bound evaluation and
 observation limits, adapted selectively from a pinned ECC review. These are design
 contracts; the pack installs no new hook, service or telemetry collector.
+It also carries on-demand [context lifecycle guidance](plugins/agent-stack/skills/agent-harness/references/context-lifecycle.md):
+keep current pointers separate from dated archives, check source status and scope,
+and promote research into a skill only with evidence and review.
 
 It runs in both directions: **building a harness and auditing somebody else's are one
 checklist read forwards and backwards.** `scripts/audit_agent.py` is the mechanical half —

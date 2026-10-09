@@ -23,13 +23,9 @@ compatibility: >-
 
 `agent-orchestrator` wires the loop. `agent-evals` proves it behaves. `agent-interop` gets
 it talking to other processes. **This skill is the layer between them and the model: the
-prompt, the tools, and the choice of technique.** The outside term for this ground is
-**harness engineering** — OpenAI's article of that name (`openai.com/index/harness-engineering`,
-read 2026-08-30) and Anthropic's harness-design guidance
-(`anthropic.com/engineering/harness-design-long-running-apps`, read 2026-08-30) both name
-this same layer, and its leverage is measured: on ARC-AGI-3, harness-level changes alone
-moved a fixed model from 13.3% to 38.3% while spending a sixth of the tokens (as reported
-2026-08-30).
+prompt, the tools, and the choice of technique.** Harness engineering includes
+context management as well as instructions. Its effect depends on the task,
+model and evaluation; benchmark gains do not establish a universal improvement.
 
 It runs in both directions. Building one and auditing one are the same checklist read
 forwards and backwards, which is why they live together here.
@@ -38,14 +34,13 @@ forwards and backwards, which is why they live together here.
 
 ## Rule zero — check the prompt first (a diagnostic heuristic, with exceptions)
 
-The instinct when an agent misbehaves is to change the code. The sources this skill was
-built from pull the other way: **"the biggest performance improvements often come from
-clearly explaining tool usage in the system prompt"**, and **"even small refinements to
-tool descriptions can yield dramatic improvements."** That is vendor guidance about where
-leverage OFTEN lives, not a measured share of defects — so it orders the DIAGNOSIS, never
-the verdict. **The exceptions are the findings a prompt cannot touch:** a deterministic
-race, a hardcoded secret, a timeout wired to the wrong operation — source-level invariant
-violations are code bugs, provable by reading, and no rewording treats them.
+For failures in tool selection or usage, inspect instructions and descriptions
+before adding architecture. [Anthropic's tool guidance](https://www.anthropic.com/engineering/writing-tools-for-agents)
+(read 2026-10-09) supports evaluating description changes; it is **not a measured
+share of defects**. This orders the diagnosis, never the verdict. **The exceptions
+are findings a prompt cannot touch:** a deterministic race, a hardcoded secret,
+a timeout wired to the wrong operation — source-level invariant violations are
+code bugs, and no rewording treats them.
 
 Before adding a retry, a router, or a sub-agent, check in this order:
 
@@ -126,6 +121,7 @@ and this pack's repository validator fails the build on a reference that does no
 
 | File | Read it when |
 |---|---|
+| [`references/context-lifecycle.md`](references/context-lifecycle.md) | stale context, conflicting retrieved notes, or research promoted into skill guidance — current pointers, archive boundaries and source admission |
 | [`references/instruction-budget.md`](references/instruction-budget.md) | instruction files overflow, duplicate each other, or need splitting without losing requirements; includes an explicit-input measurement script |
 | [`references/system-prompt.md`](references/system-prompt.md) | you are **writing or fixing the prompt** — altitude, structure, vocabulary, dynamic context, and what changes for reasoning models |
 | [`references/tools.md`](references/tools.md) | the model **picks the wrong tool, or none** — the agent–computer interface: how many, named how, described how, returning what |

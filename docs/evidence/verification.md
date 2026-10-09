@@ -10,6 +10,18 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Release candidate — v0.25.5 (2026-10-09)
+
+| REQ | What ships | How it was confirmed | Confirmed |
+|---|---|---|---|
+| CL-1 | Context admission and research promotion | [Bounded spec and source ledger](context-lifecycle/spec.md); [handoff](context-lifecycle/handoff.md) maps negative cases to the conditional reference | **observed** — source/manual content inspection |
+| CL-2 | Scoped empirical claims | Primary OpenAI benchmark and Anthropic tool guidance fetched 2026-10-09; historical scope retained in spec, unsupported active rankings removed | **observed** — source inspection, no independent benchmark replay |
+| CL-3 | Bounded discovery and packaged reference | Metadata unchanged; house audit 19 PASS/0 GAP, body 3052→2958 cl100k_base tokens using its native counter; npm pack includes the reference | **observed** — mechanical measurement |
+| CL-4 | Native and plugin integrity | `npm test`; both `claude plugin validate . --strict` and `claude plugin validate plugins/agent-stack --strict`; `git diff --check` | **observed** — local candidate checks |
+
+Publication, installation and behavioral outcome are separate gates. Review and
+release state are recorded in the linked handoff; these rows do not claim them.
+
 ## Release candidate — v0.25.4 (2026-10-09)
 
 | REQ | What ships | How it was confirmed | Confirmed |
