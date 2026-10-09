@@ -1,3 +1,12 @@
+## 0.25.3 — evaluate the composed agent team
+
+- Add an on-demand agent-evals reference for lost global constraints, correlated
+  evidence, suppressed concerns, summary-borne authority and late branch results.
+- Keep member-level results separate from team acceptance; compare topology changes
+  with explicit budgets and preserve happy controls. Primary research is attributed
+  with its experimental limits; the proposed rubric is not a measured improvement.
+- No runtime, hooks, tools or dependency changes.
+
 ## 0.25.2 — the verification ledger follows the harness release
 
 - Add the current harness requirements to `docs/evidence/verification.md` in

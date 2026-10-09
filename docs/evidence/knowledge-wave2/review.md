@@ -1,0 +1,6 @@
+# Independent knowledge review
+
+Reviewer: selection_three, 2026-10-09. Verdict: no blocking findings in the reviewed knowledge delta.
+This is the owner-specific excerpt of the independent review; final delivery remains separate.
+
+source scope matches the primary [Anthropic AI-organizations research](https://alignment.anthropic.com/2026/ai-organizations/), read 2026-10-09: bounded consulting/software settings do not justify a universal claim that teams always outperform or always fail. The reference preserves that limit, source independence, global constraints, dissent disposition, authority provenance and required/late branch outcomes. Synthetic cases have happy controls and distinguish TEST_ERROR, behavioral failure and NOT_RUN (`references/multi-agent.md:37–68`). The final added lines63–65 include human correction/recovery in total cost without claiming measured savings. Privacy minimization is explicit at54–56. Native reachability is the agent-evals SKILL.md load table, not an orphaned report. No private channel bodies or credentials appear in the public skill delta. `npm test` independently exited0; structural/tests are not live before/after model evidence. Strict-reader availability warning in this standalone checkout remains a limitation of that command; root owns separate strict/house checks.
