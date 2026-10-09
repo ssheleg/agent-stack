@@ -10,7 +10,7 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
-## Release candidate — v0.25.5 (2026-10-09)
+## Released — v0.25.5 (2026-10-09)
 
 | REQ | What ships | How it was confirmed | Confirmed |
 |---|---|---|---|
@@ -19,8 +19,11 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 | CL-3 | Bounded discovery and packaged reference | Metadata unchanged; house audit 19 PASS/0 GAP, body 3052→2958 cl100k_base tokens using its native counter; npm pack includes the reference | **observed** — mechanical measurement |
 | CL-4 | Native and plugin integrity | `npm test`; both `claude plugin validate . --strict` and `claude plugin validate plugins/agent-stack --strict`; `git diff --check` | **observed** — local candidate checks |
 
-Publication, installation and behavioral outcome are separate gates. Review and
-release state are recorded in the linked handoff; these rows do not claim them.
+[Release receipt](context-lifecycle/release.md): PR 38 merged at
+`b512cb4d67c1acbfd36fde94935cc993e1fc91b7`; release run 37909965476 succeeded.
+Registry integrity and all 44 package files match that source; native Codex 0.25.5
+reports enabled and all 38 plugin files match. Behavioral outcome is NOT_RUN and
+running-session reload is NOT_OBSERVED. Parent family pin/update remains its own gate.
 
 ## Release candidate — v0.25.4 (2026-10-09)
 
