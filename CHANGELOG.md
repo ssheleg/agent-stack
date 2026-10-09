@@ -6,6 +6,8 @@
   packets; a copied summary or newer experiment does not establish current truth.
 - Remove an unscoped benchmark headline and unsupported ranking of prompt gains
   from active guidance; retain scoped primary-source evidence in the task receipt.
+- Replace unrelated legacy contributor instructions with actual native checks,
+  skill owners and evidence/release boundaries; link the historical version.
 - Add a bounded research-to-skill promotion procedure and manual counterexamples.
   No automatic memory edits, runtime changes or measured quality claims.
 

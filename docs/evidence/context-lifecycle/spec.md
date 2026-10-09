@@ -93,3 +93,11 @@ reports improvements in its own evaluations. Keep this scoped guidance and the
 existing deterministic-bug exception; remove the unsupported ranking from the
 body, reference and README. `tools.md` also changes its guaranteed-sounding outcome
 to a testable intervention. Remaining doctrine is not claimed fully audited.
+
+## Review-directed contributor entry cleanup
+
+Parent review accepted the core procedure and requested replacing the legacy
+SEO-oriented CONTRIBUTING.md in the same patch. Its test command did not exist.
+The replacement derives commands from package.json, paths from the current tree,
+and links the previous file at the baseline commit. Validation is focused local
+path/command resolution plus the structural gate; no runtime behavior changes.

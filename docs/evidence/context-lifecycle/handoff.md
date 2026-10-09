@@ -69,10 +69,12 @@ record exact source SHA/version. Parent owns hub pin and family updater; do not
 claim install/load acceptance from package publication. No outstanding runtime or
 private-memory edits belong to this branch.
 
-Incidental out-of-scope finding: CONTRIBUTING.md contains legacy SEO-oriented
-examples and names `test/test_page_audit.py`, absent in this tree. Native checks
-above come from package.json. A separate documentation cleanup should repair
-that contributor entry; this task does not claim a whole-repository audit.
+Parent review expanded the bounded cleanup to CONTRIBUTING.md: the entry had
+unrelated SEO doctrine and a missing test command. It now names actual package
+scripts, skill owners, evidence limits and release boundaries, with a
+commit-addressed link to its historical version. Focused path/command resolution,
+structural validation and diff whitespace checks passed after this docs-only
+change; executable test inputs did not change.
 
 ---
 
