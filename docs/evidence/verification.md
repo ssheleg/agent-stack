@@ -10,6 +10,17 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Release candidate — v0.25.4 (2026-10-09)
+
+| REQ | What ships | How it was confirmed | Confirmed |
+|---|---|---|---|
+| IB-1 | Requirement-preserving instruction cleanup route | `agent-harness/SKILL.md` links the on-demand reference and carries the eager-import gotcha; [bounded spec](instruction-budget/spec.md) names the source and limits | **observed** — source inspection, not model adherence |
+| IB-2 | Explicit-input character/byte/import measurement | `python3 test/audit_regressions/instruction_budget.py` passes 14 synthetic tests, including Unicode, incomplete graph, duplicate/cycle and read-only controls | **observed** — synthetic execution |
+| IB-3 | No private configuration, global router, hook or authentication changes | The task-owned diff adds only public skill/tool/test/evidence files and package metadata | **observed** — diff inspection |
+
+Native/plugin gates and independent review are recorded in the task handoff before
+publication. Actual host loading and model outcomes remain separate acceptance.
+
 ## Release candidate — v0.25.3 (2026-10-09)
 
 | REQ | What ships | How it was confirmed | Confirmed |
