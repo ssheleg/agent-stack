@@ -15,8 +15,8 @@ description: >-
   protocols — those are siblings.
 license: MIT
 compatibility: >-
-  scripts/audit_agent.py runs with python3 (standard library only); no network,
-  no package install. Everything else in this skill is prose and needs nothing.
+  The bundled scripts run with python3 (standard library only); no network or
+  package install. References need no runtime dependencies.
 ---
 
 # Agent harness — what the agent is told, and how to audit what someone else told theirs
@@ -126,6 +126,7 @@ and this pack's repository validator fails the build on a reference that does no
 
 | File | Read it when |
 |---|---|
+| [`references/instruction-budget.md`](references/instruction-budget.md) | instruction files overflow, duplicate each other, or need splitting without losing requirements; includes an explicit-input measurement script |
 | [`references/system-prompt.md`](references/system-prompt.md) | you are **writing or fixing the prompt** — altitude, structure, vocabulary, dynamic context, and what changes for reasoning models |
 | [`references/tools.md`](references/tools.md) | the model **picks the wrong tool, or none** — the agent–computer interface: how many, named how, described how, returning what |
 | [`references/techniques.md`](references/techniques.md) | you are choosing between **ReAct, reflection, voting, planning** and the rest — every entry carries a verdict for production, not a benchmark score |
@@ -139,6 +140,11 @@ and this pack's repository validator fails the build on a reference that does no
 without understanding intent (an unbounded loop, a tool with no description, a swallowed
 tool error, a hardcoded model, a missing timeout) and **prints the list of things it cannot
 see**, so its silence is never read as a pass.
+
+**Instruction cleanup gotcha:** an eager `@file` import reorganizes text but does
+not save its runtime context cost. Keep essential rules loaded, move optional
+detail behind explicit task triggers, and verify the fresh host load separately
+from file-size measurements (`references/instruction-budget.md`).
 
 ---
 

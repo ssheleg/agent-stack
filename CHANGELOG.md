@@ -1,3 +1,12 @@
+## 0.25.4 — measure instruction budgets before cleanup
+
+- Add an on-demand agent-harness procedure for preserving requirements while
+  reducing always-loaded instructions; eager imports do not reduce context cost.
+- Add a read-only, explicit-input checker for character/byte counts, bounded
+  imports, duplicates and incomplete graphs, with synthetic preservation tests.
+- Keep host loading and model outcomes separate from file measurements. No global
+  router, private configuration, authentication or third-party skill changes.
+
 ## 0.25.3 — evaluate the composed agent team
 
 - Add an on-demand agent-evals reference for lost global constraints, correlated
