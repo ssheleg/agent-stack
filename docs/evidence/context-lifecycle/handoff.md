@@ -63,13 +63,13 @@ missing-host and no-memory-write-authority fallbacks.
 
 ## Open work and exact next task
 
-Independent root review [ACCEPTED the candidate](review.md) at
-`c42bc97ab1eaa8dd80608bca63a86bb49653ea8a`. The review receipt and this status
-are documentation-only additions after that review. Next, wait for exact-head
-CI, use the existing trusted tag release, verify registry integrity and
-record exact source SHA/version. Parent owns hub pin and family updater; do not
-claim install/load acceptance from package publication. No outstanding runtime or
-private-memory edits belong to this branch.
+Independent root review [ACCEPTED the candidate](review.md). The
+[release receipt](release.md) records PR 38, release commit
+`b512cb4d67c1acbfd36fde94935cc993e1fc91b7`, successful trusted publication of
+0.25.5, all npm payload bytes matching source and native Codex installation
+readback. The exact next task belongs to the parent: move the hub pin and verify
+the family updater. Do not infer behavioral acceptance or running-session reload
+from these artifact checks. No remaining private-memory edit belongs here.
 
 Parent review expanded the bounded cleanup to CONTRIBUTING.md: the entry had
 unrelated SEO doctrine and a missing test command. It now names actual package
