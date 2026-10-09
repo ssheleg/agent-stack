@@ -1,3 +1,14 @@
+## 0.25.5 — admit current context and promote research deliberately
+
+- Add on-demand guidance separating current pointers from dated archives, with
+  scoped sources, owners, status, revisit conditions and explicit uncertainty.
+- Preserve historical evidence and authority while returning compact retrieval
+  packets; a copied summary or newer experiment does not establish current truth.
+- Remove an unscoped benchmark headline and unsupported ranking of prompt gains
+  from active guidance; retain scoped primary-source evidence in the task receipt.
+- Add a bounded research-to-skill promotion procedure and manual counterexamples.
+  No automatic memory edits, runtime changes or measured quality claims.
+
 ## 0.25.4 — measure instruction budgets before cleanup
 
 - Add an on-demand agent-harness procedure for preserving requirements while

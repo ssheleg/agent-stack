@@ -34,17 +34,20 @@ would feel micromanaged into a corner where their judgement cannot help, it is t
 
 ## What actually belongs in there
 
-In rough order of how much behaviour each buys:
+Use this checklist; the order is not a measured ranking of behavioral gains.
 
 1. **Tool usage instructions.** Not the tool schema — the *policy*. When to reach for which,
-   what order usually makes sense, what to do when one fails. The largest measured gains come
-   from here, and it is the part most teams leave to the schema alone.
+   what order usually makes sense, what to do when one fails. Evaluate those instructions
+   against the observed failure; a tool schema alone does not describe that policy.
 2. **The role and its boundaries** — what this agent is for, and what it must hand off.
 3. **The vocabulary** it must produce (below).
 4. **Volatile context** it cannot know (below).
 5. **Failure instructions** — what to do when a tool errors, when data is missing, when the
    task is impossible. Absent, the model invents a recovery, and inventions are not uniform.
 6. **Output contract** — shape, not prose about shape.
+
+Tool-description guidance: [Anthropic, Writing tools for agents](https://www.anthropic.com/engineering/writing-tools-for-agents),
+read 2026-10-09. This checklist is engineering guidance, not a cross-task effect estimate.
 
 ## Enumerate the vocabulary
 

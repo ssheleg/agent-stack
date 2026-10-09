@@ -20,8 +20,9 @@ Static inspection at the baseline finds no operator-facing contract separating a
 mutable current pointer from an immutable dated archive, nor a research-to-skill
 promotion procedure. Existing memory rules already forbid confidence gains from
 retrieval and distinguish freshness from confidence. This is a coverage finding,
-not an executed baseline of model behavior. No unsupported vendor claim needs
-changing to justify this patch.
+not an executed baseline of model behavior. The initial admission gap justifies the new reference. The parent subsequently
+requested verification of the existing benchmark headline and prompt-first ranking;
+that bounded correction is included below.
 
 Primary sources fetched 2026-10-09 (read_at; claims stay within these sections):
 
@@ -69,3 +70,26 @@ before/after quality, latency or model adherence measurements remain NOT_RUN.
 Spec → minimum reference and discovery link → focused checks and native gates →
 independent root review → authorized normal release → parent pin/update handoff.
 The spec is the first committed artifact; the next task is writing the reference.
+
+## Additional finding: scoped evidence was generalized in active guidance
+
+Parent review extended the same context-admission scope to the harness introduction.
+At baseline, `agent-harness/SKILL.md:25` presented ARC-AGI-3 gains without a direct
+study link, model/task-set scope or the output-token qualifier. Primary source
+fetched 2026-10-09:
+https://openai.com/index/how-two-settings-tripled-our-arc-agi-3-scores/
+(published 2026-07-29). OpenAI reports GPT-5.6 Sol (max) on the public task set,
+RHAE 13.3% with the official harness and 38.3% with retained reasoning plus
+compaction, using six times fewer output tokens. This is vendor-reported evidence,
+not an independent reproduction or a general effect of prompt editing. The old
+headline is preserved in Git and historical verification rows; this dated receipt
+supplies its missing scope. No new quality measurement is claimed.
+
+The prompt-first introduction and `system-prompt.md` also ranked instruction gains
+without supporting comparative evidence. A primary source search did not establish
+that ranking. https://www.anthropic.com/engineering/writing-tools-for-agents
+(read 2026-10-09, published 2025-09-11) supports evaluating tool descriptions and
+reports improvements in its own evaluations. Keep this scoped guidance and the
+existing deterministic-bug exception; remove the unsupported ranking from the
+body, reference and README. `tools.md` also changes its guaranteed-sounding outcome
+to a testable intervention. Remaining doctrine is not claimed fully audited.

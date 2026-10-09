@@ -47,9 +47,10 @@ prompt and eval that referenced it. See `agent-interop/references/gateway.md`.
 
 ## The description is the product
 
-**Even small refinements to tool descriptions yield dramatic improvements.** The rule that
-makes them good: **write as if explaining to a new team member**, and make implicit context
-explicit.
+**Tool descriptions are an intervention to evaluate.**
+[Anthropic reports improvements in its own tool evaluations](https://www.anthropic.com/engineering/writing-tools-for-agents)
+(read 2026-10-09); that does not guarantee gains for every edit or task. **Write as if
+explaining to a new team member**, make implicit context explicit, and measure the result.
 
 A description must answer **when and why**, not only what:
 
