@@ -33,12 +33,13 @@ importing the shipped script. Both checks were rerun successfully.
 
 ## Boundaries and next task
 
-Independent review and release are pending. Actual host-load observation,
+[Independent source review](independent-review.md) accepted the bounded scope and
+independently reran all 14 tests. Release is pending. Actual host-load observation,
 behavioral requirement replay and model quality/latency comparisons are NOT_RUN
 for this synthetic public package change. Local instruction cleanup belongs to
 the operator's private records, not this repository.
 
-The next task is independent review of this source and synthetic tests. Then run
-normal PR/release policy, install the published package, verify its bytes and move
+The next task is exact-head CI, then normal PR/release policy. Install the
+published package, verify its bytes and move
 the umbrella pin in the same session. Do not claim a running session reloaded
 from a filesystem checksum. Do not modify global routers or authentication state.
