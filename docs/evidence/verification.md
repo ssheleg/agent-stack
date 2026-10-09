@@ -10,6 +10,15 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Release candidate — v0.25.3 (2026-10-09)
+
+| REQ | What ships | How it was confirmed | Confirmed |
+|---|---|---|---|
+| W2-AE | Team-level evaluation reference reachable from agent-evals | `npm test` passed with the added reference; [spec and frozen review cases](knowledge-wave2/spec.md) name the baseline coverage gap and scope | **observed** — structural check only |
+| W2-LIMIT | Research scope and proposed rubric stay separate | Reference cites primary research, labels cases synthetic and live before/after effectiveness NOT_RUN in the spec | **observed** — documentation inspection; no model improvement claimed |
+
+Release/install receipts will be recorded in the owning umbrella after publication.
+
 ## Shipped state — v0.25.2 (2026-09-21)
 
 Ledger correction for the ECC workbench-contract transfer. This release changes
