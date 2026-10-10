@@ -10,15 +10,23 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
-## Release candidate — v0.25.6 (2026-10-10)
+## Released — v0.25.6 (2026-10-10)
 
 | REQ | What ships | How it was confirmed | Confirmed |
 |---|---|---|---|
 | REQ-6 | `release.yml` refuses a tag whose `git cat-file -t` is not `tag`, right after checkout and before any gate or publish (umbrella plan 2026-10-10, T5) | the step's `run:` body extracted by YAML parse from `release.yml` (identical bytes in the seven members released 2026-10-10) and replayed in a scratch repository: lightweight `v9.9.9` → `::error::v9.9.9 is a commit, not an annotated tag object…`, exit 1; annotated `v9.9.10` → `v9.9.10 is annotated`, exit 0 | **planted** — the lightweight case watched failing |
 | Gate | Native integrity | `npm test` exit 0 (`OK: agent-stack structurally valid (15 checks = 11 named + 4 per-skill, 4 skill(s), v0.25.6)`, plant_guard 9 cases, installer 11 cases); `claude plugin validate . --strict` and `claude plugin validate plugins/agent-stack --strict` passed; `git diff --check` clean | **observed** — local candidate checks |
 
-Publication, installation and the pass on the real annotated `v0.25.6` are separate
-gates; these rows do not claim them.
+Release receipt: [PR 40](https://github.com/ssheleg/agent-stack/pull/40) merged by
+squash at `ee9283a4e5f1f4e25b5ab47b69444c03885235fd`; annotated tag `v0.25.6` (`git cat-file -t` → `tag`)
+dereferences to it. [Release run 38075422542](https://github.com/ssheleg/agent-stack/actions/runs/38075422542)
+succeeded (validate, house audit, release, publish) and its new step printed
+`v0.25.6 is annotated` — the pass case observed on a real tag. Registry
+`@ssheleg/agent-stack@0.25.6`: integrity `sha512-K5zd2yoXnOLe3gnpFjAJno4IUSjoN6a4mr+U49sXf85AuVjmWl2kpe5gxohg2WyZaOjTp3hSZA7NDDadRAhpbw==`, shasum `aaa0756cc84ebe368e04463b79f8f4e469ebe0dd`,
+recomputed from the downloaded tarball; all 44 files byte-equal to
+`git show ee9283a4e5f1:<path>`; SLSA provenance advertised (not independently
+verified). Native installation, session reload and behavioural outcome are NOT_RUN here;
+the parent owns the hub pin and family update.
 
 ## Released — v0.25.5 (2026-10-09)
 
