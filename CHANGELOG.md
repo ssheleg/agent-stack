@@ -1,3 +1,24 @@
+## 0.26.0 — delegation: which agent acts, for which person
+
+- **`agent-interop/references/gateway.md` gains the on-behalf-of model (B-155).** The file
+  already said that authority does not travel down a chain of agents by itself, but not how it
+  should. The new section describes it:
+  - a short token in RFC 8693 shape: `sub` is the person, the nested `act` chain lists the
+    agents, `aud` names exactly one callee, then `scope`, an effect ceiling and a grant reference;
+  - one issuer that only narrows on each onward hop;
+  - the callee checks the token offline against a published key set, in a fixed order;
+  - calls go direct, with no proxy, and a forwarded call carries the token in a header of its own;
+  - a service's own token is never used to call it;
+  - spend is checked with a separate meter token, and `limit-reached` names its window;
+  - an approval is a document signed over an RFC 8785 action digest and is used once;
+  - one set of refusal codes;
+  - what this model does not protect against.
+- Fabric `fabric-delegation/0.1` is the worked example (DEC-0039 at
+  `passioncode-ai/fabric-agent-contract@8e49fbd`, ADR-0144 at `passioncode-ai/fabric@812876cf`),
+  pinned on its own "Delegation pinned" line. Three traps are added: calling a service with its
+  own token, `aud` as an array or a token with no `typ`, and trusting the token's spend claim.
+  `agent-interop`'s reference table names delegation as a reason to load the file.
+
 ## 0.25.6 — a lightweight tag cannot publish a release
 
 - **The release refuses a lightweight tag.** `release.yml` gains one step, right after

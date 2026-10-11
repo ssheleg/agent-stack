@@ -109,7 +109,7 @@ an index; the trigger lives in the file, so the two cannot drift apart.
 | [`references/mcp-scale.md`](references/mcp-scale.md) | the host has **more servers and tools than context** — progressive discovery, programmatic tool calling, cache interaction, and the security surface each one opens |
 | [`references/a2a.md`](references/a2a.md) | the other side is **another agent, not a tool** — agent cards and discovery, the task lifecycle and its terminal states, three protocol bindings, streaming versus push |
 | [`references/registry.md`](references/registry.md) | you are **publishing a server** or building something that consumes the registry — `server.json`, reverse-DNS namespaces and how ownership is proved, the publish flow, and the registry's three refusals |
-| [`references/gateway.md`](references/gateway.md) | agent traffic needs **one controlled seam** — what a gateway must do that an API gateway does not, federation and name collisions, and where authorization actually belongs |
+| [`references/gateway.md`](references/gateway.md) | agent traffic needs **one controlled seam** — what a gateway must do that an API gateway does not, federation and name collisions, where authorization actually belongs, and **delegation** — a token that says which agent acts for which person |
 
 ---
 

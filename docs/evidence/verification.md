@@ -10,6 +10,12 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Release candidate — v0.26.0 (2026-10-11)
+
+| REQ | What ships | How it was confirmed | Confirmed |
+|---|---|---|---|
+| B-155 | `gateway.md` § "Delegation — who is acting, and for whom", plus three traps, pinned to Fabric `fabric-delegation/0.1` (`8e49fbd`) and ADR-0144 (`812876cf`) | the claim names, the limits, the check order, the meter flow, the approval order and the count of refusal codes were checked line by line against `docs/specification/delegation.md` at `8e49fbd`. `python3 test/validate.py` exits 0. The spec-pin check failed on a multi-line pin before the pin was split | **planted** — the pin check watched failing |
+
 ## Released — v0.25.6 (2026-10-10)
 
 | REQ | What ships | How it was confirmed | Confirmed |
