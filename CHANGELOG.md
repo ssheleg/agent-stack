@@ -52,6 +52,10 @@ Integration wave 4 of the family's waves run (sshlg-skills plan R23–R26). The 
   `building-fabric-services` pointer, and the first cut's `gateway.md` and `mcp.md` against
   the new `test/audit_regressions/w4-fabric-doctrine.py` (5 of 5 cases fail). The first two
   run as negative self-tests in CI.
+- **A CI plant that had stopped planting.** "A description must stay inside the working
+  limit" prepended a fixed 53 characters, which reached 970 only while agent-evals sat above
+  917. At 911, in the first cut, it planted nothing and failed run 38204211436. It now sets
+  an exact length of 971 and requires the working-limit message.
 - R28 (residue rows AG-06a/b) is not in this release and stays on the board.
 
 ## 0.26.0 — delegation: which agent acts, for which person

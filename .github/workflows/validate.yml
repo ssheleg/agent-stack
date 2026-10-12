@@ -703,23 +703,27 @@ jobs:
           # Under the 1024 cap and over the 970 working limit — the state three of four
           # skills shipped in, one with five characters of headroom. The hard-cap check
           # passes on this plant, so it is the working limit or nothing.
+          #
+          # The plant sets an EXACT length, 971. It used to prepend a fixed 53-character
+          # line, which reached 970 only while agent-evals sat above 917: at 911 (0.27.0's
+          # first cut) the padded description was 964, the validator rightly passed it, and
+          # this step reported a working guard as broken. A plant measured from the
+          # current text has a shelf life; one that sets the length does not.
           python3 - <<'PY'
           import pathlib, re
           p = pathlib.Path("/tmp/desc-copy/plugins/agent-stack/skills/agent-evals/SKILL.md")
           s = p.read_text(encoding="utf-8")
-          # Anchored on the front-matter key, not on any sentence inside the description:
-          # the words get reflowed and a prose anchor stops planting silently.
-          m = re.search(r"(?m)^description: >-\n", s)
-          assert m, "PLANT DID NOT LAND: no folded description block to grow"
-          out = s[:m.end()] + "  padding to reach the working limit and no further.\n" + s[m.end():]
-          assert out != s, "PLANT DID NOT LAND"
+          # Anchored on the front-matter key, not on any sentence inside the description.
+          out, k = re.subn(r"(?m)^description: >-\n(?:[ \t]+.*\n)+", "description: " + "a" * 971 + "\n", s, count=1)
+          assert k == 1, "PLANT DID NOT LAND: no folded description block to replace"
           p.write_text(out, encoding="utf-8")
           PY
           python3 test/plant_guard.py verify /tmp/desc-copy "Negative self-test (a description must stay inside the working limit)"
-          if python3 /tmp/desc-copy/test/validate.py; then
+          if out=$(python3 /tmp/desc-copy/test/validate.py 2>&1); then
             echo "ERROR: validator accepted a description past the house working limit"
             exit 1
           else
+            echo "$out" | grep -q "970-char working limit" || { echo "ERROR: 971 failed, but not on the working limit:"; echo "$out"; exit 1; }
             echo "OK: a description cannot drift past the working limit"
           fi
 
