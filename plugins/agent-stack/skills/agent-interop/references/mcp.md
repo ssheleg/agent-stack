@@ -256,7 +256,7 @@ Opt-in, negotiated, and worth checking before inventing an equivalent:
   entered or a model not chosen — not an outage: a watcher shows it as waiting for a person
   and opens no outage alert. An entry without `setup` is a failure. `status: ready` with a
   non-empty list is inconsistent (`FAC-SEM-011`). Some of the estate's tools also carry
-  `degraded` and `human_steps` on every reply; that per-reply envelope is an estate
+  `degraded`, `human_steps` and `sources` on every reply; that per-reply envelope is an estate
   convention with no contract home yet, so it is not taught here as a contract.
 - **MCP Apps** — interactive UI rendered inline in the conversation.
 - **Skills over MCP** — structured instruction sets discovered and consumed through MCP,

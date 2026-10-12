@@ -11,7 +11,7 @@ description: >-
   "MCP client", "A2A", "agent card", "agent interoperability", "MCP registry", "server.json",
   "agentgateway", "tool federation", "MCP-сервер", "карточка агента", "интероперабельность
   агентов", "реестр MCP", "шлюз для агентов", "delegation token", "on behalf of",
-  "делегирование". Not for one server's tool design, nor a skill's construction (make-skill).
+  "токен делегирования". Not for one server's tool design, nor skill construction (make-skill).
 license: MIT
 ---
 

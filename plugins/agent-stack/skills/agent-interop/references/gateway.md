@@ -136,8 +136,8 @@ that is this file's own rule says so.
 
 | Tier | Who the caller is | What places it there | What a call needs |
 |---|---|---|---|
-| T0 | on the operator's own machine: on loopback, under the owner's OS account | the service's local floor — loopback only, the `Host` and `Origin` guard, the descriptor token (DL-25; `service.md` §Authentication and network) | the operator's instruction: no delegation token, no `approval/1`, no grant record (DL-26) |
-| T1 | another machine of the same owner, enrolled in the agent network | its enrolment, which is Fabric's roadmap item RM-21 and still open — so **no machine is T1 yet** (DL-25; fabric-workspace `knowledge/roadmap.md` RM-21) | the same as T0 (DL-26) |
+| T0 | on the operator's own machine: on loopback, under the owner's OS account | the service's local floor — loopback only, the `Host` and `Origin` guard, the owner's OS account (DL-25; `service.md` §Authentication and network). The descriptor token is the host's own credential, not the caller's proof (DL-12) | the operator's instruction: no delegation token, no `approval/1`, no grant record (DL-26) |
+| T1 | another machine of the same owner, enrolled in the agent network | its enrolment, which is Fabric's roadmap item RM-21 and still open — so **no machine is T1 yet** (DL-25; fabric-workspace `knowledge/roadmap.md` RM-21). A proposal in `authority.md` to scope T1 by machine identity is not decided | the same as T0 (DL-26) |
 | T2 | everyone else: another person's machine under a share grant, and any caller the callee cannot place in T0 or T1 | nothing places it; it is the default (DL-25) | the whole model below: a token per call, an approval for each effect that needs one, a grant with limits, an expiry and a payer (DL-26) |
 
 **A tier is the caller's origin's, not its connection's** (DL-25). A call relayed onto
@@ -237,7 +237,9 @@ says. The meter reserves against the grant's windows
 and every level above (Fabric: the estate total), and refuses `limit-reached` **naming the
 window** that ran out — a limit refusal without its window cannot be acted on.
 
-**An approval is a document, not a ceremony.** When an action needs a person, the callee
+**An approval is a document, not a ceremony — on T2.** A T0 or T1 caller presents no
+`approval/1` (DL-26); there the five human gates above are the person's part. When a T2
+caller's action needs a person, the callee
 refuses `approval-required` with the action's digest — SHA-256 of its RFC 8785 canonical
 JSON, so two encodings of one action cannot get two digests. The action must be plain JSON
 values: a date, a map or an `undefined` member would serialise as `{}` and let two actions

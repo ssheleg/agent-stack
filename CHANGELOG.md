@@ -3,6 +3,16 @@
 Integration wave 4 of the family's waves run (sshlg-skills plan R23–R26). The first cut
 (`4f88a0e`) failed three blind readings; this entry describes what ships after the fix round.
 
+**Final polish after the second reading** (unit and seam pass, product pass with risks):
+the approval-document paragraph is scoped to T2 (a T0/T1 caller presents no `approval/1`);
+the T0 row no longer lists the descriptor token as what places a caller — it is the host's
+own credential (DL-12); the T1 row names the undecided proposal to scope T1 in
+`authority.md`; `mcp.md` names all three per-reply keys (`degraded`, `human_steps`,
+`sources`) while still not teaching them as a contract (B-156); the agent-interop trigger is
+"токен делегирования", not "делегирование", so sub-agent delegation stays with
+agent-orchestrator (939 chars); AG-06a/b name plan R28 as deferred; B-157 records that the
+adapter's back-links run one way.
+
 - **Delegation starts with whether a caller needs a token (R23).** The delegation section of
   `agent-interop/references/gateway.md` now opens with the trust tiers, each sentence citing
   the contract rule it restates:
