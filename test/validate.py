@@ -907,38 +907,106 @@ check_priority_axes_are_the_manifesto_s_and_carry_no_scalar()
 # looks for, and this file is inside the set it scans — it passed only because a `)`
 # happened to follow each name. A guard that is green by luck is a guard nobody has
 # watched, so the names never appear here as callable text.
-TEMP_MAKERS = re.compile(r"(?<![\w.])(?:tempfile\.)?(?:" + "mkdtemp" + "|Temporary"
-                         + "Directory" + r")\s*\(")
-TEMP_LEDGER_EXEMPT = {"residue.py"}
+# Any receiver counts — `tempfile.`, an alias such as `tf.`, or none after a from-import — and
+# a from-import that renames a maker is refused outright: `as m` would hide every call after
+# it (B-158, ported back from make-skill 0.31.0, which widened this check first). What it does
+# NOT see, stated so nobody reads more into a green run: chained receivers (`a.b.mkdtemp(`),
+# a function reference stored and called later, `getattr`, and a parenthesised multi-line
+# import. Only whole-line `#` comments and `"""` blocks are skipped.
+TEMP_MAKERS = re.compile(r"(?<![\w.])(?:[A-Za-z_]\w*\.)?(?:" + "mkdtemp" + "|Temporary"
+                         + "Directory" + r")\s*\(|\bfrom\s+tempfile\s+import\b[^\n]*\b(?:"
+                         + "mkdtemp" + "|Temporary" + "Directory" + r")\s+as\b")
+
+# AG-06a: the scan covers every `*.py` this repository ships or runs, not only `test/`.
+# A tree made by a script under `plugins/` or a helper anywhere else was invisible to a check
+# that read one directory. Exemptions are by exact path, carry their reason, and pin the
+# NUMBER of makers allowed — a new call added to an exempt file is still refused.
+TEMP_SCAN_SKIP_DIRS = {".git", "node_modules", "__pycache__", "fixtures"}
+TEMP_TREE_ALLOWED = {
+    # The ledger itself: it calls the maker on everyone's behalf.
+    os.path.join("test", "residue.py"): (1, "the residue ledger is the one door"),
+    # Ships to users inside the plugin; its `--self-test` builds one throwaway tree per plant
+    # with a context manager that removes it on every path, exception included. It cannot
+    # import `test/residue.py`: an installed plugin carries no `test/` directory.
+    os.path.join("plugins", "agent-stack", "skills", "agent-harness", "scripts",
+                 "audit_agent.py"): (2, "a shipped tool's self-test, context-managed, "
+                                        "outside the test suite's reach"),
+}
 
 
-def check_temp_trees_go_through_the_residue_ledger():
-    tests = sorted(glob.glob(os.path.join(ROOT, "test", "*.py")))
-    if not tests:
+def temp_maker_hits(text):
+    """Every temp-dir maker that would RUN in `text`, as [(match, line)].
+
+    Comments and docstrings mention the banned names when they explain why; a guard that
+    reads an explanation as a violation refuses the document that records the fix. Blanked,
+    not removed, so the line number is the file's own and can be opened directly.
+    """
+    code = "\n".join("" if ln.lstrip().startswith("#") else ln for ln in text.split("\n"))
+    code = re.sub(r'"""(?:.|\n)*?"""', lambda m: "\n" * m.group(0).count("\n"), code)
+    return [(h.group(0), code[:h.start()].count("\n") + 1) for h in TEMP_MAKERS.finditer(code)]
+
+
+def temp_maker_hit(text):
+    hits = temp_maker_hits(text)
+    return hits[0] if hits else None
+
+
+def temp_scan_files(root):
+    found = []
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = sorted(d for d in dirnames if d not in TEMP_SCAN_SKIP_DIRS)
+        found.extend(os.path.join(dirpath, f) for f in filenames if f.endswith(".py"))
+    return sorted(found)
+
+
+def check_temp_trees_go_through_the_residue_ledger(root=None):
+    root = root or ROOT
+    files = temp_scan_files(root)
+    rels = [os.path.relpath(p, root) for p in files]
+    if not any(r.startswith("test" + os.sep) for r in rels):
         fail("test/: no python files — the suite cannot be checked for temp-tree accounting")
         return
-    for path in tests:
-        base = os.path.basename(path)
-        if base in TEMP_LEDGER_EXEMPT:
-            continue
+    for path, rel in zip(files, rels):
         with open(path, encoding="utf-8") as fh:
-            text = fh.read()
-        # Comments and docstrings mention `mkdtemp` when they explain why it is banned. A
-        # guard that reads an explanation as a violation refuses the document that records
-        # the fix — so only lines that would RUN are read.
-        code = "\n".join(ln for ln in text.split("\n")
-                         if not ln.lstrip().startswith("#"))
-        code = re.sub(r'"""(?:.|\n)*?"""', "", code)
-        hit = TEMP_MAKERS.search(code)
-        if hit:
-            line = code[:hit.start()].count("\n") + 1
-            fail(f"test/{base}: creates a temp tree outside the residue ledger — "
-                 f"{hit.group(0)!r} near line {line} of the stripped source. Use "
-                 "`residue.workspace(tag)`: a tree the ledger never saw is a tree the "
-                 "gate's residue line reports as nothing, which is how 2576 nameless "
-                 "`tmpXXXXXXXX` directories accumulated with every run printing clean")
+            hits = temp_maker_hits(fh.read())
+        allowed, why = TEMP_TREE_ALLOWED.get(rel, (0, ""))
+        if len(hits) > allowed:
+            first = hits[allowed]
+            fail(f"{rel}: creates a temp tree outside the residue ledger — {first[0]!r} at "
+                 f"line {first[1]}" + (f" ({len(hits)} makers, {allowed} allowed: {why})"
+                                       if allowed else "") +
+                 (". Use `residue.workspace(tag)`: a tree the ledger never saw is a tree the "
+                  "gate's residue line reports as nothing, which is how 2576 nameless "
+                  "`tmpXXXXXXXX` directories accumulated with every run printing clean"
+                  if rel.startswith("test" + os.sep) else
+                  ". A shipped script cannot reach the suite's ledger: make the tree with a "
+                  "context manager that removes it on every path and give the file an "
+                  "exact-count entry, with its reason, in `TEMP_TREE_ALLOWED` — or move the "
+                  "work into the suite"))
+    for rel in sorted(TEMP_TREE_ALLOWED):
+        if rel not in rels:
+            fail(f"{rel}: exempt from the temp-tree check but no longer exists — an exemption "
+                 "for a file that is gone is a hole waiting for the next file of that name")
 
 
+# Negative controls, computed on every run: a guard nobody has watched refuse is not one.
+# Each asserts on the parsed (match, line), not on a pass/fail bit.
+_M = "mkdtemp"
+if (temp_maker_hit("import tempfile\nd = tempfile." + _M + "()\n") or (None, 0))[1] != 2:
+    fail("B-158 self-test: a planted tempfile." + _M + "() was not found at line 2")
+if (temp_maker_hit("import tempfile as tf\nd = tf." + _M + "()\n") or ("",))[0] != "tf." + _M + "(":
+    fail("B-158 self-test: a temp-dir call through a module alias (`tf.`) was not found")
+if not (temp_maker_hit("from tempfile import " + _M + " as m\nd = m()\n") or ("",))[0] \
+        .startswith("from tempfile import " + _M + " as"):
+    fail("B-158 self-test: a renamed from-import of a temp-dir maker was not found")
+if temp_maker_hit('"""why ' + _M + '() is banned"""\n# or ' + _M + "()\n"):
+    fail("B-158 self-test: an explanation in a docstring/comment was read as a violation")
+# AG-06a, asserted as a capability: the scan reads the shipped scripts, not only the suite.
+_scanned = {os.path.relpath(p, ROOT) for p in temp_scan_files(ROOT)}
+for _rel in TEMP_TREE_ALLOWED:
+    if _rel not in _scanned:
+        fail(f"AG-06a self-test: {_rel} is not in the temp-tree scan — the check no longer "
+             "reads the directory that file lives in")
 check_temp_trees_go_through_the_residue_ledger()
 
 

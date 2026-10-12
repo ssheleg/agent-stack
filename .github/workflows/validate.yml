@@ -695,6 +695,27 @@ jobs:
             echo "OK: every temp tree goes through the residue ledger"
           fi
 
+      - name: Negative self-test (a shipped script's temp tree must not escape the check)
+        run: |
+          set -eu
+          rm -rf /tmp/residue-ship-copy && cp -R . /tmp/residue-ship-copy
+          python3 test/plant_guard.py snap /tmp/residue-ship-copy
+          # AG-06a and B-158 together: a maker outside `test/`, called through an alias. The
+          # check used to read `test/*.py` only and `tempfile.` as the only receiver, so this
+          # plant passed it twice over.
+          python3 - <<'PY'
+          import pathlib
+          p = pathlib.Path("/tmp/residue-ship-copy/plugins/agent-stack/skills/agent-harness/scripts/zz_plant.py")
+          p.write_text("import tempfile as tf\nd = tf." + "mkdtemp" + "()\n", encoding="utf-8")
+          PY
+          python3 test/plant_guard.py verify /tmp/residue-ship-copy "Negative self-test (a shipped script's temp tree must not escape the check)"
+          if out=$(python3 /tmp/residue-ship-copy/test/validate.py 2>&1); then
+            echo "ERROR: validator accepted an aliased temp-dir call in a shipped script"
+            exit 1
+          fi
+          echo "$out" | grep -F "zz_plant.py: creates a temp tree outside the residue ledger — 'tf.mkdtemp(' at line 2"
+          echo "OK: a shipped script's temp tree is refused, by file and line"
+
       - name: Negative self-test (a description must stay inside the working limit)
         run: |
           set -eu

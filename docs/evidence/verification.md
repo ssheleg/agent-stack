@@ -10,6 +10,25 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Release candidate — v0.27.1 (2026-10-12)
+
+Board rows B-158, AG-06a, AG-06b (sshlg-skills plan R28). Measured on the branch `fix/ag06`
+before any tag; nothing below is a published-artifact claim.
+
+**Handoff.** Done: the three rows below, closed on the board. Open: GitHub has not run the new
+negative self-test step; the merge, the `v0.27.1` tag, the npm publish and the hub re-pin belong
+to the orchestrator. Next task, exactly: after the merge, tag `v0.27.1`, read the release run and
+`npm view @ssheleg/agent-stack version`, and re-head this section `Released`.
+
+| REQ | What ships | How it was confirmed | Confirmed |
+|---|---|---|---|
+| B-158 | `TEMP_MAKERS` refuses a direct temp-dir call through one receiver or none and a one-line renaming from-import; `temp_maker_hits()` reports the file's own line numbers | Two negative controls written first and run against the old pattern: `python3 test/validate.py` → `B-158 self-test: a temp-dir call through a module alias (`tf.`) was not found` and `B-158 self-test: a renamed from-import of a temp-dir maker was not found`; each control asserts on the parsed `(match, line)`. After the port → `OK` | **watched failing**, then passed |
+| AG-06a scan | the check reads every `*.py` under the repository (skipping `.git`, `node_modules`, `__pycache__`, `fixtures`) with exact-path, exact-count exemptions | First run of the recursive scan on the unmodified suite → `test/audit_regressions/instruction_budget.py: creates a temp tree outside the residue ledger — 'tempfile.TemporaryDirectory(' at line 21`; migrated to `residue.workspace()`, its run prints `residue: this run left nothing — 14 temp tree(s) created, 14 removed` | **watched failing** on a real bypass, then passed |
+| AG-06a plants | shipped scripts are read | `plugins/…/scripts/zz_plant.py` with `import tempfile as tf` / `tf.mkdtemp()` → `zz_plant.py: creates a temp tree outside the residue ledger — 'tf.mkdtemp(' at line 2. A shipped script cannot reach the suite's ledger: …`; `bin/zz_plant.py` with a renamed `TemporaryDirectory` import → refused at line 1; a third maker appended to `audit_agent.py` → `'tempfile.mkdtemp(' at line 408 (3 makers, 2 allowed: …)`; `plugins` added to the skip set → `AG-06a self-test: …audit_agent.py is not in the temp-tree scan`. Each plant removed, gate back to `OK`. The new CI step's logic run locally on a copy: refused with the exact file-and-line string it greps for | **planted**, then passed; CI step not yet run by GitHub |
+| AG-06b | `python3 test/residue.py --reap-own [--apply] [--tmpdir DIR] [--min-age-hours N]` via `test/reap_own.py` | `test/reap_own_test.py` first run → `ModuleNotFoundError: No module named 'reap_own'`; after the module, 6/6 in a sandbox temp root made by `residue.workspace()`. Its near-miss case asserts each plant carries an `mkdtemp()`-shaped name, so a plant excluded by name rather than content fails as `PLANT DID NOT LAND` (it did, on the first draft's 7-character names). Planted a permissive reaper (accept any tree holding `sub/b.sh`) → `near-misses were claimed as own: ['tmpextrab01', 'tmpextraf01']` and `--apply removed a tree that is not the fixture's`; restored → `PASS: reap-own — 6 cases` | **planted**, then passed |
+| AG-06b, this machine | the 2592 trees | `find "$TMPDIR" -maxdepth 4 -type f -path '*/copy/sub/b.sh' \| wc -l` → `0` on 2026-10-12 (also 0 under `/tmp`); `python3 test/residue.py --reap-own` (dry) → `reap-own: 0 tree(s) match the leaking fixture's fingerprint under /var/folders/…/T — DRY RUN, nothing removed.` Nothing in the real `$TMPDIR` was removed; `seo-aeo-audit`'s fixture now uses `residue.workspace("plant-guard")` (its `origin/main`, line 52) | **observed**, local |
+| Gate | `npm test` (now also runs `test/reap_own_test.py`) | EXIT=0 on 2026-10-12: `OK: agent-stack structurally valid (16 checks = 12 named + 4 per-skill, 4 skill(s), v0.27.1)`, `PASS: plant_guard — 9 cases`, `PASS: reap-own — 6 cases`, `PASS: installer — 11 case(s)`, all 25 `test/audit_regressions/*.py` exit 0; every residue line `left nothing` | **observed**, local |
+
 ## Release candidate — v0.27.0 (2026-10-12)
 
 The first cut (`4f88a0e`) failed three blind readings (unit, seam, product). These rows
