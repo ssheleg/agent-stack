@@ -1,3 +1,73 @@
+## 0.27.0 — trust by machine, Fabric jobs, and room in every description
+
+Integration wave 4 of the family's waves run (sshlg-skills plan R23–R26). The first cut
+(`4f88a0e`) failed three blind readings; this entry describes what ships after the fix round.
+
+**Final polish after the second reading** (unit and seam pass, product pass with risks):
+the approval-document paragraph is scoped to T2 (a T0/T1 caller presents no `approval/1`);
+the T0 row no longer lists the descriptor token as what places a caller — it is the host's
+own credential (DL-12); the T1 row names the undecided proposal to scope T1 in
+`authority.md`; `mcp.md` names all three per-reply keys (`degraded`, `human_steps`,
+`sources`) while still not teaching them as a contract (B-156); the agent-interop trigger is
+"токен делегирования", not "делегирование", so sub-agent delegation stays with
+agent-orchestrator (939 chars); AG-06a/b name plan R28 as deferred; B-157 records that the
+adapter's back-links run one way.
+
+- **Delegation starts with whether a caller needs a token (R23).** The delegation section of
+  `agent-interop/references/gateway.md` now opens with the trust tiers, each sentence citing
+  the contract rule it restates:
+  - T0 is the operator's own machine, T1 an enrolled machine of the same owner, and T2
+    everyone else (DL-25). T1 enrolment is Fabric's roadmap item RM-21, still open, so no
+    machine is T1 yet.
+  - A tier belongs to the caller's origin, not its connection: a call relayed onto loopback
+    is T2 unless the relay proves the origin (DL-25).
+  - A callee must not require a token, an approval or a grant record from a T0 or T1
+    caller, even when it serves T2 callers too (DL-26). A token such a caller presents is
+    verified, refused when invalid, and used for attribution and narrowing.
+  - Every tier keeps the money limits (L0, the project's limit, each key's ceiling) and all
+    five human gates: sign-in, consent, payment, top-up, a secret typed into a hidden
+    prompt.
+  - A token-less T0 call is metered by Observatory's defaults: `slotsRequireGrant:
+    when-token`, keyserver delegation `off` (`METER.md` M0).
+  - The paragraphs older than the tiers are scoped to match the amended contract: failing
+    closed with no issuer applies to T2 callers (DL-8), and retiring the descriptor token
+    applies across the machine boundary (DL-12).
+  - The delegation pin moves from `8e49fbd` to `3cb03ab`, which carries DL-25 and DL-26.
+    The rationale sentences that had no source are gone. At the new pin the meter's onward
+    token has an exact scope and effect `none` (not "read-only"), and a device approval
+    no longer exists (DEC-0045), so both sentences now say that.
+- **Fabric jobs as the worked fallback for MCP Tasks, and the well-known `degraded` list
+  (R24).** `references/mcp.md`, pinned to fabric-agent-contract `bcada4a`:
+  - names `output` and `scope` in the result envelope;
+  - says how to answer an input request (`inputResponses`, §C3.3);
+  - replaces "works unchanged" with what the contract says: a caller that does not
+    negotiate Tasks keeps receiving the job handle, and its states are the Task states;
+  - teaches the service's well-known `degraded` list as `service.md` defines it: always
+    present, empty means full health, `setup: true` marks a setup state.
+
+  The per-reply `degraded`/`human_steps` envelope has no contract home yet. It is named as
+  an estate convention and deferred to backlog row B-156.
+- **Pointers out, not copies (R25).** `agent-interop` names
+  `fabric-agent-adapter:creating-fabric-agents`, `:adapting-projects-to-fabric` and
+  `:building-fabric-services`, and `observatory-log:handling-secrets`, each fully qualified.
+  A new named check in `test/validate.py` (`check_interop_points_to_the_estate_skills`)
+  fails when any of the four is missing.
+- **Every description keeps 30 characters of room, and the gate holds it (R26).**
+  `test/validate.py` ratchets descriptions at 940 characters (house limit 970 unchanged).
+  Measured: evals 929, harness 936, interop 937, orchestrator 938.
+  - `agent-evals` names "observability" again.
+  - `agent-interop` adds "delegation token", "on behalf of" and «делегирование»; all 46 of
+    the hub's agent-stack triggers are still substrings of their descriptions.
+- **Watched failing:** a 941-character description (940 passes), a removed
+  `building-fabric-services` pointer, and the first cut's `gateway.md` and `mcp.md` against
+  the new `test/audit_regressions/w4-fabric-doctrine.py` (5 of 5 cases fail). The first two
+  run as negative self-tests in CI.
+- **A CI plant that had stopped planting.** "A description must stay inside the working
+  limit" prepended a fixed 53 characters, which reached 970 only while agent-evals sat above
+  917. At 911, in the first cut, it planted nothing and failed run 38204211436. It now sets
+  an exact length of 971 and requires the working-limit message.
+- R28 (residue rows AG-06a/b) is not in this release and stays on the board.
+
 ## 0.26.0 — delegation: which agent acts, for which person
 
 - **`agent-interop/references/gateway.md` gains the on-behalf-of model (B-155).** The file

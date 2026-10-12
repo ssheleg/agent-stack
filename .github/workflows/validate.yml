@@ -126,6 +126,59 @@ jobs:
             echo "OK: validator catches front matter the host would truncate silently"
           fi
 
+      - name: Negative self-test (a description at 941 chars must fail; 940 passes)
+        run: |
+          set -eu
+          # Plan R26: this member keeps 30 characters of room under the house limit of 970.
+          # The plant replaces the whole description with a plain scalar of an exact length,
+          # so the boundary is tested at the character, not near it: 940 must pass and 941
+          # must fail, and fail for the ratchet, not for something else the edit broke.
+          for n in 940 941; do
+            rm -rf /tmp/ratchet-copy && cp -R . /tmp/ratchet-copy
+            python3 test/plant_guard.py snap /tmp/ratchet-copy
+            N="$n" python3 - <<'PY'
+          import os, re
+          n = int(os.environ["N"])
+          p = "/tmp/ratchet-copy/plugins/agent-stack/skills/agent-evals/SKILL.md"
+          s = open(p, encoding="utf-8").read()
+          s2, k = re.subn(r"^description: >-\n(?:[ \t]+.*\n)+", "description: " + "a" * n + "\n", s, count=1, flags=re.M)
+          assert k == 1, "PLANT DID NOT LAND: no folded description in agent-evals/SKILL.md"
+          open(p, "w", encoding="utf-8").write(s2)
+          PY
+            python3 test/plant_guard.py verify /tmp/ratchet-copy "description at $n chars"
+            if out=$(python3 /tmp/ratchet-copy/test/validate.py 2>&1); then
+              if [ "$n" = 941 ]; then echo "ERROR: validator accepted a 941-char description"; exit 1; fi
+              echo "OK: 940 chars passes"
+            else
+              if [ "$n" = 940 ]; then echo "ERROR: validator refused a 940-char description:"; echo "$out"; exit 1; fi
+              echo "$out" | grep -q "ratchet" || { echo "ERROR: 941 failed, but not on the ratchet:"; echo "$out"; exit 1; }
+              echo "OK: 941 chars fails on the ratchet"
+            fi
+          done
+
+      - name: Negative self-test (a removed estate-skill pointer in agent-interop must fail)
+        run: |
+          set -eu
+          # Plan R25: agent-interop names the Fabric adapter skills and
+          # observatory-log:handling-secrets as the owners of the estate's HOW.
+          rm -rf /tmp/r25-copy && cp -R . /tmp/r25-copy
+          python3 test/plant_guard.py snap /tmp/r25-copy
+          python3 - <<'PY'
+          p = "/tmp/r25-copy/plugins/agent-stack/skills/agent-interop/SKILL.md"
+          s = open(p, encoding="utf-8").read()
+          name = "`fabric-agent-adapter:building-fabric-services`"
+          assert name in s, "PLANT DID NOT LAND: the pointer is not in agent-interop/SKILL.md"
+          open(p, "w", encoding="utf-8").write(s.replace(name, "the services skill"))
+          PY
+          python3 test/plant_guard.py verify /tmp/r25-copy "a removed estate-skill pointer"
+          if out=$(python3 /tmp/r25-copy/test/validate.py 2>&1); then
+            echo "ERROR: validator accepted agent-interop without its building-fabric-services pointer"
+            exit 1
+          else
+            echo "$out" | grep -q "plan R25" || { echo "ERROR: failed, but not on the R25 check:"; echo "$out"; exit 1; }
+            echo "OK: validator refuses a missing estate-skill pointer"
+          fi
+
       - name: Negative self-test (a reference nobody links must fail)
         run: |
           set -eu
@@ -650,23 +703,27 @@ jobs:
           # Under the 1024 cap and over the 970 working limit — the state three of four
           # skills shipped in, one with five characters of headroom. The hard-cap check
           # passes on this plant, so it is the working limit or nothing.
+          #
+          # The plant sets an EXACT length, 971. It used to prepend a fixed 53-character
+          # line, which reached 970 only while agent-evals sat above 917: at 911 (0.27.0's
+          # first cut) the padded description was 964, the validator rightly passed it, and
+          # this step reported a working guard as broken. A plant measured from the
+          # current text has a shelf life; one that sets the length does not.
           python3 - <<'PY'
           import pathlib, re
           p = pathlib.Path("/tmp/desc-copy/plugins/agent-stack/skills/agent-evals/SKILL.md")
           s = p.read_text(encoding="utf-8")
-          # Anchored on the front-matter key, not on any sentence inside the description:
-          # the words get reflowed and a prose anchor stops planting silently.
-          m = re.search(r"(?m)^description: >-\n", s)
-          assert m, "PLANT DID NOT LAND: no folded description block to grow"
-          out = s[:m.end()] + "  padding to reach the working limit and no further.\n" + s[m.end():]
-          assert out != s, "PLANT DID NOT LAND"
+          # Anchored on the front-matter key, not on any sentence inside the description.
+          out, k = re.subn(r"(?m)^description: >-\n(?:[ \t]+.*\n)+", "description: " + "a" * 971 + "\n", s, count=1)
+          assert k == 1, "PLANT DID NOT LAND: no folded description block to replace"
           p.write_text(out, encoding="utf-8")
           PY
           python3 test/plant_guard.py verify /tmp/desc-copy "Negative self-test (a description must stay inside the working limit)"
-          if python3 /tmp/desc-copy/test/validate.py; then
+          if out=$(python3 /tmp/desc-copy/test/validate.py 2>&1); then
             echo "ERROR: validator accepted a description past the house working limit"
             exit 1
           else
+            echo "$out" | grep -q "970-char working limit" || { echo "ERROR: 971 failed, but not on the working limit:"; echo "$out"; exit 1; }
             echo "OK: a description cannot drift past the working limit"
           fi
 

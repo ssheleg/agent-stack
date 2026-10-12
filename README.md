@@ -84,7 +84,8 @@ without one. Six references: `mcp.md` (the wire and the full deprecation registe
 undoes both), `mcp-ship.md` (mounting, and the 404 that is really a double path),
 `registry.md` (`server.json`, namespace proof, the registry's three refusals),
 `a2a.md` (cards, task states, three bindings), `gateway.md` (what a gateway must do that
-an API gateway does not). Plus a link map, and a verdict on each neighbouring standard —
+an API gateway does not; delegation — which agent acts for which person — and trust by
+machine: whether a caller needs a token at all, T0/T1/T2). Plus a link map, and a verdict on each neighbouring standard —
 ACP, AGNTCY, AP2, Agent Skills — so an agent stops guessing.
 
 **The harness skill** (`agent-harness/SKILL.md`) — the layer between the loop and the

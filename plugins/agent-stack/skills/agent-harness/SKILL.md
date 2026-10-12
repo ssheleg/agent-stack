@@ -2,10 +2,10 @@
 name: agent-harness
 description: >-
   Use when the question is what the agent is TOLD rather than how its loop is wired — writing
-  or fixing a system prompt, shaping tools so the model picks the right one, deciding whether
-  a job wants a workflow or an agent, or choosing between ReAct, reflection and voting. Also
-  auditing an agent system somebody else built: tracks, evidence tiers and a prioritized plan
-  instead of a score, plus a scanner. Carries Pi as a worked kernel implementation — SDK, RPC
+  or fixing a system prompt, shaping tools so the model picks the right one, whether a job
+  wants a workflow or an agent, or choosing between ReAct, reflection and voting. Also
+  auditing someone else's agent system: tracks, evidence tiers, a prioritized plan instead of
+  a score, a scanner. Carries Pi as a worked kernel implementation — SDK, RPC
   and extension seams — for embedding or extending a harness. Triggers - "system prompt",
   "tool description", "agent picks the wrong tool", "agent loops forever", "prompt
   engineering", "harness engineering", "ReAct loop", "react pattern", "workflow or agent",

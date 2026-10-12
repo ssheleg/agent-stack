@@ -10,7 +10,20 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
-## Release candidate — v0.26.0 (2026-10-11)
+## Release candidate — v0.27.0 (2026-10-12)
+
+The first cut (`4f88a0e`) failed three blind readings (unit, seam, product). These rows
+describe the fix round.
+
+| REQ | What ships | How it was confirmed | Confirmed |
+|---|---|---|---|
+| R23 | `gateway.md` trust tiers rewritten to the contract: per-caller DL-26 (no token required of T0/T1, a presented token verified, refused when invalid, used for attribution and narrowing), tier by origin DL-25, T1 = RM-21 still open, five human gates, three money levels, token-less T0 metering (`METER.md` M0/M5/M6), DL-8 and DL-12 scoped, pin `3cb03ab` | each sentence read against fabric-agent-contract `delegation.md` at `3cb03ab` (`git show 3cb03ab:docs/specification/delegation.md \| grep -c DL-26` → 3), Fabric `19ad05ca` amendment 4, fabric-workspace `714808ac` `authority.md`, project-observatory-dashboard `METER.md` at `5b24038` and fabric-agent-adapter 0.20.0 `building-fabric-services/references/delegation.md:47-55`; `test/audit_regressions/w4-fabric-doctrine.py` passes 5/5 | **planted** — the first cut's `gateway.md`/`mcp.md` fail 5/5 cases |
+| R24 | `mcp.md`: envelope with `output`/`scope`, `inputResponses` (§C3.3), the job handle for a caller without Tasks, the well-known `degraded` list (`service.md:93-101` at `bcada4a`); the per-reply envelope deferred as B-156 | text read against `interop.md` §C3.2–C3.3 and `service.md` at `bcada4a`; `w4-fabric-doctrine.py` case 5 | **planted** — the first cut fails case 5 |
+| R25 | `agent-interop/SKILL.md` names the three `fabric-agent-adapter` skills and `observatory-log:handling-secrets`, fully qualified | `check_interop_points_to_the_estate_skills` in `test/validate.py`; CI step "a removed estate-skill pointer in agent-interop must fail" | **planted** — removing `fabric-agent-adapter:building-fabric-services` on a copy fails with `(plan R25)` |
+| R26 | descriptions evals 929, harness 936, interop 937, orchestrator 938; ratchet 940 in `test/validate.py` | `audit_skill.py --house` per skill: 0 GAP, 19 PASS each; CI step "a description at 941 chars must fail; 940 passes" | **planted** — 941 fails on the ratchet, 940 passes |
+| Gate | `npm test` | EXIT=0 on 2026-10-12 (`16 checks = 12 named + 4 per-skill`) | never |
+
+## Released — v0.26.0 (2026-10-11)
 
 | REQ | What ships | How it was confirmed | Confirmed |
 |---|---|---|---|

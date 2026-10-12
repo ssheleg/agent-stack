@@ -4,8 +4,8 @@ description: >-
   Use when measuring whether an agent actually works — building an eval suite, judging a
   trajectory rather than a final answer, turning production traces into regression
   fixtures, calibrating an LLM judge against human labels, or gating a release on offline
-  evals. Covers the three observability primitives (run, trace, thread) crossed with three
-  eval granularities (single-step, full-turn, multi-turn), the offline/online/ad-hoc
+  evals. Covers observability — run, trace and thread — crossed with single-step, full-turn
+  and multi-turn evals, the offline/online/ad-hoc
   timing axis, pass-fail rubrics over scalar scores, cheap code checks before model
   judges, the checker node as an evaluator inside the graph, simulated users with adversarial
   personas, annotation queues, and what to instrument for any of it. Triggers - "agent eval", "eval suite", "LLM judge", "regression fixture",

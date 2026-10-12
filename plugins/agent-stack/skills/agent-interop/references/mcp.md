@@ -224,6 +224,40 @@ Opt-in, negotiated, and worth checking before inventing an equivalent:
   own is MCP-with-Tasks. But Tasks is an OPT-IN, NEGOTIATED extension — check the client/SDK
   actually supports it before building on it; where it is unsupported, the fallback is a
   chunked job or a caller-polled job id over plain `tools/call`, not a protocol change.
+  **Worked example of that fallback:** Fabric's `fabric-interop/0.1` jobs
+  (`passioncode-ai/fabric-agent-contract` `docs/specification/interop.md` §C3.2–C3.3, at
+  `bcada4a`).
+  - A capability that may outlive one request declares `"job": true`.
+  - With Tasks negotiated, it MAY return an MCP Task. Otherwise it returns
+    `{"job": {"id", "status": "working"}}` in `structuredContent` and serves
+    `fabric.job.get {id}` / `fabric.job.cancel {id}`.
+  - The states are the MCP Task states: `working | input_required | completed | failed |
+    cancelled`.
+  - `result` is present exactly when the job is `completed`, `error` when it `failed`,
+    and `inputRequests` when it waits for input.
+  - `result` is the full result envelope, exactly what a synchronous call of the same
+    capability returns: `done`, `proof`, `scope` and `notVerified` beside `output` (the
+    value of the tool's `outputSchema`) and `usage`.
+  - A job id survives a restart, and an unknown id answers `unknown-job`, never a fresh
+    job.
+  - **Answering an input request** (§C3.3): the caller sends `fabric.job.get` with
+    `inputResponses`, a map from each request key to `{action: accept | decline | cancel,
+    content?}`; under a Task the answer goes through `tasks/update` instead. A form never
+    asks for a secret; a secret goes through URL mode.
+
+  A caller that does not negotiate Tasks keeps receiving the job handle, and the states it
+  polls are the Task states.
+
+  **Health is a separate document.** The same estate's services publish a well-known
+  document (`GET /.well-known/fabric-service`; `docs/specification/service.md`, *Well-known
+  document*, at `bcada4a`) whose `degraded` list is always present: an empty list asserts
+  full health, and each entry names a `source` and a `reason`. An entry with `setup: true`
+  is a setup state — the source waits for a person to finish setting it up, a key not
+  entered or a model not chosen — not an outage: a watcher shows it as waiting for a person
+  and opens no outage alert. An entry without `setup` is a failure. `status: ready` with a
+  non-empty list is inconsistent (`FAC-SEM-011`). Some of the estate's tools also carry
+  `degraded`, `human_steps` and `sources` on every reply; that per-reply envelope is an estate
+  convention with no contract home yet, so it is not taught here as a contract.
 - **MCP Apps** — interactive UI rendered inline in the conversation.
 - **Skills over MCP** — structured instruction sets discovered and consumed through MCP,
   which is how a server ships Agent Skills rather than only tools.

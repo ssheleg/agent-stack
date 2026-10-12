@@ -48,6 +48,12 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # 5% under the 1024 cap. Not this repo's number: `DESC_TARGET` in make-skill's
 # `scripts/audit_skill.py`, the family's authority on skill budgets.
 DESC_WORKING_LIMIT = 970
+# This member's ratchet, 30 characters under the house limit (sshlg-skills plan R26,
+# 2026-10-12). Every description was brought to at least 30 characters of room so the
+# next "not for X" clause or trigger fits without a rewrite; without a gate the room is
+# spent one phrase at a time and nobody sees it go. The house limit above stays the
+# family's number, and its message stays the one past 970.
+DESC_RATCHET = 940
 FAILURES = []
 
 # Skills whose references describe an external specification somebody else
@@ -278,6 +284,13 @@ for name in skill_dirs:
             f"{DESC_WORKING_LIMIT}-char working limit (hard cap 1024). A description at 99% "
             "of cap cannot absorb the clause that says what this skill is NOT for, and that "
             "clause is what stops a sibling stealing its triggers"
+        )
+    elif len(fm_desc) > DESC_RATCHET:
+        fail(
+            f"{name}/SKILL.md: description is {len(fm_desc)} chars, past this member's "
+            f"{DESC_RATCHET}-char ratchet (house limit {DESC_WORKING_LIMIT}, hard cap 1024). "
+            "The room under the house limit is kept on purpose (plan R26): make room by "
+            "rewording, never by raising the ratchet"
         )
     if fm_desc and re.search(r"<[a-zA-Z/]", fm_desc):
         fail(f"{name}/SKILL.md: description must not contain angle-bracket tags")
@@ -1179,8 +1192,29 @@ def check_shipped_front_matter_survives_a_real_reader():
         _disclose_routing(f"front matter vs a strict reader — {(proc.stderr or 'the checker could not look').strip()}")
 
 
+def check_interop_points_to_the_estate_skills():
+    """agent-interop names the skills that own the HOW of joining a Fabric estate.
+
+    Plan R25 (wave 4, 2026-10-12): the protocol lives here, the estate's procedures live in
+    `fabric-agent-adapter` and `observatory-log`. A pointer that silently disappears sends
+    a reader back to restating them here, which is the second home R25 exists to prevent.
+    Each name is checked fully qualified, so a shortened `:skill` form cannot pass for it.
+    """
+    path = os.path.join(ROOT, "plugins", "agent-stack", "skills", "agent-interop", "SKILL.md")
+    with open(path, encoding="utf-8") as fh:
+        text = fh.read()
+    for qualified in ("fabric-agent-adapter:creating-fabric-agents",
+                      "fabric-agent-adapter:adapting-projects-to-fabric",
+                      "fabric-agent-adapter:building-fabric-services",
+                      "observatory-log:handling-secrets"):
+        if f"`{qualified}`" not in text:
+            fail(f"agent-interop/SKILL.md: no pointer to `{qualified}` (plan R25) -- the estate's "
+                 "HOW belongs to that skill, and this skill must name it rather than restate it")
+
+
 check_ledger_tables_keep_their_shape()
 check_shipped_front_matter_survives_a_real_reader()
+check_interop_points_to_the_estate_skills()
 
 
 # Notes print on EVERY run, pass or fail. A budget warning that only appeared beside a
