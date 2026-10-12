@@ -224,6 +224,22 @@ Opt-in, negotiated, and worth checking before inventing an equivalent:
   own is MCP-with-Tasks. But Tasks is an OPT-IN, NEGOTIATED extension — check the client/SDK
   actually supports it before building on it; where it is unsupported, the fallback is a
   chunked job or a caller-polled job id over plain `tools/call`, not a protocol change.
+  **Worked example of that fallback:** Fabric's `fabric-interop/0.1` jobs
+  (`passioncode-ai/fabric-agent-contract` `docs/specification/interop.md` §C3.2, at
+  `bcada4a`).
+  - A capability that may outlive one request declares `"job": true`.
+  - With Tasks negotiated, it MAY return an MCP Task. Otherwise it returns
+    `{"job": {"id", "status": "working"}}` in `structuredContent` and serves
+    `fabric.job.get {id}` / `fabric.job.cancel {id}`.
+  - The states are the MCP Task states: `working | input_required | completed | failed |
+    cancelled`.
+  - `result` is present exactly when the job is `completed`, `error` when it `failed`,
+    and `inputRequests` when it waits for input.
+  - The result envelope separates `done`, `proof` and `notVerified`, and carries `usage`.
+  - A job id survives a restart, and an unknown id answers `unknown-job`, never a fresh
+    job.
+
+  A caller written against this works unchanged when the server later negotiates Tasks.
 - **MCP Apps** — interactive UI rendered inline in the conversation.
 - **Skills over MCP** — structured instruction sets discovered and consumed through MCP,
   which is how a server ships Agent Skills rather than only tools.

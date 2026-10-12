@@ -4,8 +4,8 @@ description: >-
   Use when an agent must talk to something outside its own process — building or consuming an
   MCP server, exposing or calling an agent over A2A, publishing to the MCP Registry, or
   putting a gateway in front of agent traffic. Carries the MCP 2026-07-28 wire surface and what it
-  deprecated (server/discover, stateless per-request _meta, elicitation in form and URL mode,
-  subscriptions/listen; sampling, roots, logging and dynamic client registration going),
+  deprecated (server/discover, stateless _meta, form/URL elicitation, subscriptions/listen;
+  sampling, roots, logging and dynamic client registration going),
   A2A 1.0 agent cards, task states, three bindings, registry namespaces, server.json, tool
   federation, and what a gateway must do that an API gateway does not. Triggers - "MCP server",
   "MCP client", "A2A", "agent card", "agent interoperability", "MCP registry", "server.json",
@@ -121,6 +121,14 @@ tool names differ per host (`mcp__<server>__<tool>` in Claude Code, `mcp__plugin
 for a plugin's own server). **This skill owns the wire.** If the question is "what does the
 protocol say", it is here; if it is "how does my skill declare that it needs one", it is
 there. The protocol is described in exactly one of the two places, and this is it.
+
+**Against the Fabric adapter and Observatory skills.** Where an agent or service must join
+a Fabric estate, the HOW is theirs: `fabric-agent-adapter:creating-fabric-agents`,
+`:adapting-projects-to-fabric` and `:building-fabric-services` (the descriptor, the hub,
+`fabric-service/0.1`); credentials an agent uses go through
+`observatory-log:handling-secrets` (named vault slots, never a value). This skill keeps the
+protocol they speak — MCP, A2A, the gateway, delegation — and points to them rather than
+restating them.
 
 **Against `agent-orchestrator`.** That skill routes between *model providers* and manages the
 loop's own context. This one routes between *processes*. They meet at exactly one point: an

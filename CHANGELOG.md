@@ -1,3 +1,28 @@
+## 0.27.0 — trust by machine, Fabric jobs, and room in every description
+
+Integration wave 4 of the family's waves run (sshlg-skills plan R23–R26).
+
+- **Delegation starts with whether a token is needed (R23).** `agent-interop/references/gateway.md`
+  now opens its delegation section with the operator's trust tiers:
+  - T0, the operator's own machine, needs no token, approval or grant record.
+  - T1, the operator's enrolled machines, is the same.
+  - T2, another person's machine or an outside caller, uses the full on-behalf-of model.
+  - Money limits, human gates and "never spend another agent's key" hold on every tier.
+  - Pinned to Fabric ADR-0144 amendment 4 (`19ad05ca`, in Fabric main since `5bf15e5c`)
+    and to fabric-workspace `knowledge/authority.md` at `714808ac`.
+- **Fabric's job extension as the worked fallback for MCP Tasks (R24).**
+  - `references/mcp.md` names `fabric-interop/0.1` jobs (`fabric.job.get` and `cancel`),
+    the five Task states, when `result`, `error` and `inputRequests` appear, and the result
+    envelope.
+  - Pinned to fabric-agent-contract `bcada4a`.
+  - The estate's `degraded`/`human_steps` reply convention has no contract home yet, so it
+    is not taught.
+- **Pointers out, not copies (R25).** `agent-interop` names the Fabric adapter skills and
+  `observatory-log:handling-secrets` as the HOW for joining an estate and for credentials.
+- **Every description has at least 30 characters of room (R26):** interop 935, harness 936,
+  orchestrator 938, evals 911, against the house cap of 970. The trigger lists and the
+  wording pinned by `fix-as-01.01` are unchanged.
+
 ## 0.26.0 — delegation: which agent acts, for which person
 
 - **`agent-interop/references/gateway.md` gains the on-behalf-of model (B-155).** The file

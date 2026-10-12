@@ -1,9 +1,9 @@
 ---
 name: agent-orchestrator
 description: >-
-  Use when building an agent system — an orchestrator, an LLM-powered tool, a chatbot with tool
-  use, an AI pipeline — or metering and billing the LLM access it burns. Covers tool-calling
-  loops, pipelines with human checkpoints, provider routing with fallback/retry, memory
+  Use when building an agent system — an orchestrator, an LLM tool, a tool-using chatbot, an AI
+  pipeline — or metering and billing the LLM access it burns. Covers tool-calling
+  loops, human-checkpoint pipelines, provider routing, fallback/retry, memory
   architecture, retrieval and decay, context budgets, sub-agent coordination, error hierarchies; the
   work as a graph — parallel layers, fake edges, a checker before convergence; for resale:
   tiered wallets, one markup boundary, the saga across database and provider API,

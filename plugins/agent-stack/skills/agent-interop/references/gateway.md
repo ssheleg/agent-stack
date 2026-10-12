@@ -126,6 +126,27 @@ callers apart, so no limit holds per caller) or **the callee's own host credenti
 by the caller** (a confused deputy with that service's full power). Neither says on whose
 behalf the work runs.
 
+**First, whether a token is needed at all — trust by machine.** Proof is owed at a
+boundary, and the operator's own machine is not one. Requiring a token, an approval and a
+grant record for every local call buys ceremony, and nobody can attribute a cost to it.
+
+| Tier | Where the call comes from | What it needs |
+|---|---|---|
+| T0 | the operator's own machine | the operator's instruction is the authority: no delegation token, no approval, no grant record |
+| T1 | another machine of the operator's, once it is enrolled in the operator's agent network | the same as T0 |
+| T2 | another person's machine, or any outside caller | everything below: a share grant with limits, an expiry and a payer, a token per call, an approval per effect |
+
+Two rules hold on **every** tier:
+- **Money limits and human gates.** Every spend limit (project, estate, each key's
+  ceiling) applies, and so does every gate a person holds: sign-in, consent, payment.
+- **No borrowed keys.** An agent never spends another agent's key. It calls that agent's
+  capability, so the owner's wallet and limits apply.
+
+On a T0/T1 path the token below is optional and used for attribution only. A service
+that takes calls across the machine boundary, or from outside people, requires it.
+Enrolment is what moves a machine from T2 to T1. A machine is never trusted because it
+is on the same network.
+
 **The token.** One short signed document per call path, in the shape of OAuth 2.0 Token
 Exchange (RFC 8693):
 
@@ -203,6 +224,9 @@ shape leaves open.
 ADR-0144) implements the token, the verifier, the meter flow, the approval and the refusal
 codes above — with schemas, positive/negative/semantic fixtures and a reference verifier: `docs/specification/delegation.md` in `passioncode-ai/fabric-agent-contract`
 at `8e49fbd`. Read its check table (DL-13) before writing a verifier in another language.
+The trust tiers are Fabric ADR-0144 amendment 4 (`19ad05ca`), in Fabric's main since
+`5bf15e5c`, and the operator's decision is recorded in `passioncode-ai/fabric-workspace`
+`knowledge/authority.md`, *Trust by machine*, at `714808ac`.
 
 ## agentgateway, concretely
 

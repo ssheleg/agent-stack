@@ -10,7 +10,17 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
-## Release candidate — v0.26.0 (2026-10-11)
+## Release candidate — v0.27.0 (2026-10-12)
+
+| REQ | What ships | How it was confirmed | Confirmed |
+|---|---|---|---|
+| R23 | trust tiers T0/T1/T2 in `gateway.md`, pinned | text read against fabric-workspace `714808ac` `knowledge/authority.md` "Trust by machine" | never |
+| R24 | `fabric-interop/0.1` jobs as the Tasks fallback, pinned `bcada4a` | text read against fabric-agent-contract `interop.md` §C3.2 | never |
+| R25 | pointers to the Fabric adapter skills and `observatory-log:handling-secrets` | `audit_skill.py --house agent-interop`: 0 GAP, body 3502/4750 | never |
+| R26 | descriptions 935/936/938/911 of 970 | `audit_skill.py --house` per skill | never |
+| Gate | `npm test` | EXIT=0 on 2026-10-12 | never |
+
+## Released — v0.26.0 (2026-10-11)
 
 | REQ | What ships | How it was confirmed | Confirmed |
 |---|---|---|---|
