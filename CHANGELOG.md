@@ -24,7 +24,7 @@ Closes board rows B-158, AG-06a and AG-06b (sshlg-skills plan R28).
 - **`python3 test/residue.py --reap-own` (AG-06b).** The trees the old `plant_guard_test.py`
   leaked are identifiable by content, so they can be reaped without claiming anybody else's
   directory: `test/reap_own.py` claims a direct child of the temp root only when it is named as
-  `mkdtemp()` names, is not a symlink, holds exactly `copy/` (one of the fixture's end states,
+  `mkdtemp()` names, is not a symlink, holds exactly `copy/` (one of the fixture's five end-state file sets,
   byte for byte, regular files only) and optionally the fixture's own manifest, and has not
   changed for 24 hours (`--min-age-hours`). Dry run by default; `--apply` re-checks each tree
   before removing it. `test/reap_own_test.py` (6 cases, in `npm test`) runs in a sandbox
@@ -32,6 +32,25 @@ Closes board rows B-158, AG-06a and AG-06b (sshlg-skills plan R28).
   against this machine's real `$TMPDIR` on 2026-10-12, dry: `0 tree(s) match` — the 2592
   trees counted on 2026-08-20 are already gone (`find … -path '*/copy/sub/b.sh' | wc -l` → 0),
   and both suites that leaked them now use `residue.workspace()`.
+- **Review round on the first cut (blind reading of PR #45).** Seven fixes, each case written
+  first and watched failing:
+  - the reaper refuses a temp root that is empty, `/`, `$HOME` or an ancestor of `$HOME`,
+    compared after `realpath` (exit 2, `CANNOT RUN`); `--tmpdir /` and `--tmpdir $HOME` were
+    accepted;
+  - `--min-age-hours` refuses non-finite values and anything under 1 h, and a non-numeric
+    value is `CANNOT RUN` instead of a traceback;
+  - `--apply` renames each tree atomically to a quarantine name in the same root, re-verifies
+    the renamed tree, and only then removes it; a tree changed in that window goes back to
+    its own name;
+  - the fingerprint includes the directory set (`copy/sub`, plus `copy/.git` for the churn
+    state), so an extra empty directory makes a tree somebody else's;
+  - the counts are the fixture's: eight cases end in five distinct file sets. The first cut
+    said seven and carried a sixth set (`.git/index` = `before`) the fixture never ends in;
+  - an exempt shipped file is held to the `with … TemporaryDirectory(` form line by line: a
+    bare `mkdtemp()` swapped in for one of `audit_agent.py`'s two context managers kept the
+    count at 2 and passed;
+  - stated as a limit, not fixed: a string literal containing `"""` pairs with the next one in
+    the file and hides every maker between them from the check.
 
 ## 0.27.0 — trust by machine, Fabric jobs, and room in every description
 

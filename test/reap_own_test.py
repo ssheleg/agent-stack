@@ -26,7 +26,8 @@ def case(name, fn):
     residue.open_case(name)
     try:
         fn()
-    except AssertionError as e:
+    except Exception as e:  # an error is a failure too, and must not stop the cases after it
+        e = e if isinstance(e, AssertionError) else f"{type(e).__name__}: {e}"
         failures.append(f"{name}: {e}")
         print(f"FAIL  {name}: {e}")
     else:
@@ -74,10 +75,18 @@ def sandbox():
     return tmp
 
 
-def cli(tmp, *extra):
+def cli(tmp, *extra, home=None):
+    env = dict(os.environ)
+    if home is not None:
+        env["HOME"] = home
     r = subprocess.run([sys.executable, os.path.join(HERE, "residue.py"), "--reap-own",
-                        "--tmpdir", tmp, *extra], capture_output=True, text=True)
+                        "--tmpdir", tmp, *extra], capture_output=True, text=True, env=env)
     return r
+
+
+def refused(r, why):
+    assert r.returncode == 2, f"{why}: expected exit 2, got {r.returncode}: {r.stdout}"
+    assert "CANNOT RUN" in r.stderr and "Traceback" not in r.stderr, f"{why}: {r.stderr}"
 
 
 STATES = ["content", "mode", "nochange", "newfile", "deleted", "gitchurn"]
@@ -175,17 +184,95 @@ def a_missing_tmpdir_refuses():
     assert "CANNOT RUN" in r.stderr, r.stderr
 
 
-for n, f in [
-    ("the seven distinct end states of the leaking fixture (eight cases) are recognised", every_terminal_state_is_recognised),
+# ---- review round on PR #45: each case below was written before its fix and watched failing.
+# The root cases run with HOME pointed into a sandbox and never pass --apply, so a reaper that
+# wrongly accepted the root could only list, never remove.
+
+def the_filesystem_root_is_refused():
+    refused(cli("/"), "--tmpdir /")
+    refused(cli(""), "--tmpdir ''")
+
+
+def home_is_refused():
+    home = os.path.join(sandbox(), "home")
+    os.makedirs(home)
+    refused(cli(home, home=home), "--tmpdir $HOME")
+    refused(cli(home + "/sub/..", home=home), "--tmpdir $HOME spelled through ..")
+
+
+def an_ancestor_of_home_is_refused():
+    box = sandbox()
+    home = os.path.join(box, "users", "me")
+    os.makedirs(home)
+    refused(cli(os.path.join(box, "users"), home=home), "--tmpdir parent of $HOME")
+    refused(cli(box, home=home), "--tmpdir grandparent of $HOME")
+
+
+def a_bad_age_floor_is_refused():
+    tmp = sandbox()
+    for v in ("nan", "inf", "-inf", "0", "0.5", "-3", "soon", ""):
+        refused(cli(tmp, "--min-age-hours", v), f"--min-age-hours {v!r}")
+    r = cli(tmp, "--min-age-hours", "1")
+    assert r.returncode == 0, f"--min-age-hours 1 refused: {r.stderr}"
+
+
+def a_tree_changed_in_the_removal_window_is_put_back():
+    tmp = sandbox()
+    t = fixture_tree(tmp, "tmpwindow01")
+    other = fixture_tree(tmp, "tmpwindow02")
+
+    def tamper(quarantined):
+        # Somebody writes into the tree between the scan and the removal.
+        assert os.path.basename(quarantined) != "tmpwindow01", "the tree was not quarantined"
+        assert os.path.dirname(quarantined) == tmp, "quarantine left the temp root"
+        if "tmpwindow01" in quarantined:
+            put(os.path.join(quarantined, "copy", "late.txt"), b"mine\n")
+
+    removed, left = reap_own.reap([t, other], tmp, min_age_s=0, _window=tamper)
+    assert os.path.isdir(t), "a tree changed in the window was removed"
+    assert os.path.isfile(os.path.join(t, "copy", "late.txt")), "the changed tree lost its write"
+    assert not os.path.exists(other), "the untouched tree was not removed"
+    assert (removed, left) == (1, 1), f"expected (1, 1), got {(removed, left)}"
+    assert sorted(os.listdir(tmp)) == ["tmpwindow01"], f"quarantine residue: {os.listdir(tmp)}"
+
+
+def an_extra_empty_directory_is_not_the_fixture():
+    tmp = sandbox()
+    t = fixture_tree(tmp, "tmpemptyd01")
+    os.makedirs(os.path.join(t, "copy", "mine"))
+    age(t)
+    t2 = fixture_tree(tmp, "tmpemptyd02")
+    os.makedirs(os.path.join(t2, "copy", ".git"))   # .git without the churn state's index
+    age(t2)
+    found = sorted(os.path.basename(p) for p in reap_own.find_own(tmp))
+    assert found == [], f"a tree with an extra empty directory was claimed: {found}"
+
+
+def the_counts_are_the_fixture_s():
+    assert len(reap_own.STATES) == 5, f"{len(reap_own.STATES)} file sets, the fixture has 5"
+    assert not any(st[0].get(".git/index") == b"before\n" for st in reap_own.STATES), \
+        "the churn case's pre-snap state is not terminal"
+
+
+CASES = [
+    ("the fixture's eight cases, five distinct file sets, are all recognised", every_terminal_state_is_recognised),
     ("near-misses by one byte, entry, name, symlink or manifest are left alone", near_misses_are_left_alone),
     ("a tree younger than the age floor is left alone", a_young_tree_is_left_alone),
     ("dry run is the default and removes nothing", dry_run_is_the_default_and_removes_nothing),
     ("--apply removes exactly the matches", apply_removes_exactly_the_matches),
     ("a missing temp root refuses rather than reports clean", a_missing_tmpdir_refuses),
-]:
+    ("--tmpdir / (and an empty root) is refused", the_filesystem_root_is_refused),
+    ("--tmpdir $HOME is refused", home_is_refused),
+    ("--tmpdir at an ancestor of $HOME is refused", an_ancestor_of_home_is_refused),
+    ("a non-finite, sub-hour or non-numeric age floor is refused", a_bad_age_floor_is_refused),
+    ("a tree changed in the removal window is put back, not removed", a_tree_changed_in_the_removal_window_is_put_back),
+    ("an extra empty directory makes a tree somebody else's", an_extra_empty_directory_is_not_the_fixture),
+    ("the end-state count is the fixture's, five", the_counts_are_the_fixture_s),
+]
+for n, f in CASES:
     case(n, f)
 
 if failures:
-    print(f"\nFAIL: {len(failures)} of 6")
+    print(f"\nFAIL: {len(failures)} of {len(CASES)}")
     sys.exit(1)
-print("\nPASS: reap-own — 6 cases")
+print(f"\nPASS: reap-own — {len(CASES)} cases")

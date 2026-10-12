@@ -912,7 +912,9 @@ check_priority_axes_are_the_manifesto_s_and_carry_no_scalar()
 # it (B-158, ported back from make-skill 0.31.0, which widened this check first). What it does
 # NOT see, stated so nobody reads more into a green run: chained receivers (`a.b.mkdtemp(`),
 # a function reference stored and called later, `getattr`, and a parenthesised multi-line
-# import. Only whole-line `#` comments and `"""` blocks are skipped.
+# import. Only whole-line `#` comments and `"""` blocks are skipped — and that blanking is
+# lexical, not a parse: a string literal that itself contains `"""` (such as `'"""'`) pairs
+# with the next `"""` in the file, and every maker between the two is hidden from the check.
 TEMP_MAKERS = re.compile(r"(?<![\w.])(?:[A-Za-z_]\w*\.)?(?:" + "mkdtemp" + "|Temporary"
                          + "Directory" + r")\s*\(|\bfrom\s+tempfile\s+import\b[^\n]*\b(?:"
                          + "mkdtemp" + "|Temporary" + "Directory" + r")\s+as\b")
@@ -924,14 +926,27 @@ TEMP_MAKERS = re.compile(r"(?<![\w.])(?:[A-Za-z_]\w*\.)?(?:" + "mkdtemp" + "|Tem
 TEMP_SCAN_SKIP_DIRS = {".git", "node_modules", "__pycache__", "fixtures"}
 TEMP_TREE_ALLOWED = {
     # The ledger itself: it calls the maker on everyone's behalf.
-    os.path.join("test", "residue.py"): (1, "the residue ledger is the one door"),
+    os.path.join("test", "residue.py"): (1, "the residue ledger is the one door", None),
     # Ships to users inside the plugin; its `--self-test` builds one throwaway tree per plant
     # with a context manager that removes it on every path, exception included. It cannot
     # import `test/residue.py`: an installed plugin carries no `test/` directory.
     os.path.join("plugins", "agent-stack", "skills", "agent-harness", "scripts",
                  "audit_agent.py"): (2, "a shipped tool's self-test, context-managed, "
-                                        "outside the test suite's reach"),
+                                        "outside the test suite's reach", "with"),
 }
+# A count alone pins how many, not what: a bare `mkdtemp()` swapped in for one of the two
+# context managers kept the count at 2 and passed. So an exempt SHIPPED file must make every
+# tree in the `with … TemporaryDirectory(` form, the one that removes it on every path.
+TEMP_WITH_FORM = re.compile(r"^\s*with\s+(?:[A-Za-z_]\w*\.)?Temporary" + "Directory" + r"\s*\(")
+
+
+def exempt_shape_violations(text, shape):
+    """The hits in `text` that are not in the shape its exemption allows, as [(match, line)]."""
+    if shape != "with":
+        return []
+    lines = text.split("\n")
+    return [(m, n) for m, n in temp_maker_hits(text) if not TEMP_WITH_FORM.match(lines[n - 1])]
+
 
 
 def temp_maker_hits(text):
@@ -968,8 +983,9 @@ def check_temp_trees_go_through_the_residue_ledger(root=None):
         return
     for path, rel in zip(files, rels):
         with open(path, encoding="utf-8") as fh:
-            hits = temp_maker_hits(fh.read())
-        allowed, why = TEMP_TREE_ALLOWED.get(rel, (0, ""))
+            text = fh.read()
+        hits = temp_maker_hits(text)
+        allowed, why, shape = TEMP_TREE_ALLOWED.get(rel, (0, "", None))
         if len(hits) > allowed:
             first = hits[allowed]
             fail(f"{rel}: creates a temp tree outside the residue ledger — {first[0]!r} at "
@@ -983,6 +999,10 @@ def check_temp_trees_go_through_the_residue_ledger(root=None):
                   "context manager that removes it on every path and give the file an "
                   "exact-count entry, with its reason, in `TEMP_TREE_ALLOWED` — or move the "
                   "work into the suite"))
+        for m, n in exempt_shape_violations(text, shape):
+            fail(f"{rel}: {m!r} at line {n} is not a `with … Temporary" "Directory(` block — "
+                 f"this file is exempt only for context-managed trees ({why}); a bare maker "
+                 "inside the allowed count leaks exactly like one outside it")
     for rel in sorted(TEMP_TREE_ALLOWED):
         if rel not in rels:
             fail(f"{rel}: exempt from the temp-tree check but no longer exists — an exemption "
@@ -1001,6 +1021,12 @@ if not (temp_maker_hit("from tempfile import " + _M + " as m\nd = m()\n") or (""
     fail("B-158 self-test: a renamed from-import of a temp-dir maker was not found")
 if temp_maker_hit('"""why ' + _M + '() is banned"""\n# or ' + _M + "()\n"):
     fail("B-158 self-test: an explanation in a docstring/comment was read as a violation")
+# Review of PR #45: an exempt shipped file is held to the context-manager form, by line.
+_shape_plant = ("import tempfile\nwith tempfile.Temporary" + "Directory() as d:\n    pass\n"
+                "d = tempfile." + _M + "()\n")
+if exempt_shape_violations(_shape_plant, "with") != [("tempfile." + _M + "(", 4)]:
+    fail("PR #45 self-test: a bare " + _M + "() beside a `with` form in an exempt shipped file "
+         "was not reported at line 4: " + repr(exempt_shape_violations(_shape_plant, "with")))
 # AG-06a, asserted as a capability: the scan reads the shipped scripts, not only the suite.
 _scanned = {os.path.relpath(p, ROOT) for p in temp_scan_files(ROOT)}
 for _rel in TEMP_TREE_ALLOWED:
