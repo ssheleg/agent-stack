@@ -1,17 +1,17 @@
 ---
 name: agent-interop
 description: >-
-  Use when an agent must talk to something outside its own process — building or consuming an
+  Use when an agent talks to anything outside its process — building or consuming an
   MCP server, exposing or calling an agent over A2A, publishing to the MCP Registry, or
-  putting a gateway in front of agent traffic. Carries the MCP 2026-07-28 wire surface and what it
+  fronting agent traffic with a gateway. Carries the MCP 2026-07-28 wire surface and what it
   deprecated (server/discover, stateless _meta, form/URL elicitation, subscriptions/listen;
   sampling, roots, logging and dynamic client registration going),
-  A2A 1.0 agent cards, task states, three bindings, registry namespaces, server.json, tool
-  federation, and what a gateway must do that an API gateway does not. Triggers - "MCP server",
+  A2A 1.0 agent cards, task states, three bindings, registry namespaces, what a gateway adds
+  over an API gateway, and calls on behalf of a person. Triggers - "MCP server",
   "MCP client", "A2A", "agent card", "agent interoperability", "MCP registry", "server.json",
   "agentgateway", "tool federation", "MCP-сервер", "карточка агента", "интероперабельность
-  агентов", "реестр MCP", "шлюз для агентов". Not for designing one server's tool set, nor for
-  a skill's own construction — that is make-skill.
+  агентов", "реестр MCP", "шлюз для агентов", "delegation token", "on behalf of",
+  "делегирование". Not for one server's tool design, nor a skill's construction (make-skill).
 license: MIT
 ---
 
@@ -109,7 +109,7 @@ an index; the trigger lives in the file, so the two cannot drift apart.
 | [`references/mcp-scale.md`](references/mcp-scale.md) | the host has **more servers and tools than context** — progressive discovery, programmatic tool calling, cache interaction, and the security surface each one opens |
 | [`references/a2a.md`](references/a2a.md) | the other side is **another agent, not a tool** — agent cards and discovery, the task lifecycle and its terminal states, three protocol bindings, streaming versus push |
 | [`references/registry.md`](references/registry.md) | you are **publishing a server** or building something that consumes the registry — `server.json`, reverse-DNS namespaces and how ownership is proved, the publish flow, and the registry's three refusals |
-| [`references/gateway.md`](references/gateway.md) | agent traffic needs **one controlled seam** — what a gateway must do that an API gateway does not, federation and name collisions, where authorization actually belongs, and **delegation** — a token that says which agent acts for which person |
+| [`references/gateway.md`](references/gateway.md) | agent traffic needs **one controlled seam** — what a gateway must do that an API gateway does not, federation and name collisions, where authorization actually belongs, and **delegation** — a token that says which agent acts for which person, and whether a call needs one at all (trust by machine: T0/T1/T2) |
 
 ---
 
@@ -124,7 +124,8 @@ there. The protocol is described in exactly one of the two places, and this is i
 
 **Against the Fabric adapter and Observatory skills.** Where an agent or service must join
 a Fabric estate, the HOW is theirs: `fabric-agent-adapter:creating-fabric-agents`,
-`:adapting-projects-to-fabric` and `:building-fabric-services` (the descriptor, the hub,
+`fabric-agent-adapter:adapting-projects-to-fabric` and
+`fabric-agent-adapter:building-fabric-services` (the descriptor, the hub,
 `fabric-service/0.1`); credentials an agent uses go through
 `observatory-log:handling-secrets` (named vault slots, never a value). This skill keeps the
 protocol they speak — MCP, A2A, the gateway, delegation — and points to them rather than

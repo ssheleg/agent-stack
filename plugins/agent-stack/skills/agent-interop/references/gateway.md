@@ -2,13 +2,15 @@
 
 **Load this when:** many clients meet many servers, tool access needs to differ per caller,
 somebody has asked who is allowed to call what and you cannot answer from one place, or an
-agent calls another **on someone's behalf** and the callee has to know for whom.
+agent calls another **on someone's behalf** and the callee has to know for whom — or whether
+that caller needs a token at all.
 
 **Spec pinned:** agentgateway `1.4.x` from `agentgateway.dev/docs/standalone/latest` · read 2026-08-13
 
 **Delegation pinned:** RFC 8693 §4.1–4.2, RFC 8725 §3.11, RFC 8785; worked example Fabric
-`fabric-delegation/0.1` (`passioncode-ai/fabric-agent-contract@8e49fbd`, ADR-0144 at
-`passioncode-ai/fabric@812876cf`) · read 2026-10-11
+`fabric-delegation/0.1` (`passioncode-ai/fabric-agent-contract@3cb03ab`, whose trust tiers
+are DL-25 and DL-26; ADR-0144 at `passioncode-ai/fabric@812876cf`, amendment 4 at
+`19ad05ca`) · read 2026-10-12
 
 Linux Foundation, Apache-2.0, written in Rust.
 
@@ -126,26 +128,56 @@ callers apart, so no limit holds per caller) or **the callee's own host credenti
 by the caller** (a confused deputy with that service's full power). Neither says on whose
 behalf the work runs.
 
-**First, whether a token is needed at all — trust by machine.** Proof is owed at a
-boundary, and the operator's own machine is not one. Requiring a token, an approval and a
-grant record for every local call buys ceremony, and nobody can attribute a cost to it.
+**First, whether a token is needed at all — trust by machine.** Proof starts at the machine
+boundary: on the operator's own machine, the operator's instruction is the authority (Fabric
+ADR-0144 amendment 4, the operator's decision of 2026-10-11). In this block a code in
+parentheses is a rule of the worked example's `delegation.md` at the pin above, and a sentence
+that is this file's own rule says so.
 
-| Tier | Where the call comes from | What it needs |
-|---|---|---|
-| T0 | the operator's own machine | the operator's instruction is the authority: no delegation token, no approval, no grant record |
-| T1 | another machine of the operator's, once it is enrolled in the operator's agent network | the same as T0 |
-| T2 | another person's machine, or any outside caller | everything below: a share grant with limits, an expiry and a payer, a token per call, an approval per effect |
+| Tier | Who the caller is | What places it there | What a call needs |
+|---|---|---|---|
+| T0 | on the operator's own machine: on loopback, under the owner's OS account | the service's local floor — loopback only, the `Host` and `Origin` guard, the descriptor token (DL-25; `service.md` §Authentication and network) | the operator's instruction: no delegation token, no `approval/1`, no grant record (DL-26) |
+| T1 | another machine of the same owner, enrolled in the agent network | its enrolment, which is Fabric's roadmap item RM-21 and still open — so **no machine is T1 yet** (DL-25; fabric-workspace `knowledge/roadmap.md` RM-21) | the same as T0 (DL-26) |
+| T2 | everyone else: another person's machine under a share grant, and any caller the callee cannot place in T0 or T1 | nothing places it; it is the default (DL-25) | the whole model below: a token per call, an approval for each effect that needs one, a grant with limits, an expiry and a payer (DL-26) |
 
-Two rules hold on **every** tier:
-- **Money limits and human gates.** Every spend limit (project, estate, each key's
-  ceiling) applies, and so does every gate a person holds: sign-in, consent, payment.
-- **No borrowed keys.** An agent never spends another agent's key. It calls that agent's
-  capability, so the owner's wallet and limits apply.
+**A tier is the caller's origin's, not its connection's** (DL-25). A call relayed onto
+loopback from off the machine — through a tunnel, a reverse proxy, or the hub forwarding a T2
+caller's call — is T2 unless the relay proves the origin's tier, and the hub attaches a T2
+origin's token to whatever it forwards. Loopback does not prove who connected: any process of
+the operator's account can reach it and read its token files (`service.md`, "Loopback
+reachability is not authorization"). T0 is trusted because the operator gave the
+instruction, not because of the connection (§The boundary).
 
-On a T0/T1 path the token below is optional and used for attribution only. A service
-that takes calls across the machine boundary, or from outside people, requires it.
-Enrolment is what moves a machine from T2 to T1. A machine is never trusted because it
-is on the same network.
+**Tiers belong to callers, not to services.** A callee places each caller in one tier
+(DL-25), and it MUST NOT require a delegation token, an `approval/1` or a grant record from a
+T0 or T1 caller; no local call waits on the issuer (DL-26). A service that also serves T2
+callers still must not require a token from its T0 and T1 callers (this file's reading of
+DL-25 with DL-26), and a service reached only from inside the boundary does not declare
+token-only access at all (DL-16). A token that a T0 or T1 caller does present is verified as
+any other (the check below, DL-13). When the check fails the call is refused: a present but
+invalid token is never ignored (DL-26, DL-10). An accepted one is used for attribution and
+for narrowing what the call may do (DL-26).
+
+Three rules hold on **every** tier (DL-26):
+- **Money limits.** L0 — the estate's total across provider keys — the project's limit (L1)
+  and each provider key's own ceiling all bind (DL-26; fabric-workspace
+  `knowledge/authority.md` *Levels*).
+- **Human gates.** Five stay with a person: a sign-in, a consent, a payment, a top-up, and a
+  secret typed into a hidden prompt (DL-26; ADR-0144 amendment 4).
+- **No borrowed keys.** A credential source is never another agent's key or vault slot
+  (DL-26). Call that agent's capability instead, so its wallet and limits apply
+  (`authority.md` *The three rules*).
+
+**How a token-less T0 call is metered.** It carries no token to exchange, so it never reaches
+the meter's grant check below — that flow is the T2 path (DL-21; `METER.md` M1). Observatory, the estate's meter,
+ships the T0 settings as its defaults: `slotsRequireGrant: when-token` releases a vault slot
+with no token and checks one that is present, and the keyserver's
+`keyserverRequiresDelegation` is `off`. The strict modes (`always`, `agents`) are for a
+machine that serves T2 callers (project-observatory-dashboard `docs/design/METER.md` M0, M5,
+M6 at `5b24038`; `authority.md` *Trust by machine*). The spend still counts against L0:
+with a provider scan of this month, the meter's estate total is what the providers charged
+(the OpenRouter accounts it reads today), not only what passed its grant checks (`METER.md`
+M3, *What L0 counts*).
 
 **The token.** One short signed document per call path, in the shape of OAuth 2.0 Token
 Exchange (RFC 8693):
@@ -153,7 +185,7 @@ Exchange (RFC 8693):
 | Claim | Carries | The rule that makes it work |
 |---|---|---|
 | `sub` | the **person** the work is for | always a person — even when the grant was given to an agent, `sub` is whoever gave it; the agents are the next claim |
-| `act` | the **actor chain** (RFC 8693 §4.1) | the agent calling now outermost, earlier actors nested inside; cap the depth (Fabric: 4) |
+| `act` | the **actor chain** (RFC 8693 §4.1) | the agent calling now outermost, earlier actors nested inside; cap the depth (Fabric: 4, and 5 in a token for the meter) |
 | `aud` | **one** callee | a string, never an array: a token good at two callees is a token one of them can replay at the other |
 | `scope` | the callee's capability names (§4.2) | whole names, space-delimited |
 | effect ceiling | the most a call may *do* — read, draft, send, charge, delete, deploy… | external effects are not ordered against each other: a `delete` ceiling admits no `charge` |
@@ -175,8 +207,10 @@ chain it cannot see.
 small clock leeway, audience is itself, chain depth, the called capability is in `scope`, its
 declared effect is under the ceiling. Keys come only from the published set, never from the
 token's header (`jku`, `jwk`, `x5u`). Then it acts for `sub`, names the outermost actor as its
-caller and records the chain with the work. The issuer must be up to mint; with no issuer a
-call fails closed — never back to a borrowed credential.
+caller and records the chain with the work. For a T2 caller the issuer must be up to mint:
+with no issuer that call is refused `issuer-unavailable` and does nothing — never back to a
+borrowed credential (DL-8). Inside the boundary no call waits on the issuer; a T0 or T1
+caller with no hub calls without a token (DL-8, DL-26).
 
 **The issuer is not the route.** Calls carrying a token go **direct**, caller to callee, as
 `Authorization: Bearer`. Where something in the middle forwards a call because it holds the
@@ -187,15 +221,19 @@ but the identity worth recording on its audit trail is the token's chain, not "t
 called".
 
 **The host credential is the host's.** A service's own descriptor token is for its host —
-discovery, events, usage, login — and, once callers can mint, is not presented to call a
-capability; existing callers that borrow it switch when the issuer exists. A
-token never travels in a URL, an argument vector, a tool's arguments, a log line or a usage
-report.
+discovery, events, usage, login. **Across the machine boundary**, once callers can mint, it
+is not presented to call a capability; existing callers that borrow it switch when the
+issuer exists (DL-12). On the operator's own machine this is attribution hygiene, not a
+requirement: a caller should not call a capability with another service's descriptor token,
+because the callee then cannot tell that caller from its host (DL-12). A token never travels
+in a URL, an argument vector, a tool's arguments, a log line or a usage report (DL-11).
 
 **Money is a separate check against a meter.** The token's remaining-spend figure informs and
 never authorizes. Before spending, the callee asks the meter with a token **of its own**:
-exchanged onward with `aud` = the meter and read-only scope, because the token it holds names
-itself as audience and cannot be handed over. The meter reserves against the grant's windows
+exchanged onward with `aud` = the meter, `scope` exactly the meter's grant-check capability
+and effect `none`, because the token it holds names itself as audience and cannot be handed
+over (DL-21). This is the T2 path; a token-less T0 call is metered as the tier block above
+says. The meter reserves against the grant's windows
 and every level above (Fabric: the estate total), and refuses `limit-reached` **naming the
 window** that ran out — a limit refusal without its window cannot be acted on.
 
@@ -216,17 +254,25 @@ a denial.
 
 **What it does not buy.** A token file readable by the operator's account is readable by any
 process of that account. Delegation gives every hop an attributable name, narrowing and
-per-caller limits; it does not protect against a hostile local process. That takes an
-approval or a device check — and proof of possession (DPoP, mutual TLS) is a further step this
-shape leaves open.
+per-caller limits; it does not protect against a hostile local process. A product that
+needs that protection adds an approval (DL-17; §The boundary). A device approval was removed
+by DEC-0045 until a decision defines it, and proof of possession (DPoP, mutual TLS) is a
+further step this shape leaves open (§Not decided here).
 
 **Worked example.** Fabric's `fabric-delegation/0.1` (contract DEC-0039, decided in Fabric
 ADR-0144) implements the token, the verifier, the meter flow, the approval and the refusal
-codes above — with schemas, positive/negative/semantic fixtures and a reference verifier: `docs/specification/delegation.md` in `passioncode-ai/fabric-agent-contract`
-at `8e49fbd`. Read its check table (DL-13) before writing a verifier in another language.
-The trust tiers are Fabric ADR-0144 amendment 4 (`19ad05ca`), in Fabric's main since
-`5bf15e5c`, and the operator's decision is recorded in `passioncode-ai/fabric-workspace`
-`knowledge/authority.md`, *Trust by machine*, at `714808ac`.
+codes above — with schemas, positive/negative/semantic fixtures and a reference verifier:
+`docs/specification/delegation.md` in `passioncode-ai/fabric-agent-contract` at `3cb03ab`.
+Read its check table (DL-13) before writing a verifier in another language. The tier rule is
+its §Trust tiers — DL-25 (three tiers, placed by origin) and DL-26 (no token, approval or
+grant record required inside the boundary) — which entered the contract in `063a725`; the
+origin rule followed in `3cb03ab`. It implements Fabric ADR-0144 amendment 4 (`19ad05ca`, in
+Fabric's main since `5bf15e5c`); the operator's decision is recorded in
+`passioncode-ai/fabric-workspace` `knowledge/authority.md`, *Trust by machine*, at `714808ac`.
+A second implementation, `fabric-agent-adapter` 0.20.0
+(`building-fabric-services/references/delegation.md`, *Who must present a token*), places
+tiers the same way: its verifier takes the caller's tier and passes a T0 call that carries
+no token.
 
 ## agentgateway, concretely
 
@@ -293,7 +339,15 @@ Two consequences for whoever runs the gateway:
 - **Federating servers you do not trust into one namespace.** Federation makes a hostile
   server's tools look exactly as legitimate as everyone else's.
 - **Calling a service with its own descriptor token.** It works, it is unattributable, and it
-  hands the caller everything that token can do. Mint a delegation token for that one call.
+  hands the caller everything that token can do. Across the machine boundary, mint a
+  delegation token for that one call (DL-12); on the operator's own machine, call without
+  one rather than borrow the host's (DL-12, DL-26).
+- **Placing a caller by its connection.** A tunnel, a reverse proxy or the hub forwarding puts
+  an off-machine caller on loopback. Its tier is its origin's, so it is T2 unless the relay
+  proves otherwise (DL-25).
+- **Requiring a token of every caller because some callers are T2.** Tiers are per caller: a
+  T0 or T1 caller is never required to present one, and a token it does present is still
+  checked and refused when invalid (DL-26).
 - **`aud` as an array, or a token without `typ`.** Both let one signed document be replayed
   where it was never meant to be accepted.
 - **Checking spend from the token's claim.** It was the remainder at mint time; the meter
