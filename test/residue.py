@@ -159,3 +159,16 @@ def report(stream=None):
 
 
 atexit.register(report)
+
+
+if __name__ == "__main__":
+    # `python3 test/residue.py --reap-own [--apply]` — remove only what the old leaking
+    # fixture provably left (AG-06b). The logic lives in `reap_own.py` so this shared
+    # mechanism stays one file across its copies.
+    if "--reap-own" in sys.argv[1:]:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import reap_own
+        sys.exit(reap_own.main(sys.argv[1:]))
+    print("usage: residue.py --reap-own [--apply] [--tmpdir DIR] [--min-age-hours N]",
+          file=sys.stderr)
+    sys.exit(2)

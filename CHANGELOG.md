@@ -1,3 +1,57 @@
+## 0.27.1 — the temp-tree check reads the whole repository, and the old leak can be reaped by content
+
+Closes board rows B-158, AG-06a and AG-06b (sshlg-skills plan R28).
+
+- **Any receiver, and a renamed from-import (B-158).** `check_temp_trees_go_through_the_residue_ledger`
+  matched `tempfile.` as the only receiver, so `import tempfile as tf; tf.mkdtemp()` and
+  `from tempfile import mkdtemp as m` passed. The pattern is now make-skill 0.31.0's: a direct
+  call through one receiver or none, and a one-line renaming from-import, are refused; two
+  negative controls (alias, renamed import) were watched failing on the old pattern. Only
+  whole-line `#` comments and `"""` blocks are skipped; chained receivers, function references,
+  `getattr` and parenthesised multi-line imports are not seen. Line numbers are now the file's
+  own, not the stripped source's.
+- **Recursive, and beyond `test/` (AG-06a).** The check read `test/*.py`; it now reads every
+  `*.py` the repository ships or runs (`test/` recursively, `plugins/`, `bin/`), skipping only
+  `.git`, `node_modules`, `__pycache__` and `fixtures`. Its first run found a real bypass,
+  `test/audit_regressions/instruction_budget.py:21` (`tempfile.TemporaryDirectory(`), now a
+  `residue.workspace()` (the audit run reports `14 temp tree(s) created, 14 removed`).
+  Exemptions are exact paths with a reason and a pinned count of makers: `test/residue.py`
+  (1, the ledger itself) and `agent-harness/scripts/audit_agent.py` (2, a shipped tool's
+  context-managed self-test that cannot import the suite's ledger). A third maker in an
+  exempt file is refused, and an exemption for a file that no longer exists fails. A shipped
+  script is told its own remedy. New CI negative self-test: an aliased maker in a plugin
+  script, refused by file and line.
+- **`python3 test/residue.py --reap-own` (AG-06b).** The trees the old `plant_guard_test.py`
+  leaked are identifiable by content, so they can be reaped without claiming anybody else's
+  directory: `test/reap_own.py` claims a direct child of the temp root only when it is named as
+  `mkdtemp()` names, is not a symlink, holds exactly `copy/` (one of the fixture's five end-state file sets,
+  byte for byte, regular files only) and optionally the fixture's own manifest, and has not
+  changed for 24 hours (`--min-age-hours`). Dry run by default; `--apply` re-checks each tree
+  before removing it. `test/reap_own_test.py` (6 cases, in `npm test`) runs in a sandbox
+  temp root and plants near-misses by one byte, entry, name, symlink and manifest. Run
+  against this machine's real `$TMPDIR` on 2026-10-12, dry: `0 tree(s) match` — the 2592
+  trees counted on 2026-08-20 are already gone (`find … -path '*/copy/sub/b.sh' | wc -l` → 0),
+  and both suites that leaked them now use `residue.workspace()`.
+- **Review round on the first cut (blind reading of PR #45).** Seven fixes, each case written
+  first and watched failing:
+  - the reaper refuses a temp root that is empty, `/`, `$HOME` or an ancestor of `$HOME`,
+    compared after `realpath` (exit 2, `CANNOT RUN`); `--tmpdir /` and `--tmpdir $HOME` were
+    accepted;
+  - `--min-age-hours` refuses non-finite values and anything under 1 h, and a non-numeric
+    value is `CANNOT RUN` instead of a traceback;
+  - `--apply` renames each tree atomically to a quarantine name in the same root, re-verifies
+    the renamed tree, and only then removes it; a tree changed in that window goes back to
+    its own name;
+  - the fingerprint includes the directory set (`copy/sub`, plus `copy/.git` for the churn
+    state), so an extra empty directory makes a tree somebody else's;
+  - the counts are the fixture's: eight cases end in five distinct file sets. The first cut
+    said seven and carried a sixth set (`.git/index` = `before`) the fixture never ends in;
+  - an exempt shipped file is held to the `with … TemporaryDirectory(` form line by line: a
+    bare `mkdtemp()` swapped in for one of `audit_agent.py`'s two context managers kept the
+    count at 2 and passed;
+  - stated as a limit, not fixed: a string literal containing `"""` pairs with the next one in
+    the file and hides every maker between them from the check.
+
 ## 0.27.0 — trust by machine, Fabric jobs, and room in every description
 
 Integration wave 4 of the family's waves run (sshlg-skills plan R23–R26). The first cut

@@ -5,10 +5,11 @@ import json
 from pathlib import Path
 import subprocess
 import sys
-import tempfile
 import unittest
 
 sys.dont_write_bytecode = True
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import residue  # noqa: E402  every temp tree goes through the ledger (B-158)
 
 SCRIPT = Path(__file__).resolve().parents[2] / "plugins/agent-stack/skills/agent-harness/scripts/instruction_budget.py"
 spec = importlib.util.spec_from_file_location("instruction_budget", SCRIPT)
@@ -18,9 +19,7 @@ spec.loader.exec_module(budget)
 
 class InstructionBudget(unittest.TestCase):
     def setUp(self):
-        self.temp = tempfile.TemporaryDirectory(prefix="instruction-budget-")
-        self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name).resolve()
+        self.root = Path(residue.workspace("instruction-budget")).resolve()
 
     def put(self, name, text):
         path = self.root / name
