@@ -1,11 +1,15 @@
-# Current work — published agent-stack 0.27.2
+# Current work — bounded restart correction after published0.28.1
 
-R30 owner-board and release-ancestry gates are merged and published as0.27.2,
-source `792e3f6cb2e46517f0187066db55edc63ae7d12c`. All four release jobs passed,
-and all44 npm payload files matched that source. The
-[release packet](evidence/runs/2026-10-13-release-0.27.2.md#published-readback)
-is the durable entry with exact sources, gates and limitations.
+Agent-stack0.28.1 source `cd6421b8ca7d9440bc87e366ebd8a96bb38b69b8` is published,
+but independent review found the restart instruction overbroad. The current
+[restart correction packet](evidence/runs/2026-10-13-restart-boundaries.md) owns
+scope, counterexamples, checks, remaining gates and the exact next action.
 
-Exact next task: coordinator pins0.27.2 in the next family release and verifies
-installed files. B-161 source/publication scope is closed; the family-wide R30
-and native runtime remain distinct. Preserve foreign worktrees and old tags.
+Next: independent review of this bounded doctrine diff and its instruction-only
+checks. Then coordinate one owner aggregate, normal integration and a successor
+patch release; do not change either existing0.28.0 or0.28.1 tag. Hub keeps its
+accepted0.27.2 pin until the correction is accepted and published. No native retry
+mechanism or model behavior is claimed by these documentation tests.
+
+Earlier0.27.2 source/publication evidence remains in the
+[release packet](evidence/runs/2026-10-13-release-0.27.2.md#published-readback).

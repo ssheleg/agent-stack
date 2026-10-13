@@ -10,6 +10,15 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Unreleased restart-boundary correction (2026-10-13)
+
+The [owner packet](runs/2026-10-13-restart-boundaries.md) narrows the published
+0.28.1 restart instruction: isolated owned recovery, sibling/in-flight admission,
+finite retry bounds, provider timing and current authority. Local text regression
+checks, structural validation and manual counterexample reading are evidence for
+instruction scope only. Native model behavior, owner aggregate, integration and
+successor release remain pending. The published0.28.1 evidence below is historical.
+
 ## Release candidate — v0.28.1 (2026-10-13)
 
 The change is doctrine only: no script, validator or installer change. It was measured on the

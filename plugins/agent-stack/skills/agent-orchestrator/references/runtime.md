@@ -45,43 +45,59 @@ Two properties earn their cost:
 
 ## A limit stop is not a wait
 
-A coding-agent host shows a usage stop as *You've hit your session limit · resets 5am*.
-The time in that message describes **one account**, read when the request was refused. In
-practice an orchestrator that restarts the worker minutes later usually finds it runs. An
-account rotator may already have moved the session to an account with room, or the
-limit was a short rate window. Waiting hours for the stated reset idles a run that would
-have gone on.
+A usage/session limit or exhausted host rate-limit retry is a recovery signal,
+not a reason to leave all other work idle. Record the stopped unit and continue an
+independent task. A reset message describes the provider/account that emitted it;
+without a newer supported status, do not assume that its limit has cleared or that
+an account rotator exists. Do not change accounts, keys or providers to evade it.
 
-**Three triggers** send the orchestrator to restart a worker — a lane of a workflow, a
-sub-agent, a whole session:
+**Admit the stopped unit before resuming.** Read the host's supported resume and
+checkpoint contract. Establish that this unit has stopped, rather than only lost
+its visible stream. Silence for 15–20 minutes is a reason to inspect liveness,
+not proof of failure: an active command, provider request, sibling or supervisor
+may still own the work. Do not create a second active owner.
 
-- it stopped on a usage or session limit, whatever reset time it names;
-- it failed on a rate-limit error after the host's own retries;
-- it went silent: no transcript or event write for 15–20 minutes, its task unfinished,
-  **and no command of its own still running**. A build or a test suite that runs for half
-  an hour is not a stall, and stopping that lane loses the step in flight.
-
-**Restart at once, from where it stopped**, never from scratch:
-
-| Worker | Restart |
+| Worker | Recovery boundary |
 |---|---|
-| A workflow lane | stop the workflow, then resume it with the same run id and **the same arguments**: finished agents replay from the cache, and only the failed or stalled ones run again |
-| A sub-agent | send `resume` to its id, so it keeps its own context |
-| A session | re-prompt it: *continue from where you stopped* |
+| A workflow lane | Resume only the owned stopped lane through a supported host operation. Do not stop the whole workflow for one failed lane. If the host only supports whole-workflow recovery, reconcile every sibling and in-flight effect before stopping; require the workflow owner's existing authority and a safe checkpoint for all affected work. Otherwise record the dependency and use a watcher. |
+| A sub-agent | Use the host's documented resume operation at its existing ID only after it is stopped and its owner permits continuation. An ID alone does not prove a resume API or preserved context. |
+| A session | Re-prompt the same stopped session when supported, carrying the durable checkpoint and exact next action. Do not overlap a still-running turn or infer authority from the prompt. |
 
-Changed arguments invalidate the cache, so the whole run is paid for again.
+Keep the run identity and arguments when that host's resume contract requires
+them. Cached completion and argument invalidation are host-specific properties,
+not guarantees of this skill. Verify what is actually durable. A checkpoint is
+not a promise that an effect was not performed. Do not blindly replay an outward effect with an unknown outcome.
+Reconcile its attempt/provider receipt or idempotency key first; preserve unknown
+state and arrange a watcher when the outcome cannot yet be determined.
 
-**Back off only on a second stop.** If the restart halts again at once, retry at 2, 5,
-10 and then every 15 minutes, and keep doing independent work in between. Do not sleep
-until the reset time.
+**Bound every retry series.** Before the first attempt, record a finite attempt cap and a deadline,
+including attempts already made by the host, plus the existing resource/spend
+budget. If a bound is unknown, establish a conservative bound within existing
+authority before making another call; do not interpret unknown as unlimited.
+Before each attempt, recheck that the task is still active and authorized and that
+no sibling or replacement now owns it. Cancellation, expired authority or exhausted
+bounds stops the series, retains the best partial and records a durable next step.
+This uses existing act-specific authority, not a new permission gate for ordinary
+already-authorized continuation.
 
-**Not every limit is retried.** A spend cap, exhausted credits or a billing error does not
-clear on a timer: someone has to pay or raise it. Report it to that person once and do
-not loop.
+An immediate supported resume is eligible only when no provider Retry-After or
+known reset window remains, or newer supported evidence shows the earlier limit
+no longer applies. Otherwise set a watcher for that lower bound. If a transient
+stop repeats, use 2, 5, 10, then 15 minute backoff only within the recorded cap and
+deadline; take the later of backoff and provider timing. A deadline before eligibility
+ends this series rather than bypassing the provider. Continue independent work
+between attempts; a watcher is not a sleep holding the worker.
 
-**Log every restart** in the run's journal: which worker stopped, on what, when, and the
-attempt number. Ten restarts of one lane in an hour is a finding about that lane, not
-noise.
+**Human gates stay human.** Do not loop on a spend, credit or billing failure;
+report it once with the existing policy/decision and preserve the pending task.
+Sign-ins, consents, payments/top-ups and secrets typed by a person remain human
+steps. A resume grant cannot raise a cap, spend another agent's key or bypass
+provider restrictions. Other already-authorized work continues.
+
+**Log each attempt**: stopped unit and owner, reason, supported recovery action,
+checkpoint and uncertain effects, current authority, attempt/cap, deadline,
+provider eligibility and watcher identity. Record the outcome before scheduling
+another attempt. Repeated stops are a finding, not a reason to extend the cap.
 
 ## The interrupt/resume contract
 

@@ -135,6 +135,10 @@ mechanisms for one idea, the four double-texting policies, streaming a dropped
 connection can rejoin, forking a past checkpoint to debug through the real loop,
 stateful versus stateless schedules, and the seven cross-cutting concerns pulled
 out of the loop into ordered interceptors — where order is semantics.
+Usage-limit recovery preserves lane ownership and uncertain effects, uses finite
+attempt/deadline budgets and provider timing, and keeps independent work moving.
+The [restart correction packet](docs/evidence/runs/2026-10-13-restart-boundaries.md)
+records the counterexamples and the limits of the instruction-only checks.
 
 **`references/governance.md`** — permission rather than cost. The four boundaries
 an agent crosses (model, tool, external server, agent-to-agent), each with its own
