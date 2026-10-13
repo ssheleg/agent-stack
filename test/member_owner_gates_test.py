@@ -20,6 +20,8 @@ cases = [
     ('group overlaps later declaration', BOARD, lambda s: s.replace('| B-160 |', '| AG-04 |', 1), 'board duplicate ID'),
     ('even backslash pipe escape', BOARD, lambda s: s.replace('\\| wc -l', '\\\\| wc -l', 1), 'owner board row width'),
     ('missing separator', BOARD, lambda s: s.replace('|---|---|---|---|---|---|---|---|', '', 1), 'matching separator'),
+    ('orphan after blank', BOARD, lambda s: duplicate(s.replace('| B-159 |','\n| B-159 |',1)), 'owner board orphan declaration'),
+    ('orphan after comment', BOARD, lambda s: duplicate(s.replace('| B-159 |','<!-- table continuation -->\n| B-159 |',1)), 'owner board orphan declaration'),
     ('missing board', BOARD, lambda _: None, 'owner board missing'),
     ('missing header', BOARD, lambda s: s.replace('| id | What | Source |', '| key | What | Source |', 1), 'owner board declaration header'),
     ('missing ancestry', RELEASE, lambda s: s.replace('git merge-base --is-ancestor', 'git merge-base-removed --is-ancestor'), 'release ancestry guard'),

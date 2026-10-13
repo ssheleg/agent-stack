@@ -1357,6 +1357,26 @@ def check_owner_board_and_release_guards():
                 declared[key] = number + 1
         if not declared:
             fail("owner board has no declarations")
+        # Blank/comment boundaries cannot make later declarations disappear.
+        # Only this explicitly identified summary table may reference identities
+        # outside the primary table. Other ID-shaped rows need a declared home.
+        summary = False
+        for number, line in enumerate(lines):
+            if start <= number < end:
+                continue
+            stripped = line.strip()
+            if not stripped.startswith("|"):
+                summary = False
+                continue
+            row = cells(stripped)
+            headings = [label(c).lower() for c in row]
+            if headings == ["id", "what", "why it is still open"]:
+                summary = True
+                continue
+            identity = label(row[0]) if row else ""
+            if re.match(r"[A-Z]{1,4}-(?:[0-9]+|[A-Z])", identity):
+                if not summary or len(row) != 3:
+                    fail(f"owner board orphan declaration at line {number + 1}")
     path = os.path.join(ROOT, ".github/workflows/release.yml")
     try:
         workflow = open(path, encoding="utf-8").read()

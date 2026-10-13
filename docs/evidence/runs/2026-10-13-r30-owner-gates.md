@@ -53,3 +53,13 @@ Exact next task: independently review this candidate and its parser boundaries,
 then run the owner full gate once, promote a frozen draft PR, integrate normally
 and include it in a reviewed patch release. Do not advance the hub pin from this
 unreleased branch.
+
+## Independent review correction
+
+At63c54b9 the peer inserted a blank line or HTML comment before B-159 and
+then duplicated its identity in B-160. Both real validators returned0: the
+adapter stopped before the later rows. Two added process controls reproduced
+these failures locally. The guard now refuses ID-shaped orphan rows outside
+the primary declaration table, except the explicitly identified3column summary.
+The expanded suite passes16 controls with16 owned trees removed. This is a
+new source revision requiring peer readback; earlier14PASS is historical.
