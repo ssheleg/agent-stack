@@ -1,3 +1,17 @@
+## 0.27.2 — owner board and release ancestry checks
+
+- The repository validator now rejects missing boards, shifted rows, duplicate IDs
+  and declarations hidden outside the primary table. Grouped AG IDs and the
+  explicitly separate three-column reference summaries retain their own meaning.
+- Release validation now requires a full-history checkout and an unconditional
+  ancestry refusal; conditional, ignored and unreachable guards fail validation.
+- Sixteen process controls exercise the real validator. The first eight reproduced
+  failures on the former gate; independent review found and closed an orphan-row
+  bypass. AG-06b's command pipe is correctly escaped without changing its meaning.
+- Full hosted checks run nightly or on a deliberately promoted frozen candidate,
+  plus callable release validation. Ordinary pushes and PR edits do not trigger
+  another full suite. No skill body, routing description or runtime hook changes.
+
 ## 0.27.1 — the temp-tree check reads the whole repository, and the old leak can be reaped by content
 
 Closes board rows B-158, AG-06a and AG-06b (sshlg-skills plan R28).
