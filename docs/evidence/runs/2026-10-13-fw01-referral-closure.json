@@ -1,6 +1,5 @@
 {
   "base": "b332a92e62417d615543c6398f7a01f6d85663bf",
-  "board_ids_unchanged": 17,
   "original_issue_cells_unchanged": true,
   "changed_status_only": "B-159",
   "packaged_files_equal_base": 44,
@@ -186,5 +185,9 @@
     "exit_code": 0,
     "log_sha256": "e151183ca4b3a420a4d87d9b1390ea8de5e771067daa46eae90575aed852a97a"
   },
-  "limits": "Docs-only reconciliation; scanner guarantees remain bounded and installed behavior unchanged."
+  "limits": "Docs-only reconciliation; scanner guarantees remain bounded and installed behavior unchanged.",
+  "board_rows_unchanged": 29,
+  "expanded_board_ids_unchanged": 31,
+  "board_conservation_method": "Use actual member_gates.cells/label; locate unique eight-column primary header from owner validator, compare each primary row in order, expand grouped first-cell identifiers and preserve umbrella namespace; every row identical except B-159 final status cell.",
+  "peer_correction": "Original17 counted only a subset; independent review found29 primary rows and31 expanded IDs. Original receipt remains in prior commit."
 }
