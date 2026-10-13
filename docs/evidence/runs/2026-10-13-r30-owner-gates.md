@@ -63,3 +63,16 @@ these failures locally. The guard now refuses ID-shaped orphan rows outside
 the primary declaration table, except the explicitly identified3column summary.
 The expanded suite passes16 controls with16 owned trees removed. This is a
 new source revision requiring peer readback; earlier14PASS is historical.
+
+## Final bounded review and local aggregate
+
+Independent peer review of7aa4dd36518bc853013aed775ccfe18dcec98a85 passed:
+16process controls replayed, plus5 independent actual-validator negatives
+(blank/comment orphan rows, grouped overlap, formatted duplicate and duplicate
+header). The shared helper remained byte-equal to its cited canonical source.
+
+`npm test` then passed at that exact source:17 structural checks,9 plant-guard
+cases,16 owner controls,13 reap cases,11 installer cases and all audit regressions.
+[Full receipt](2026-10-13-r30-owner-full.json) and compressed output bind the
+checked source. This later documentation update does not retroactively change
+that source identity. Genuine exact-head hosted CI and normal merge are next.

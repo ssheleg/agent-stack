@@ -1,0 +1,8 @@
+{
+  "source": "7aa4dd36518bc853013aed775ccfe18dcec98a85",
+  "command": "npm test",
+  "exit_code": 0,
+  "log_sha256": "85d0cf29551ffe86b373c5a69c7a2131dcfff51ad64a1c48259b0342138faec9",
+  "log": "2026-10-13-r30-owner-full.log.gz",
+  "scope": "Local source validation; hosted integration and publication separate"
+}
