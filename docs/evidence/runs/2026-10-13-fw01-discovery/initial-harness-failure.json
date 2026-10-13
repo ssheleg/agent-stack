@@ -1,0 +1,8 @@
+{
+  "source": "63e155d9c1ca9df789535926acc3546f33954e3b",
+  "harness_exit": 1,
+  "actual_readable_plant_exit": 1,
+  "wrong_assumption": "diagnostic must be in stdout",
+  "correction": "inspect stdout plus stderr; retain genuine nonzero condition",
+  "rerun_receipt": "baseline.json"
+}
