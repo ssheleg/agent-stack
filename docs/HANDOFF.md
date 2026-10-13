@@ -1,3 +1,12 @@
+# FW00 referral dispositions — 2026-10-13
+
+[Current packet](evidence/runs/2026-10-13-fw00-referrals.md) closes only B-160's
+accepted source-lint port and retains B-159 as partial/open. Next: accept SEO's
+remaining scanner through its owner, then reconcile B-159 with source evidence.
+This docs-only change requires focused checks, peer review and normal PR admission.
+
+---
+
 # Current work — agent-stack 0.28.2 published
 
 The bounded restart correction is published from accepted source
