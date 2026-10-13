@@ -10,7 +10,15 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
-## Unreleased restart-boundary correction (2026-10-13)
+## Release — v0.28.2 (2026-10-13)
+
+The [publication receipt](runs/2026-10-13-release-0.28.2.md#published-readback)
+records accepted source, candidate and exact-main local full checks, genuine PR
+checks, annotated tag, all four successful release jobs and 44 byte-equal npm files.
+This closes source/publication for the bounded restart correction. Native behavior,
+provider outcomes and installed adoption are not established by those checks.
+
+## Historical unreleased restart-boundary correction cut (2026-10-13)
 
 The [owner packet](runs/2026-10-13-restart-boundaries.md) narrows the published
 0.28.1 restart instruction: isolated owned recovery, sibling/in-flight admission,

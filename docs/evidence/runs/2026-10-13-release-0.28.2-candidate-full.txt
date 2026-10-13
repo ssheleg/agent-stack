@@ -1,0 +1,231 @@
+
+> @ssheleg/agent-stack@0.28.2 test
+> python3 test/validate.py && python3 test/plant_guard_test.py && python3 test/member_owner_gates_test.py && python3 test/reap_own_test.py && node test/installer_test.js && npm run test:audit
+
+  unlooked: front matter vs a strict reader — no sshlg-skills umbrella above this checkout
+OK: agent-stack structurally valid (17 checks = 13 named + 4 per-skill, 4 skill(s), v0.28.2)
+residue: this run left nothing — 0 temp tree(s) created, 0 removed
+  ok  a content change is seen
+  ok  a MODE-ONLY change is seen (the incident)
+  ok  no change at all is refused, by name
+  ok  a new file is seen
+  ok  a deleted file is seen
+  ok  .git churn is not mistaken for a plant
+  ok  a missing tree refuses rather than approves
+  ok  verify without snap refuses
+  ok  the manifest lives outside the tree
+
+PASS: plant_guard — 9 cases
+residue: this run left nothing — 8 temp tree(s) created, 8 removed
+Owner gates: 16 process controls; 0 failures
+residue: this run left nothing — 16 temp tree(s) created, 16 removed
+  ok  the fixture's eight cases, five distinct file sets, are all recognised
+  ok  near-misses by one byte, entry, name, symlink or manifest are left alone
+  ok  a tree younger than the age floor is left alone
+  ok  dry run is the default and removes nothing
+  ok  --apply removes exactly the matches
+  ok  a missing temp root refuses rather than reports clean
+  ok  --tmpdir / (and an empty root) is refused
+  ok  --tmpdir $HOME is refused
+  ok  --tmpdir at an ancestor of $HOME is refused
+  ok  a non-finite, sub-hour or non-numeric age floor is refused
+  ok  a tree changed in the removal window is put back, not removed
+  ok  an extra empty directory makes a tree somebody else's
+  ok  the end-state count is the fixture's, five
+
+PASS: reap-own — 13 cases
+residue: this run left nothing — 10 temp tree(s) created, 10 removed
+ok: fresh HOME installs every shipped skill, and says how updates arrive
+ok: rerun skips, --force overwrites, unknown arg exits 2
+ok: plugin present in installed_plugins.json: refuse, exit 3, remedy, nothing written
+ok: plugin under a differently-named marketplace: remedy names the real spec
+ok: --force overrides the refusal, deliberately
+ok: corrupt installed_plugins.json reads as "no plugin" — install, never crash
+ok: other plugins, and a prefix-collider, do not trigger a false refusal
+ok: marketplaces/<name> dir alone still refuses (fallback signal, exit 3)
+ok: install.sh: fresh install, rerun overwrites (documented behaviour), bad arg exits 2
+ok: install.sh: plugin present — refuse, exit 3, nothing written; --force installs
+ok: install.sh: marketplaces dir alone refuses; corrupt JSON fails open
+residue: this run left nothing — 11 temp home(s) created, 11 removed
+PASS: installer — 11 case(s)
+
+> @ssheleg/agent-stack@0.28.2 test:audit
+> for t in test/audit_regressions/*.py; do python3 "$t" || exit 1; done
+
+  ok  the doctrine names the saga, the states, and never 2PC
+  ok  a documented HTTP timeout is unknown, never auto-compensated
+  ok  a definite failure compensates exactly once, with its audit row
+  ok  unknown resolves only by reconciliation evidence
+  ok  the success path stays clean
+OK (5 checks)
+  ok  the doctrine states the three rules and the idempotence
+  ok  a late response cannot compensate another's ledger
+  ok  reconciliation asks by key, never by guess
+  ok  repeated reconciliation is idempotent
+  ok  a lost CAS retries and lands exactly once
+OK (5 checks)
+  ok  the doctrine splits zero from absent
+  ok  all five acceptance sequences produce their predetermined records
+  ok  zero then zero is unchanged, not an event
+
+all green
+  ok  the doctrine states the gate and the old behaviour is gone
+  ok  an opposite instruction supersedes, never reinforces — history kept
+  ok  shared keywords and a negation flip are not a conflict
+  ok  a correction wins only in its own scope; a number change is caught
+  ok  self-repetition bumps nothing; independent corroboration does
+  ok  verified does not exempt a volatile fact from freshness
+
+all green
+  ok  the doctrine states the lifecycle
+  ok  repeated retrieval raises nothing; independence corroborates
+  ok  supersession keeps the dated history and reverses cleanly
+  ok  a volatile verified fact still expires; a stable one does not
+
+all green
+  ok  the doctrine types the edge and drops the untyped delete rule
+  ok  backup→migration, approval→charge, lease→edit survive
+  ok  a truly fake edge still dies
+  ok  two writers serialise; read-only reviews parallelise
+  ok  a reader of a writer's target is an edge too
+
+all green
+  ok  all three docs redefine auditability via the execution record + bounds
+  ok  static is a preference, not an audit requirement
+  ok  a complete static AND dynamic record both pass the same audit
+  ok  a deleted event/edge is detected in both
+  ok  a design diagram alone never passes
+
+all green
+  ok  the doctrine states the seed corpus and release gate
+  ok  the seed corpus has happy/adversarial/failure_retry with provenance
+  ok  the scenarios note points at the seed and says specification-ready
+  ok  observable-only is specification-ready, executed is release-ready
+  ok  a corrupt input is TEST_ERROR, not a behaviour result
+  ok  cases are isolated
+
+all green
+  ok  the doctrine carves out the mandatory partial order
+  ok  two independent reads reorder freely
+  ok  confirm-after-charge fails
+  ok  acquire-after-write fails
+  ok  the partial order is not a total order
+
+all green
+  ok  wilson ships, is boundary-honest, n=0 = total uncertainty
+  ok  the Wald helper states its validity limits
+  ok  dependence-widens and p^k-baseline carry their assumptions
+  ok  unpaired comparison is legitimate with the wider band
+  ok  pass@k/pass^k aggregate over task-level trials
+  ok  pooling repeated trials as tasks visibly distorts the number
+
+all green
+  ok  the design→method table stands, receipt names both
+  ok  dependent repeats never iid; small n buys nothing
+  ok  splits are frozen; holdout spent once; unseen is history
+  ok  the matching rule refuses the audit's counterexamples
+
+all green
+  ok  the doctrine states the extensible well-known set and provenance
+  ok  the doctrine separates totals from disjoint billing buckets
+  ok  an unknown operation value is kept raw, not dropped
+  ok  cache reads are not billed at the full input rate
+  ok  reasoning and modality subsets are not double-counted
+
+all green
+  ok  the doctrine carries the worked reconciling receipt
+  ok  the receipt matches the worked example ($3.84)
+  ok  the priced buckets sum back to the totals
+  ok  no cached token is charged twice
+  ok  the naive input+output over-charges
+
+all green
+  ok  the replay senses are split, cost/stochasticity reflected
+  ok  candidate records separate; regrade labelled regrade
+  ok  the mutation-must-move-the-gate rule is stated
+  ok  the gate rule run as behaviour (mutation moves execution, not regrade)
+
+all green
+  ok  the doctrine states the grant contract
+  ok  a client boolean is not authorization
+  ok  a valid grant authorizes its exact request
+  ok  a stale grant does not authorize changed arguments
+  ok  an expired grant is refused
+  ok  a trifecta pair is not blanket safe
+
+all green
+  ok  the doctrine states the trifecta's limit
+  ok  a missing leg is not a PASS for a destructive effect
+  ok  the full trifecta is an exfiltration finding
+  ok  the capability and effect axes are independent
+  ok  a genuinely safe session has neither finding
+
+all green
+  ok  the two distributions are distinguished; imports named/refused
+  ok  the pin is the example's identity, dated
+  ok  v1/standalone out of scope; lifecycle order verified
+  ok  proof is a localhost protocol call with the 200/401/list/call set
+  ok  every FastMCP snippet matches the named distribution
+
+all green
+  ok  the primary criterion is WHAT, duration is a second question
+  ok  the old lifecycle→A2A tell is gone
+  ok  the routing set covers Tasks / A2A / unsupported-fallback
+  ok  no case is decided by the word long-running; negotiated support is checked
+  ok  mcp.md carries the same rule at the Tasks bullet
+
+all green
+  ok  the three proof classes are separated
+  ok  no evals = unknown reliability; proven harm never masked
+  ok  prompt-first is a heuristic with named exceptions
+  ok  the traps carry both new rules
+  ok  fixture: the no-evals repo keeps BOTH findings, double charge unmasked
+  ok  a broken unit invariant is not treated by rewording
+
+all green
+  ok  every case is structurally valid, none is name-picking
+  ok  the greenfield case demands happy+adversarial+failure/retry (AS-06)
+  ok  the negative case refuses to load the skill
+  ok  the order case pins the causal pair and keeps the negative (AS-07)
+  ok  boundary statistics stay honest; regrade is labelled (AS-08, AS-10)
+  ok  the family harness validates each case (where present)
+
+all green
+  ok  every case is structurally valid, none is name-picking
+  ok  control and state edges survive the fake-edge pruner (AS-04)
+  ok  the negative case refuses to load the skill
+  ok  reconstruction covers dynamic too; confirm:true is not a grant (AS-05, AS-11)
+  ok  no-evals hides no double charge; manifest rules recorded (AS-14)
+  ok  the family harness validates each case (where present)
+
+all green
+  ok  every case is structurally valid, none is name-picking
+  ok  the pinned MCP example proves 401 + scoped old constructor (AS-12)
+  ok  the negative case refuses to load the skill
+  ok  protocol routing is not decided by the word long-running (AS-13)
+  ok  unsupported Tasks falls back, not to A2A; live probe-gated (AS-13, AS-12)
+  ok  the family harness validates each case (where present)
+
+all green
+  ok  every case is structurally valid, none is name-picking
+  ok  the saga case keeps an unknown outcome pending (AS-01)
+  ok  the negative case refuses to load the skill
+  ok  zero baseline is not missing; opposites do not merge (AS-02, AS-03)
+  ok  the fake-edge no-op preserves control/state edges (AS-04)
+  ok  the family harness validates each case (where present)
+
+all green
+..............
+----------------------------------------------------------------------
+Ran 14 tests in 0.171s
+
+OK
+residue: this run left nothing — 14 temp tree(s) created, 14 removed
+PASS: restart-boundaries — candidate contract + 11 text plants/controls; no agent replay
+  ok  the token rule is DL-26: per caller, verified, refused, narrowing
+  ok  a tier is placed by origin; T1 waits on RM-21
+  ok  fail-closed and the descriptor token are scoped; pins carry DL-25/DL-26
+  ok  five human gates, three money levels, token-less metering
+  ok  mcp.md: job handle, envelope, input responses, well-known degraded
+
+all green
