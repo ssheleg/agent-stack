@@ -1,21 +1,18 @@
-# Current work — agent-stack 0.28.2 release candidate (not published)
+# Current work — agent-stack 0.28.2 published
 
-Agent-stack0.28.1 source `cd6421b8ca7d9440bc87e366ebd8a96bb38b69b8` is published,
-but independent review found the restart instruction overbroad. The current
-[restart correction packet](evidence/runs/2026-10-13-restart-boundaries.md) owns
-scope, counterexamples, checks, remaining gates and the exact next action.
+The bounded restart correction is published from accepted source
+[`2b3d769775e368d0a1e6d0f20ea095ae24fbbd54`](https://github.com/ssheleg/agent-stack/commit/2b3d769775e368d0a1e6d0f20ea095ae24fbbd54)
+as annotated tag `v0.28.2`. The [publication receipt](evidence/runs/2026-10-13-release-0.28.2.md#published-readback)
+records exact candidate and accepted-main local full checks, genuine PR checks,
+all four successful release jobs, registry integrity and 44 matching payload files.
+Historical v0.28.0 and v0.28.1 tags remain unchanged.
 
-Independent source review of the doctrine correction passed at
-`ff797c6341fe6cdb4d9b0dd2e113f7ebb8f24f6f`, recorded in the hub's
-[peer receipt](https://github.com/ssheleg/sshlg-skills/blob/82310a5/docs/evidence/completion-1013/agent-stack-restart-peer.json).
-Version metadata now targets 0.28.2; this is not publication evidence.
-The [release packet](evidence/runs/2026-10-13-release-0.28.2.md) owns pending gates.
+The [restart correction packet](evidence/runs/2026-10-13-restart-boundaries.md)
+and [independent source review](https://github.com/ssheleg/sshlg-skills/blob/82310a56309932f5d51b40e3dcdd2801db99a296/docs/evidence/completion-1013/agent-stack-restart-peer.json)
+own the doctrine boundary. Text/structural checks and publication do not prove a
+native agent followed the instruction or that provider timing/cache outcomes occurred.
 
-Next: independent metadata review, one coordinated local owner aggregate, normal
-exact-head PR checks and merge, then exact accepted-main local full chain before
-the annotated tag and release/readback; do not change either existing0.28.0 or0.28.1 tag. Hub keeps its
-accepted0.27.2 pin until the correction is accepted and published. No native retry
-mechanism or model behavior is claimed by these documentation tests.
-
-Earlier0.27.2 source/publication evidence remains in the
-[release packet](evidence/runs/2026-10-13-release-0.27.2.md#published-readback).
+Next: the hub coordinator updates its accepted member pin and performs separately
+recorded installed readback. This owner task made no machine apply. Remaining owner
+board/runtime prerequisites remain open; publication alone does not close them.
+Earlier 0.27.2 evidence remains in its [release packet](evidence/runs/2026-10-13-release-0.27.2.md#published-readback).
