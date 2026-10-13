@@ -1,21 +1,18 @@
 name: validate
 
 on:
-  push:
-    # A TAG push must not start this workflow. `release.yml` calls it through
-    # `workflow_call`, and both runs land in the same concurrency group
-    # (`validate-${{ github.ref }}`) — so the push-triggered one cancels the
-    # release's own call, `release` and `publish` are SKIPPED for a `needs:` that
-    # was cancelled rather than failed, and the tag ships nothing while the run
-    # list shows a green validate beside it. Measured 2026-08-20 on
-    # `agent-stack v0.13.0`: validate green, release cancelled at 2s, npm still
-    # serving the previous version. It is a race, which is why the two siblings
-    # with the same shape happened to publish.
-    tags-ignore: ['**']
+  # One explicit frozen candidate after local checks and independent review.
   pull_request:
-  # Callable, so `release.yml` gates a publish on THIS suite instead of a
-  # copy of it. The negative self-tests live here as steps; running them
-  # from the release workflow any other way means a second home per plant.
+    types: [ready_for_review]
+  schedule:
+    - cron: '0 23 * * *'
+      timezone: Europe/Warsaw
+  workflow_dispatch:
+    inputs:
+      candidate_reason:
+        description: 'Recorded explicit candidate exception with task and frozen SHA'
+        required: true
+        type: string
   workflow_call:
 
 permissions:
@@ -40,6 +37,9 @@ jobs:
 
       - name: Structural validator
         run: python3 test/validate.py
+
+      - name: Owner board and release guard plants
+        run: python3 test/member_owner_gates_test.py
 
       - name: Audit regressions (sherlock plan, one file per closed finding)
         run: npm run test:audit
