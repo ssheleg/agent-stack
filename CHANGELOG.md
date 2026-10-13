@@ -1,3 +1,18 @@
+## 0.28.2 — bounded restart admission
+
+- Resume only an owned stopped worker through the host's supported operation.
+  A quiet stream does not prove a stall; one failed lane does not authorize
+  stopping siblings or duplicating their in-flight work.
+- Reconcile uncertain outward effects before replay. Run IDs and unchanged
+  arguments do not guarantee cached completion or preserved context.
+- Record finite attempt and deadline bounds, including host retries, and retain
+  provider Retry-After/reset timing. Recheck task authority and ownership before
+  each attempt; preserve the best partial when the series ends.
+- Keep independent work moving while a watcher handles the eligible retry.
+  Billing, sign-in, consent and secret-entry gates remain human; no account/key
+  switching or cap bypass. Focused text controls cover known unsafe instructions,
+  without claiming observed model or scheduler behavior.
+
 ## 0.28.1 — a limit stop is not a wait
 
 There is no 0.28.0 package. The tag `v0.28.0` was pushed by mistake onto `cb8f699` (the 0.27.1

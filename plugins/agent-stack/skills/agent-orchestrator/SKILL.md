@@ -124,7 +124,7 @@ Wrap every sub-agent call in retry **and** validation, and keep the two apart: a
 threw and a call that returned something unusable need different answers. Retry the first,
 re-prompt or fail the second.
 
-Three decisions the rest follows from:
+The decisions the rest follows from:
 
 - **Split errors into retryable and fatal at the type level**, not at the call site. A bad
   credential and an overloaded provider are both exceptions and only one is worth a second
@@ -134,11 +134,11 @@ Three decisions the rest follows from:
   passes every check that only looks for an exception.
 - **Cap the attempts and return the best partial**, because the alternative to a partial
   answer is not a better answer, it is no answer and a spent budget.
-- **A limit stop is not a wait.** A worker halted by a provider's usage limit
-  ("resets at 9pm"), a rate-limit error, or silence with its task unfinished is restarted
-  from where it stopped right away, not at the stated reset; back off only when the
-  restart fails again. Spend and billing limits are the exception — a person's gate.
-  Mechanics: [`references/runtime.md`](references/runtime.md) → *A limit stop is not a wait*.
+- **A limit stop is not a wait.** Continue independent work and arrange a
+  bounded, authorized resume of the stopped worker; not every silence is a stall.
+  Preserve provider timing, attempt/deadline budgets and uncertain-effect recovery.
+  Spend and billing limits remain a person's gate. Mechanics and admission:
+  [`references/runtime.md`](references/runtime.md) → *A limit stop is not a wait*.
 
 The hierarchy, the loop and the per-domain validators:
 [`references/patterns.md`](references/patterns.md).
