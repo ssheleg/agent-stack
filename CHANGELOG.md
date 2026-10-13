@@ -1,3 +1,32 @@
+## 0.28.1 — a limit stop is not a wait
+
+There is no 0.28.0 package. The tag `v0.28.0` was pushed by mistake onto `cb8f699` (the 0.27.1
+source) before this change merged. Its release run (38332687325) was cancelled before the
+release and publish jobs ran, so nothing was published under that version. The tag ruleset
+does not allow deleting the tag, so it stays.
+
+- **agent-orchestrator §4 and `references/runtime.md` → *A limit stop is not a wait*.** A worker
+  is a workflow lane, a sub-agent or a session. When it stops on a provider usage or session
+  limit ("resets 5am"), it is restarted at once from where it stopped and is never left until
+  the stated reset. The same holds when it fails on a rate-limit error after the host's own
+  retries, or goes silent for 15–20 minutes with its task unfinished and no command of its own
+  running. How each worker is restarted:
+  - a lane is resumed with the same run id and the same arguments, and finished agents replay
+    from the cache;
+  - a sub-agent gets `resume` at its id;
+  - a session is re-prompted.
+
+  A second immediate stop backs off 2, 5, 10, then every 15 minutes while other work goes on.
+  Spend, credit and billing limits are a person's gate: they are reported once and never looped.
+  Every restart is logged.
+
+  The reset time in a limit message describes one account at the moment of refusal. An account
+  rotator or a short rate window usually makes it stale within minutes. A team running parallel
+  workflow lanes observed this: six stopped on stated resets hours or days away, and each ran
+  when restarted minutes later.
+
+  The references index row for `runtime.md` names the usage-limit stop.
+
 ## 0.27.2 — owner board and release ancestry checks
 
 - The repository validator now rejects missing boards, shifted rows, duplicate IDs

@@ -10,6 +10,18 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Release candidate — v0.28.1 (2026-10-13)
+
+The change is doctrine only: no script, validator or installer change. It was measured on the
+branch `feat/limit-stop-restart` (rebased on `e2120c2`) before any tag; nothing below is a
+published-artifact claim. `v0.28.0` is a mis-pushed tag on `cb8f699`, and its run 38332687325
+was cancelled before release and publish (`npm view` → 0.27.2 afterwards); see CHANGELOG 0.28.1.
+
+| REQ | What ships | How it was confirmed | Confirmed |
+|---|---|---|---|
+| Limit stop | The agent-orchestrator `SKILL.md` §4 bullet *A limit stop is not a wait* routes to `references/runtime.md` → *A limit stop is not a wait*. That section holds the three triggers, the restart table, the backoff, the billing exception and the restart log | `grep -n "A limit stop is not a wait"` on both files; the runtime contents list carries the section | **observed**, local |
+| Gate | `npm test` | EXIT=0 on 2026-10-13: `OK: agent-stack structurally valid (17 checks = 13 named + 4 per-skill, 4 skill(s), v0.28.1)`, `PASS: plant_guard — 9 cases`, `PASS: reap-own — 13 cases`, `PASS: installer — 11 case(s)`, all 25 `test/audit_regressions/*.py` exit 0; `claude plugin validate --strict` passed for `plugins/agent-stack` and the marketplace | **observed**, local |
+
 ## Released — v0.27.2 (2026-10-13)
 
 Source integration: PR47 merged at `053c0f8725d28e464c98d063e87618c15174849a`.

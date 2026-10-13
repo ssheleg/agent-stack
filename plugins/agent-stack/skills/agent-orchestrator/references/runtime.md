@@ -13,6 +13,7 @@ has only built the first one discovers the second in production.
 ## Contents
 
 - Durability, and where our own asymmetry was
+- A limit stop is not a wait
 - The interrupt/resume contract
 - Double-texting: four policies
 - Streaming that survives a dropped connection
@@ -41,6 +42,46 @@ Two properties earn their cost:
   whole minutes of re-executed tool calls.
 - **A pause frees the worker.** An agent waiting for a human should hold no process. If
   waiting costs a worker, long approvals are quietly expensive and teams stop using them.
+
+## A limit stop is not a wait
+
+A coding-agent host shows a usage stop as *You've hit your session limit · resets 5am*.
+The time in that message describes **one account**, read when the request was refused. In
+practice an orchestrator that restarts the worker minutes later usually finds it runs. An
+account rotator may already have moved the session to an account with room, or the
+limit was a short rate window. Waiting hours for the stated reset idles a run that would
+have gone on.
+
+**Three triggers** send the orchestrator to restart a worker — a lane of a workflow, a
+sub-agent, a whole session:
+
+- it stopped on a usage or session limit, whatever reset time it names;
+- it failed on a rate-limit error after the host's own retries;
+- it went silent: no transcript or event write for 15–20 minutes, its task unfinished,
+  **and no command of its own still running**. A build or a test suite that runs for half
+  an hour is not a stall, and stopping that lane loses the step in flight.
+
+**Restart at once, from where it stopped**, never from scratch:
+
+| Worker | Restart |
+|---|---|
+| A workflow lane | stop the workflow, then resume it with the same run id and **the same arguments**: finished agents replay from the cache, and only the failed or stalled ones run again |
+| A sub-agent | send `resume` to its id, so it keeps its own context |
+| A session | re-prompt it: *continue from where you stopped* |
+
+Changed arguments invalidate the cache, so the whole run is paid for again.
+
+**Back off only on a second stop.** If the restart halts again at once, retry at 2, 5,
+10 and then every 15 minutes, and keep doing independent work in between. Do not sleep
+until the reset time.
+
+**Not every limit is retried.** A spend cap, exhausted credits or a billing error does not
+clear on a timer: someone has to pay or raise it. Report it to that person once and do
+not loop.
+
+**Log every restart** in the run's journal: which worker stopped, on what, when, and the
+attempt number. Ten restarts of one lane in an hour is a finding about that lane, not
+noise.
 
 ## The interrupt/resume contract
 
