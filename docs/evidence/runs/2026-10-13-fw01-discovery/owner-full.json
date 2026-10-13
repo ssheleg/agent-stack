@@ -1,0 +1,17 @@
+{
+  "owner": "agent-stack-fw01-scan",
+  "source": "bc0f66387850f30674ae14636f7e40d98e029d2b",
+  "command": "npm test",
+  "exit_code": 0,
+  "seconds": 12.04,
+  "minimum_free_bytes": 1533267968,
+  "disk_stopped": false,
+  "log": "owner-full.log.gz",
+  "log_sha256": "c30bf7ff7c13b4fbb04e87ffb77b4dc3147d38ba3513ba6a9ab50615d6e84d09",
+  "scratch_removed": true,
+  "independent_review": "https://github.com/ssheleg/sshlg-skills/blob/85d1758e02cbf1759be861a7af2108d267c339a3/docs/evidence/completion-1013/fw01-sibling-peer.json",
+  "scratch_remaining_before_owned_cleanup": [
+    "data-gym-cache",
+    "node-compile-cache"
+  ]
+}

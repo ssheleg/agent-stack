@@ -60,7 +60,20 @@ paths change; package selection and version are unchanged. Registry metadata con
 that version exists; this is not a fresh immutable-tarball readback. No new release
 or installed update is needed for this excluded validation/evidence source change.
 
-Independent review, the serialized owner aggregate and genuine candidate PR checks
-remain pending. Next: review this bounded source, then admit the frozen owner PR
-normally. Keep this permission-discovery claim separate from unsupported lexical
-forms and runtime allocations.
+## Independent review and owner aggregate
+
+[Root's independent source acceptance](https://github.com/ssheleg/sshlg-skills/blob/85d1758e02cbf1759be861a7af2108d267c339a3/docs/evidence/completion-1013/fw01-sibling-peer.json) binds the implementation above
+and independently replays all 9 controls. It accepts directory discovery refusal
+within the documented scanner scope, without a filesystem race or symlink proof.
+
+The exact implementation commit `bc0f66387850f30674ae14636f7e40d98e029d2b` then passed the complete owner
+`npm test` command, exit 0, in 12.04 seconds. The
+[structured result](owner-full.json) binds source, command and log digest;
+[full output](owner-full.log.gz) preserves every group. Minimum observed free
+space was 1533267968 bytes. The watchdog would stop only this owned
+process group below 300 MiB; it did not fire. Owned scratch/cache trees were removed.
+No provider, native-host or model behavior was exercised.
+
+Next: commit this documentation freeze, promote the existing draft PR once, and
+require genuine eligible PR jobs before normal integration. Hosted checks and merge
+remain pending; no release or installed update is needed for this excluded source.
