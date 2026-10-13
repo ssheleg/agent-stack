@@ -1,12 +1,11 @@
-# Current work — agent-stack 0.27.2
+# Current work — published agent-stack 0.27.2
 
-R30 own-board and ancestry validation merged normally through PR47 at
-`053c0f8725d28e464c98d063e87618c15174849a`; genuine CI38347333161 passed.
-[Release packet](evidence/runs/2026-10-13-release-0.27.2.md) is the current entry.
-[Implementation and review](evidence/runs/2026-10-13-r30-owner-gates.md) retain
-all reproduced defects and sixteen process controls.
+R30 owner-board and release-ancestry gates are merged and published as0.27.2,
+source `792e3f6cb2e46517f0187066db55edc63ae7d12c`. All four release jobs passed,
+and all44 npm payload files matched that source. The
+[release packet](evidence/runs/2026-10-13-release-0.27.2.md#published-readback)
+is the durable entry with exact sources, gates and limitations.
 
-Version metadata and changelog now form the bounded0.27.2 candidate. Exact next
-task: collect local/strict candidate checks, independent review and eligible PR
-checks; normal merge, annotated tag, publication and byte readback, then hub pin
-and installed verification. No publication or install completion is claimed yet.
+Exact next task: coordinator pins0.27.2 in the next family release and verifies
+installed files. B-161 source/publication scope is closed; the family-wide R30
+and native runtime remain distinct. Preserve foreign worktrees and old tags.
