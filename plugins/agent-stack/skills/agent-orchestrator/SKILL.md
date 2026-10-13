@@ -134,6 +134,11 @@ Three decisions the rest follows from:
   passes every check that only looks for an exception.
 - **Cap the attempts and return the best partial**, because the alternative to a partial
   answer is not a better answer, it is no answer and a spent budget.
+- **A limit stop is not a wait.** A worker halted by a provider's usage limit
+  ("resets at 9pm"), a rate-limit error, or silence with its task unfinished is restarted
+  from where it stopped right away, not at the stated reset; back off only when the
+  restart fails again. Spend and billing limits are the exception — a person's gate.
+  Mechanics: [`references/runtime.md`](references/runtime.md) → *A limit stop is not a wait*.
 
 The hierarchy, the loop and the per-domain validators:
 [`references/patterns.md`](references/patterns.md).
@@ -346,7 +351,7 @@ there; this table is only an index.
 | [`references/memory-landscape.md`](references/memory-landscape.md) | **build or adopt** a memory layer, and what is settled practice |
 | [`references/context-engineering.md`](references/context-engineering.md) | the loop is **running out of window** |
 | [`references/kv-cache.md`](references/kv-cache.md) | you are deciding **what goes where in a request** — the static prefix against the trajectory, what a miss costs, the 2^N cache populations a runtime condition in front of the boundary creates, the named invalidators, and the four common optimisations that pay cache for nothing |
-| [`references/runtime.md`](references/runtime.md) | the agent must **survive a crash, a pause, a second message or a schedule** |
+| [`references/runtime.md`](references/runtime.md) | the agent must **survive a crash, a pause, a second message, a schedule or a usage-limit stop** |
 | [`references/governance.md`](references/governance.md) | the question is **permission, not cost** — what it may do, and how you prove it |
 | [`references/llm-proxy-billing.md`](references/llm-proxy-billing.md) | the product **resells LLM access** |
 | [`references/provider-lifecycle.md`](references/provider-lifecycle.md) | the question is the **workforce, not the loop** — provider lifecycle, canary trust, fleet budgets |
