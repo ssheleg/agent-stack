@@ -1306,6 +1306,71 @@ def check_interop_points_to_the_estate_skills():
                  "HOW belongs to that skill, and this skill must name it rather than restate it")
 
 
+def check_owner_board_and_release_guards():
+    """The owner refuses malformed declarations and a bypassed tag ancestry gate.
+
+    The board's first eight-column table declares identities. Its three-column
+    summary below references those same identities and is not a second declaration.
+    The portable grammar/release implementation is shared with the FW02 members.
+    """
+    from member_gates import cells, label, release_errors
+    board = os.path.join(ROOT, "docs/evidence/backlog.md")
+    try:
+        lines = open(board, encoding="utf-8").read().splitlines()
+    except OSError:
+        fail("owner board missing or unreadable: docs/evidence/backlog.md")
+        lines = []
+    header = ["id", "what", "source", "blast", "age", "effort", "p", "status"]
+    starts = [i for i, line in enumerate(lines)
+              if line.strip().startswith("|") and
+              [label(c).lower() for c in cells(line.strip())] == header]
+    if len(starts) != 1:
+        fail("owner board declaration header missing or ambiguous")
+    else:
+        start = starts[0]
+        end = start + 1
+        while end < len(lines) and lines[end].strip().startswith("|"):
+            end += 1
+        declared = {}
+        separator = cells(lines[start + 1].strip()) if start + 1 < end else []
+        if len(separator) != len(header) or not all(re.fullmatch(r":?-{3,}:?", c) for c in separator):
+            fail("owner board declaration header needs its matching separator")
+        for number in range(start + 2, end):
+            row = cells(lines[number].strip())
+            if len(row) != len(header) or not lines[number].strip().endswith("|"):
+                fail(f"owner board row width at line {number + 1}")
+                continue
+            # Historical grouped declarations and the explicitly qualified hub
+            # reference are distinct from the summary's repeated references.
+            identifier = label(row[0])
+            namespace = "hub" if identifier.endswith(" (umbrella)") else "agent-stack"
+            if namespace == "hub":
+                identifier = identifier[:-11]
+            atoms = identifier.split(" + ")
+            if not all(re.fullmatch(r"[A-Z]{1,4}-(?:[0-9]+[a-z]?|[A-Z][0-9]*)", atom) for atom in atoms):
+                fail(f"owner board invalid ID at line {number + 1}")
+                continue
+            for atom in atoms:
+                key = (namespace, atom)
+                if key in declared:
+                    fail(f"board duplicate ID {namespace}:{atom} at line {number + 1}; first at {declared[key]}")
+                declared[key] = number + 1
+        if not declared:
+            fail("owner board has no declarations")
+    path = os.path.join(ROOT, ".github/workflows/release.yml")
+    try:
+        workflow = open(path, encoding="utf-8").read()
+    except OSError:
+        fail("owner release workflow missing or unreadable")
+        return
+    for error in release_errors(workflow):
+        fail(".github/workflows/release.yml: " + error)
+    ci = open(os.path.join(ROOT, ".github/workflows/validate.yml"), encoding="utf-8").read()
+    if not re.search(r"^\s*run: python3 test/member_owner_gates_test\.py\s*$", ci, re.M):
+        fail("owner gate plants missing from validate.yml")
+
+
+check_owner_board_and_release_guards()
 check_ledger_tables_keep_their_shape()
 check_shipped_front_matter_survives_a_real_reader()
 check_interop_points_to_the_estate_skills()
