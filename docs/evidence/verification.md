@@ -10,6 +10,13 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## FW00 referral reconciliation — 2026-10-13
+
+[B-160 source evidence](runs/2026-10-13-fw00-referrals.md#b-160--bounded-source-guard-resolved)
+closes the specific make-skill whole-repository source-lint referral. B-159 remains
+open for SEO's missing whole-repository scanner; only its snapshot-ledger half is
+accepted. Original requirements and historical observations stay on the board.
+
 ## Release — v0.28.2 (2026-10-13)
 
 The [publication receipt](runs/2026-10-13-release-0.28.2.md#published-readback)
