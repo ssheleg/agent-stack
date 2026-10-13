@@ -10,6 +10,17 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Release candidate — v0.27.2 (2026-10-13)
+
+Source integration: PR47 merged at `053c0f8725d28e464c98d063e87618c15174849a`.
+[Release packet](runs/2026-10-13-release-0.27.2.md) records exact checks and the
+remaining publication/install gates. This heading is not a shipped-artifact claim.
+
+| REQ | What ships | How it was confirmed | Confirmed |
+|---|---|---|---|
+| B-161 | Header-aware own-board admission and release ancestry guard validation | [R30 packet](runs/2026-10-13-r30-owner-gates.md): eight defects reproduced before fixes, sixteen process controls and independent review passed; genuine CI38347333161 succeeded on32823f9 | observed, source integration; publication pending |
+| R30 admission | Nightly, explicit ready-for-review and callable release checks | `.github/workflows/validate.yml`; genuine pull-request run38347333161 | observed, source integration |
+
 ## Release candidate — v0.27.1 (2026-10-12)
 
 Board rows B-158, AG-06a, AG-06b (sshlg-skills plan R28). Measured on the branch `fix/ag06`
