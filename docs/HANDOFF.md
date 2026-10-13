@@ -1,3 +1,18 @@
+# Current source acceptance — 2026-10-13
+
+B-159's named SEO source gaps are closed by accepted SEO main1e86edf and its
+complete gate; [closure evidence](evidence/runs/2026-10-13-fw01-referral-closure.md)
+preserves every original row and the limits. This owner scanner correction
+merged atb332a92 through [normal checks](evidence/runs/2026-10-13-fw01-discovery/normal-integration.json).
+Published package0.28.2 bytes remain unchanged; source-test acceptance does not
+claim new installed behavior.
+
+Next: coordinator integrates this docs-only reconciliation after peer and
+genuine checks, then continues the existing native/runtime and family-wave
+prerequisites. Earlier entries below are dated history, not current instructions.
+
+---
+
 # FW01 source discovery correction — 2026-10-13
 
 The [source packet and receipt](evidence/runs/2026-10-13-fw01-discovery/README.md)

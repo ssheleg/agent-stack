@@ -77,3 +77,12 @@ No provider, native-host or model behavior was exercised.
 Next: commit this documentation freeze, promote the existing draft PR once, and
 require genuine eligible PR jobs before normal integration. Hosted checks and merge
 remain pending; no release or installed update is needed for this excluded source.
+
+## Normal integration observed
+
+[Eligible checks and merge receipt](normal-integration.json) records all genuine
+PR jobs succeeding at the frozen head, followed by normal squash integration at
+[b332a92](https://github.com/ssheleg/agent-stack/commit/b332a92e62417d615543c6398f7a01f6d85663bf).
+The complete accepted Git tree equals the checked candidate tree. This follow-up
+receipt is a documentation-only branch update; the accepted source above is the
+pin target. No tag, registry publication or installed runtime update was performed.
