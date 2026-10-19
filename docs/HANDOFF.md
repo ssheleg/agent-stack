@@ -1,3 +1,22 @@
+# FEED-SEO-1019 wave 6: v0.29.0, 2026-10-19
+
+Objective: an agent-safety incident checklist with primary sources, the eval
+solvability rule, and owed fixture rows that have a primary source.
+Done on `feat/feed-1019`: the incident checklist in
+`agent-orchestrator/references/governance.md` (six rows), the solvability rule
+and checklist line in `agent-evals/SKILL.md` §6, the "Goal met through a
+prohibited effect" seed case in `agent-evals/references/multi-agent.md`, and
+`check_sourced_safety_rows_keep_their_sources` in `test/validate.py`.
+Evidence: the v0.29.0 section of [verification.md](evidence/verification.md).
+Decisions: claims without a vendor or researcher primary source stayed out (a
+visa-application count known only from news reports, a paywall bypass the vendor
+post does not describe, a screen-only long-run fixture with no primary source).
+Open: the long-horizon recovery fixture still has no primary source; the seeded
+cases are text, not executed trials.
+Next: release v0.29.0 (PR, merge, annotated tag, release run, npm readback, hub pin).
+
+---
+
 # Current source acceptance — 2026-10-13
 
 B-159's named SEO source gaps are closed by accepted SEO main1e86edf and its

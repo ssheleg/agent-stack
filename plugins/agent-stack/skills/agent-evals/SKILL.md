@@ -271,6 +271,16 @@ observables with nothing run against them are `specification-ready`, not
 never a behaviour pass/fail; cases are isolated, so B's result never depends
 on whether A ran.
 
+**Every task is shown solvable before it scores an agent.** Give each one a reference
+solution, a known output that passes all its graders; a 0% pass rate across many trials
+"is most often a signal of a broken task, not an incapable agent"
+([Anthropic](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents)).
+An unsolvable task does worse than waste a trial, it rewards cheating: in a benchmark
+whose authors estimate ~30-40% of targets were impossible, "Having an impossible task
+drives agents to explore widely for ways to cheat the scorer"
+([METR](https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/),
+both read 2026-10-19). A task with no passing reference is a `TEST_ERROR`, not a FAIL.
+
 **Never author the suite up front** — the *corpus*, that is: the inputs. Every production
 failure and every thumbs-down becomes a fixture:
 
@@ -339,6 +349,7 @@ None of the above runs without these, and they are the part people skip:
 - [ ] Every requirement carries an **observable** written before the implementation — the
       corpus waits for production, the criterion does not
 - [ ] Every production failure minimised into a permanent fixture
+- [ ] Every task has a reference solution that passes its graders before it scores an agent
 - [ ] Annotation queue with filters, and the two reviewer roles kept separate
 - [ ] Simulated users trained on real transcripts, with adversarial personas
 - [ ] Every comparison that changes a decision states `n`, `k`, the reducer and the noise

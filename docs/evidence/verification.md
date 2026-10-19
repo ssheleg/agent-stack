@@ -10,6 +10,17 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Release candidate — v0.29.0 (2026-10-19)
+
+Doctrine plus one validator check, measured on branch `feat/feed-1019` before any tag.
+
+| REQ | What is checked | Evidence | Confirmed |
+|---|---|---|---|
+| Incident checklist | six declared rows in `governance.md`, each with an https primary source and a read date | `check_sourced_safety_rows_keep_their_sources` in `python3 test/validate.py`; before the doctrine it printed `FAIL: 3 problem(s)` (no declaration, no solvability rule, no seed-case source), after it `OK: agent-stack structurally valid (18 checks = 14 named + 4 per-skill, 4 skill(s), v0.29.0)` | observed, local |
+| Sources | each quoted sentence is on its source page | every quote re-read on 2026-10-19 by fetching the cited page (OpenAI alignment reports, Anthropic research and engineering posts, METR, ThreatDown, Docker docs, Bottleneck Labs) | observed 2026-10-19 |
+| Gate | `npm test` | exit 0; all 27 `test/audit_regressions/*.py` exit 0; `claude plugin validate --strict` passed for `plugins/agent-stack` and the marketplace | observed, local |
+| Behaviour | an agent following the checklist refuses the effects it names | not run: these are text controls and eval cases to build, not a model trial | not run |
+
 ## FW00 referral reconciliation — 2026-10-13
 
 [B-160 source evidence](runs/2026-10-13-fw00-referrals.md#b-160--bounded-source-guard-resolved)

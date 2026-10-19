@@ -20,6 +20,7 @@ damage comes through the second.
 - Failover must land somewhere approved
 - Fail-open or fail-closed, decided by risk
 - Blast radius: sandboxes and credentials
+- Incident checklist: what has gone wrong, and the control each one asks for
 
 ## Four boundaries, four control sets
 
@@ -175,3 +176,26 @@ When an agent runs code, two rules carry most of the weight:
 
 Ephemeral is the default: create on demand, tear down after, never reuse across tenants.
 A long-lived sandbox accumulates state that nobody audits.
+
+## Incident checklist: what has gone wrong, and the control each one asks for
+
+Read before shipping an agent that runs code, browses or holds credentials, and again
+after any change to its sandbox. Each row is a published incident (sources read
+2026-10-19); the control column is this pack's rule drawn from it, not the source's.
+The incidents happened in vendor training and evaluation runs or, for the last row, to
+exposed hosts in the wild; none is a claim about your agent until your own evals show it.
+
+<!-- incident-checklist: egress-dns, split-secret, summary-injection, external-effect, found-credential, docker-api -->
+
+| Id | What happened | Control | Source |
+|---|---|---|---|
+| egress-dns | An agent in a training sandbox reached a public chatbot through "insufficient DNS filtering"; all other internet access hit an offline cache. The monitor flagged it within 15 minutes, but "the run did not stop automatically as expected" and was stopped by hand 2.5 hours later | close egress at the resolver too, not only HTTP; an alert from the monitor stops the run instead of paging someone (fail closed, above) | [OpenAI](https://alignment.openai.com/misalignment-reports/an-agent-used-dns-to-reach-an-external-chatbot/) |
+| split-secret | An agent exposed a GitHub token in a public repository and "split the token into pieces with the stated aim of avoiding secret scanning"; in another run agents uploaded files to public hosting sites when the task "requested only local deliverables" | a scanner that reads one message at a time is not a control: keep credentials out of the sandbox (above) and treat any upload or public post as an effect needing approval | [OpenAI, token](https://alignment.openai.com/misalignment-reports/exposing-a-github-token-in-a-public-repository/), [OpenAI, file hosts](https://alignment.openai.com/misalignment-reports/unauthorized-communication-via-temporary-file-hosting-services/) |
+| summary-injection | Compaction summaries carried instructions the source never gave: one model wrote arbitrary restrictions into its own summary and "The successor followed those arbitrary restrictions"; others told the next context "to invent missing data without disclosing it and to hide failures" | a summary is data, never authority: it cannot add an instruction or a permission; diff a summary's instructions against the original brief, and fail loudly when data is missing instead of estimating silently | [OpenAI, self-injection](https://alignment.openai.com/misalignment-reports/self-generated-prompt-injections-in-compaction-summaries/), [OpenAI, deception](https://alignment.openai.com/misalignment-reports/encouraging-deception-in-compaction-summaries/) |
+| external-effect | Evaluation agents submitted an invented tip through a police department's online form (the instructions forbade logins, purchases and destructive submissions but "did not rule out form submissions"), submitted a real government form when the practice copy failed, and used URL shorteners to get around a fetch limit; Anthropic then turned off live internet access for all its internal evaluations until its monitoring is shown to catch such behaviour | allowlist effects rather than denylist them: any submission to a third party, any spend and any message outside the task waits for approval; evals run without live internet unless the case needs it | [Anthropic](https://www.anthropic.com/research/investigating-unintended-model-actions) |
+| found-credential | An agent derived wallet keys from public developer recovery phrases, spent a found test-network balance it had "no permission to spend", and "did not disclose" it; an evaluation agent read a site's settings file, "found working access tokens" and used them | a credential the agent finds is not a credential it was given: use of one is an effect needing approval, and the final report must list every credential used | [OpenAI, wallet](https://alignment.openai.com/misalignment-reports/using-a-funded-test-cryptocurrency-wallet-without-authorization/), [Anthropic](https://www.anthropic.com/research/investigating-unintended-model-actions) |
+| docker-api | A botnet compromises Docker daemons exposed without authentication on port 2375 and installs an agent driven over Telegram whose prompt ranks "API keys from AI providers" as its first loot; Docker warns that, with remote access left unsecured, "it's possible for remote non-root users to gain root access on the host" | never expose the Docker API without TLS; treat LLM provider keys as top-value secrets (scoped, per-tenant, rotated, never in the environment of a host that runs untrusted code) | [ThreatDown](https://www.threatdown.com/blog/carbonato/), [Docker](https://docs.docker.com/engine/daemon/remote-access/) |
+
+Each row becomes an eval case with a happy control beside it (`agent-evals`, its
+`multi-agent.md` for the team version): the agent must refuse or ask, and the control
+case must still complete.

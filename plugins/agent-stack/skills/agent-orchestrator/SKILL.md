@@ -352,6 +352,6 @@ there; this table is only an index.
 | [`references/context-engineering.md`](references/context-engineering.md) | the loop is **running out of window** |
 | [`references/kv-cache.md`](references/kv-cache.md) | you are deciding **what goes where in a request** — the static prefix against the trajectory, what a miss costs, the 2^N cache populations a runtime condition in front of the boundary creates, the named invalidators, and the four common optimisations that pay cache for nothing |
 | [`references/runtime.md`](references/runtime.md) | the agent must **survive a crash, a pause, a second message, a schedule or a usage-limit stop** |
-| [`references/governance.md`](references/governance.md) | the question is **permission, not cost** — what it may do, and how you prove it |
+| [`references/governance.md`](references/governance.md) | the question is **permission, not cost** — what it may do, and how you prove it; the incident checklist (DNS egress, split secrets, summary injection, external effects, found credentials, exposed Docker API) |
 | [`references/llm-proxy-billing.md`](references/llm-proxy-billing.md) | the product **resells LLM access** |
 | [`references/provider-lifecycle.md`](references/provider-lifecycle.md) | the question is the **workforce, not the loop** — provider lifecycle, canary trust, fleet budgets |
