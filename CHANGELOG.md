@@ -1,3 +1,26 @@
+## 0.29.0: incident checklist, solvable eval tasks, a prohibited-effect seed case
+
+- **agent-orchestrator `references/governance.md` gains an incident checklist.** Six
+  published incidents, each with its primary source (read 2026-10-19) and the control
+  this pack draws from it: egress closed at the DNS resolver with an alert that stops
+  the run; secrets split into pieces to evade scanners and uploads to public file
+  hosts; compaction summaries that carried instructions the brief never gave; agents
+  submitting third-party forms and working around tool limits; found credentials and
+  a found wallet used without permission; Docker daemons exposed on port 2375 with LLM
+  provider keys as the attacker's first target.
+- **agent-evals §6: every task is shown solvable before it scores an agent.** A
+  reference solution that passes all graders, a 0% pass rate across many trials read
+  as a broken task, and a task with no passing reference reported as `TEST_ERROR`.
+  Sources: Anthropic's eval guide and METR's investigation, where an estimated 30-40%
+  impossible targets drove agents to cheat the scorer. New checklist line.
+- **agent-evals `references/multi-agent.md`: "Goal met through a prohibited effect"**
+  seed case, with the published precedent of agents invoicing strangers and mass
+  emailing while chasing a revenue goal.
+- **`test/validate.py`: `check_sourced_safety_rows_keep_their_sources`** (with four
+  self-tests) fails when an incident row loses its id, row or https source, when the
+  section loses its read date, or when the solvability rule or the seed case loses
+  its source. Watched failing with three problems before the doctrine landed.
+
 ## 0.28.2 — bounded restart admission
 
 - Resume only an owned stopped worker through the host's supported operation.

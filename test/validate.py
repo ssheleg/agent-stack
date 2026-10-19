@@ -1399,6 +1399,86 @@ check_shipped_front_matter_survives_a_real_reader()
 check_interop_points_to_the_estate_skills()
 
 
+
+# ------------------------- sourced safety rows: each incident and eval rule keeps its source
+#
+# FEED-SEO-1019 wave 6 added an incident checklist to governance.md and the solvability rule
+# to agent-evals. Both are claims about what has actually happened to agents, and a row that
+# loses its link reads as house opinion with nothing to re-check. So each declared row must
+# still be in its table, carry an https link, and the section must say when it was read.
+INCIDENT_DOC = ("agent-orchestrator/references/governance.md", "## Incident checklist")
+INCIDENT_DECL = re.compile(r"<!--\s*incident-checklist:\s*([^>]+?)\s*-->")
+INCIDENT_REQUIRED = {"egress-dns", "split-secret", "summary-injection", "external-effect",
+                     "found-credential", "docker-api"}
+SOLVABILITY_DOC = ("agent-evals/SKILL.md", "## 6.")
+SOLVABILITY_SOURCES = ("anthropic.com/engineering/demystifying-evals-for-ai-agents",
+                       "metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation")
+PROHIBITED_EFFECT_DOC = ("agent-evals/references/multi-agent.md",
+                         "bottlenecklabs.com/blog/benchmarking-7-autonomous-businesses")
+
+
+def sourced_rows(section, required):
+    """Problems with a declared, sourced table: missing ids, rows without an https link."""
+    problems = []
+    m = INCIDENT_DECL.search(section or "")
+    if not m:
+        return ["no `<!-- incident-checklist: … -->` declaration"]
+    ids = {x.strip() for x in m.group(1).split(",") if x.strip()}
+    for key in sorted(required - ids):
+        problems.append(f"declaration no longer names {key!r}")
+    rows = {}
+    for line in section.split("\n"):
+        r = re.match(r"^\|\s*`?([a-z0-9-]+)`?\s*\|(.*)$", line)
+        if r:
+            rows[r.group(1)] = r.group(2)
+    for key in sorted(ids):
+        if key not in rows:
+            problems.append(f"{key!r} is declared and has no table row")
+        elif "https://" not in rows[key]:
+            problems.append(f"row {key!r} carries no https source")
+    if not re.search(r"read\s+20\d\d-\d\d-\d\d", section):
+        problems.append("the section never says when its sources were read")
+    return problems
+
+
+def check_sourced_safety_rows_keep_their_sources():
+    rel, heading = INCIDENT_DOC
+    path = os.path.join(SKILL_ROOT, *rel.split("/"))
+    text = open(path, encoding="utf-8").read() if os.path.isfile(path) else ""
+    for problem in sourced_rows(_section(text, heading), INCIDENT_REQUIRED):
+        fail(f"{rel}: {heading}: {problem}. Each incident row is a claim about what happened "
+             "to a real agent; without its primary source it cannot be re-checked")
+    rel, heading = SOLVABILITY_DOC
+    path = os.path.join(SKILL_ROOT, *rel.split("/"))
+    sec = _section(open(path, encoding="utf-8").read(), heading) if os.path.isfile(path) else None
+    if not sec or "reference solution" not in " ".join(sec.split()).lower():
+        fail(f"{rel}: {heading} lost the solvability rule (a reference solution that passes "
+             "every grader before a task scores an agent)")
+    else:
+        for src in SOLVABILITY_SOURCES:
+            if src not in sec:
+                fail(f"{rel}: the solvability rule no longer cites {src}")
+    rel, src = PROHIBITED_EFFECT_DOC
+    path = os.path.join(SKILL_ROOT, *rel.split("/"))
+    if not os.path.isfile(path) or src not in open(path, encoding="utf-8").read():
+        fail(f"{rel}: the prohibited-effect seed case lost its source {src}")
+
+
+_good = ("<!-- incident-checklist: a-b, c -->\nread 2026-10-19\n"
+         "| a-b | x | [s](https://example.org) |\n| c | y | [t](https://example.org/t) |\n")
+if sourced_rows(_good, {"a-b", "c"}) != []:
+    fail("sourced-rows self-test: a complete table was refused")
+if sourced_rows(_good.replace("(https://example.org/t)", "(local)"), {"a-b", "c"}) \
+        != ["row 'c' carries no https source"]:
+    fail("sourced-rows self-test: a row without a source was not reported")
+if sourced_rows(_good.replace("| c | y | [t](https://example.org/t) |\n", ""), {"a-b", "c"}) \
+        != ["'c' is declared and has no table row"]:
+    fail("sourced-rows self-test: a dropped row was not reported")
+if sourced_rows(_good.replace("a-b, c", "a-b"), {"a-b", "c"}) \
+        != ["declaration no longer names 'c'"]:
+    fail("sourced-rows self-test: a dropped declaration id was not reported")
+check_sourced_safety_rows_keep_their_sources()
+
 # Notes print on EVERY run, pass or fail. A budget warning that only appeared beside a
 # failure would be invisible on exactly the runs where it still had time to be acted on.
 if notes:
