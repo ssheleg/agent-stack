@@ -1,3 +1,15 @@
+# Short descriptions: v0.30.0, 2026-10-20
+
+Branch `desc-budget-1020`. The four descriptions went from 929 to 939 characters to
+368 to 458 (3,742 to 1,693 in total), because the operator's skill listing was full and
+81 skills showed no description. Removed trigger phrases live verbatim under
+`## Triggers` in each SKILL.md. `test/validate.py` ratchet 940 to 500, plus a
+"Not for" check. Gate: `npm test` alone, exit 0.
+
+Next: none here; the hub re-pins 0.30.0 in its own change.
+
+---
+
 # FEED-SEO-1019 wave 6: v0.29.0, 2026-10-19
 
 Objective: an agent-safety incident checklist with primary sources, the eval

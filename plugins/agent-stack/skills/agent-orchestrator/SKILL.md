@@ -1,17 +1,12 @@
 ---
 name: agent-orchestrator
 description: >-
-  Use when building an agent system — an orchestrator, an LLM tool, a tool-using chatbot, an AI
-  pipeline — or metering and billing the LLM access it burns. Covers tool-calling
-  loops, human-checkpoint pipelines, provider routing, fallback/retry, memory
-  architecture, retrieval and decay, context budgets, sub-agent coordination, error hierarchies; the
-  work as a graph — parallel layers, fake edges, a checker before convergence; for resale:
-  tiered wallets, one markup boundary, the saga across database and provider API,
-  spend-delta polling, budget and loop guards, per-tenant keys. Triggers - "agent system",
-  "orchestrator", "tool calling", "sub-agent", "LLM router", "fallback chain", "human in the
-  loop", "memory layer", "LLM billing", "token wallet", "агентная система", "оркестратор",
-  "суб-агент", "роутер моделей", "человек в цикле", "слой памяти", "биллинг LLM", "граф задач".
-  Not for a single LLM call in a script, or prompt wording.
+  Use when building an agent system (orchestrator, tool-using chatbot, AI pipeline) or
+  metering the LLM access it burns. Triggers: "agent system" / "агентная система",
+  "orchestrator" / "оркестратор", "sub-agent" / "суб-агент", "human in the loop" /
+  "человек в цикле", "LLM billing" / "биллинг LLM". Not for one LLM call or prompt wording
+  (agent-harness), evals (agent-evals) or protocols (agent-interop). Refusal phrase "no
+  agent layer" / «без агентного слоя».
 license: MIT
 ---
 
@@ -20,6 +15,12 @@ license: MIT
 Patterns from a production multi-agent system. **The body is decisions; the mechanisms are
 one file away**, and it is held under a 4750-token budget — a body that grows absorbs the
 layer that should have been split, and this one did until 2026-08-16.
+
+## Triggers
+
+"tool calling", "LLM router", "fallback chain", "memory layer", "token wallet", "роутер моделей", "слой памяти", "граф задач".
+
+Also routed here by scope, the list the description carried until 0.30.0: tool-calling loops, human-checkpoint pipelines, provider routing, fallback/retry, memory architecture, retrieval and decay, context budgets, sub-agent coordination, error hierarchies; the work as a graph (parallel layers, fake edges, a checker before convergence); for resale: tiered wallets, one markup boundary, the saga across database and provider API, spend-delta polling, budget and loop guards, per-tenant keys.
 
 ## Architecture Overview
 
