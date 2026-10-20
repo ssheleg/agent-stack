@@ -1,17 +1,11 @@
 ---
 name: agent-evals
 description: >-
-  Use when measuring whether an agent actually works — building an eval suite, judging a
-  trajectory rather than a final answer, turning production traces into regression
-  fixtures, calibrating an LLM judge against human labels, or gating a release on offline
-  evals. Covers observability — run, trace and thread — crossed with single-step, full-turn
-  and multi-turn evals, the offline/online/ad-hoc
-  timing axis, pass-fail rubrics over scalar scores, cheap code checks before model
-  judges, the checker node as an evaluator inside the graph, simulated users with adversarial
-  personas, annotation queues, and what to instrument for any of it. Triggers - "agent eval", "eval suite", "LLM judge", "regression fixture",
-  "trajectory eval", "checker node", "is the agent getting better", "эвалы агента",
-  "оценка агента", "LLM-судья", "регрессионный набор", "как проверить агента". Not for
-  unit tests of ordinary code, or benchmarking a model.
+  Use when measuring whether an agent actually works: an eval suite, judging a trajectory,
+  traces turned into regression fixtures, an LLM judge calibrated against labels, a
+  release gated on evals. Triggers: "agent eval" / "эвалы агента", "eval suite", "LLM
+  judge" / "LLM-судья", "regression fixture" / "регрессионный набор". Not for unit tests
+  of ordinary code or benchmarking a model; the loop itself is agent-orchestrator.
 license: MIT
 ---
 
@@ -32,6 +26,10 @@ Three claims follow, and they are what makes this different from testing ordinar
   criterion it is measured against does not.
 
 ---
+
+## Triggers
+
+"trajectory eval", "checker node", "is the agent getting better", "оценка агента", "как проверить агента".
 
 ## 1. Three primitives
 

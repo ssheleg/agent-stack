@@ -10,6 +10,17 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Release candidate: v0.30.0 (2026-10-20)
+
+Short descriptions, measured on branch `desc-budget-1020` before any tag.
+
+| REQ | What is checked | Evidence | Confirmed |
+|---|---|---|---|
+| Description budget | each description at most 500 characters with a "Not for" boundary | `python3 test/validate.py` exit 0 with the ratchet at 500; lengths 458, 422, 445, 368 | observed, local |
+| Hub words | every trigger the sshlg-skills `lib/triggers.js` `agent-stack` route fires on still appears in its SKILL.md | scratch check over the route's four sources: 46 words, 0 missing | observed, local |
+| Body budget | the `## Triggers` sections keep each body under 4,750 tokens | pinned make-skill auditor `5ca5c36` `--house`, tiktoken: 4,580, 4,658, 3,016, 3,592 | observed, local |
+| Behaviour | a host shows every description after install | not measured | not run |
+
 ## Release candidate — v0.29.0 (2026-10-19)
 
 Doctrine plus one validator check, measured on branch `feat/feed-1019` before any tag.

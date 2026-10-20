@@ -54,6 +54,12 @@ DESC_WORKING_LIMIT = 970
 # spent one phrase at a time and nobody sees it go. The house limit above stays the
 # family's number, and its message stays the one past 970.
 DESC_RATCHET = 940
+# 2026-10-20: the operator's skill listing was full (29,995 of ~30,000 characters,
+# 81 of 134 skills shown with no description), and a plugin skill cannot be hidden,
+# so description length is the only lever. The family soft cap is 500 and the
+# ratchet above moves down to it; the trigger phrases a description drops live in
+# the body's `## Triggers` section, where the family hook's fixture reads them.
+DESC_RATCHET = 500
 FAILURES = []
 
 # Skills whose references describe an external specification somebody else
@@ -289,9 +295,12 @@ for name in skill_dirs:
         fail(
             f"{name}/SKILL.md: description is {len(fm_desc)} chars, past this member's "
             f"{DESC_RATCHET}-char ratchet (house limit {DESC_WORKING_LIMIT}, hard cap 1024). "
-            "The room under the house limit is kept on purpose (plan R26): make room by "
-            "rewording, never by raising the ratchet"
+            "The family soft cap since 2026-10-20: make room by moving trigger phrases into "
+            "the body's ## Triggers, never by raising the ratchet"
         )
+    if fm_desc and "Not for" not in fm_desc:
+        fail(f"{name}/SKILL.md: description names no boundary ('Not for ...') -- a router "
+             "that does not say what it hands away competes with its siblings")
     if fm_desc and re.search(r"<[a-zA-Z/]", fm_desc):
         fail(f"{name}/SKILL.md: description must not contain angle-bracket tags")
 

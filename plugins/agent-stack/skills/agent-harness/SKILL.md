@@ -1,18 +1,12 @@
 ---
 name: agent-harness
 description: >-
-  Use when the question is what the agent is TOLD rather than how its loop is wired — writing
-  or fixing a system prompt, shaping tools so the model picks the right one, whether a job
-  wants a workflow or an agent, or choosing between ReAct, reflection and voting. Also
-  auditing someone else's agent system: tracks, evidence tiers, a prioritized plan instead of
-  a score, a scanner. Carries Pi as a worked kernel implementation — SDK, RPC
-  and extension seams — for embedding or extending a harness. Triggers - "system prompt",
-  "tool description", "agent picks the wrong tool", "agent loops forever", "prompt
-  engineering", "harness engineering", "ReAct loop", "react pattern", "workflow or agent",
-  "static or dynamic", "audit this agent",
-  "embed an agent", "agent SDK", "Pi harness", "системный промпт", "агент не вызывает тул",
-  "аудит агента", "встроить агента". Not for the loop's plumbing, its evals, or its
-  protocols — those are siblings.
+  Use when the question is what the agent is told, not how its loop is wired: a system
+  prompt, tools the model picks right, workflow or agent, ReAct or reflection, auditing or
+  embedding a harness. Triggers: "system prompt" / "системный промпт", "agent picks the
+  wrong tool" / "агент не вызывает тул", "workflow or agent", "audit this agent" / "аудит
+  агента". Not for the loop (agent-orchestrator), evals (agent-evals) or protocols
+  (agent-interop).
 license: MIT
 compatibility: >-
   The bundled scripts run with python3 (standard library only); no network or
@@ -31,6 +25,10 @@ It runs in both directions. Building one and auditing one are the same checklist
 forwards and backwards, which is why they live together here.
 
 ---
+
+## Triggers
+
+"tool description", "agent loops forever", "prompt engineering", "harness engineering", "ReAct loop", "react pattern", "static or dynamic", "embed an agent", "agent SDK", "Pi harness", "встроить агента".
 
 ## Rule zero — check the prompt first (a diagnostic heuristic, with exceptions)
 

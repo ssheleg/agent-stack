@@ -1,17 +1,11 @@
 ---
 name: agent-interop
 description: >-
-  Use when an agent talks to anything outside its process — building or consuming an
-  MCP server, exposing or calling an agent over A2A, publishing to the MCP Registry, or
-  fronting agent traffic with a gateway. Carries the MCP 2026-07-28 wire surface and what it
-  deprecated (server/discover, stateless _meta, form/URL elicitation, subscriptions/listen;
-  sampling, roots, logging and dynamic client registration going),
-  A2A 1.0 agent cards, task states, three bindings, registry namespaces, what a gateway adds
-  over an API gateway, and calls on behalf of a person. Triggers - "MCP server",
-  "MCP client", "A2A", "agent card", "agent interoperability", "MCP registry", "server.json",
-  "agentgateway", "tool federation", "MCP-сервер", "карточка агента", "интероперабельность
-  агентов", "реестр MCP", "шлюз для агентов", "delegation token", "on behalf of",
-  "токен делегирования". Not for one server's tool design, nor skill construction (make-skill).
+  Use when an agent talks to anything outside its process: an MCP server or client, A2A
+  and agent cards, the MCP Registry, an agent gateway, calls on behalf of a person.
+  Triggers: "MCP server" / "MCP-сервер", "A2A", "agent card" / "карточка агента", "MCP
+  registry", "шлюз для агентов". Not for one server's tool design (agent-harness) or skill
+  construction (make-skill).
 license: MIT
 ---
 
@@ -22,6 +16,10 @@ everything the loop reaches that is **not in its process**: a tool server, a pee
 registry, and the gateway between them.
 
 ---
+
+## Triggers
+
+"MCP client", "agent interoperability", "server.json", "agentgateway", "tool federation", "интероперабельность агентов", "реестр MCP", "delegation token", "токен делегирования".
 
 ## Rule zero — a protocol claim without a date is a guess
 

@@ -1,3 +1,21 @@
+## 0.30.0: short descriptions, triggers in the body
+
+- **Every skill description is a router of 368 to 458 characters** (was 929 to
+  939; total 3,742 to 1,693). The operator's Claude Code skill listing measured
+  29,995 of about 30,000 characters for 134 skills, and 81 skills showed no
+  description; a plugin skill cannot be hidden, so length is the only lever. Each
+  description is one "Use when" sentence, four or five English and Russian
+  triggers, and a "Not for" boundary naming the sibling; `agent-orchestrator`
+  carries the refusal phrase. `Triggers:` takes a colon inside the folded scalar.
+- **Every removed trigger phrase moved verbatim** into a `## Triggers` section of
+  its SKILL.md body (8, 5, 11 and 9 phrases).
+- **`agent-orchestrator` keeps its scope list in the body.** The description's
+  "Covers" list (the saga across database and provider API among it) was the only
+  place the body named that scope, and `fix-as-01.01` reads it; it now sits under
+  `## Triggers`.
+- **`test/validate.py`:** the member ratchet moves from 940 to the family soft cap
+  of 500, and a description without a "Not for" boundary fails.
+
 ## 0.29.0: incident checklist, solvable eval tasks, a prohibited-effect seed case
 
 - **agent-orchestrator `references/governance.md` gains an incident checklist.** Six
