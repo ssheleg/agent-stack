@@ -15,6 +15,8 @@
   `## Triggers`.
 - **`test/validate.py`:** the member ratchet moves from 940 to the family soft cap
   of 500, and a description without a "Not for" boundary fails.
+  The CI ratchet plant moves with it (500 passes, 501 fails on the ratchet), and
+  the over-long plant pads past 1024 again.
 
 ## 0.29.0: incident checklist, solvable eval tasks, a prohibited-effect seed case
 

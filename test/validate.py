@@ -53,7 +53,6 @@ DESC_WORKING_LIMIT = 970
 # next "not for X" clause or trigger fits without a rewrite; without a gate the room is
 # spent one phrase at a time and nobody sees it go. The house limit above stays the
 # family's number, and its message stays the one past 970.
-DESC_RATCHET = 940
 # 2026-10-20: the operator's skill listing was full (29,995 of ~30,000 characters,
 # 81 of 134 skills shown with no description), and a plugin skill cannot be hidden,
 # so description length is the only lever. The family soft cap is 500 and the
