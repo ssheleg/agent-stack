@@ -1,3 +1,9 @@
+## v0.30.1: no citations into a private repository (2026-10-22)
+
+- **Objective.** Remove citations into a private repository from shipped doctrine (operator, 2026-10-22).
+- **Done.** `gateway.md` names the authority record without its private path; version 0.30.1.
+- **Next task.** After merge: tag `v0.30.1`, watch the release run, then the sshlg-skills pin bump.
+
 # Short descriptions: v0.30.0, 2026-10-20
 
 Branch `desc-budget-1020`. The four descriptions went from 929 to 939 characters to

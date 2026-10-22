@@ -137,7 +137,7 @@ that is this file's own rule says so.
 | Tier | Who the caller is | What places it there | What a call needs |
 |---|---|---|---|
 | T0 | on the operator's own machine: on loopback, under the owner's OS account | the service's local floor — loopback only, the `Host` and `Origin` guard, the owner's OS account (DL-25; `service.md` §Authentication and network). The descriptor token is the host's own credential, not the caller's proof (DL-12) | the operator's instruction: no delegation token, no `approval/1`, no grant record (DL-26) |
-| T1 | another machine of the same owner, enrolled in the agent network | its enrolment, which is Fabric's roadmap item RM-21 and still open — so **no machine is T1 yet** (DL-25; fabric-workspace `knowledge/roadmap.md` RM-21). A proposal in `authority.md` to scope T1 by machine identity is not decided | the same as T0 (DL-26) |
+| T1 | another machine of the same owner, enrolled in the agent network | its enrolment, which is Fabric's roadmap item RM-21 and still open — so **no machine is T1 yet** (DL-25; Fabric's roadmap item RM-21). A proposal in the authority record to scope T1 by machine identity is not decided | the same as T0 (DL-26) |
 | T2 | everyone else: another person's machine under a share grant, and any caller the callee cannot place in T0 or T1 | nothing places it; it is the default (DL-25) | the whole model below: a token per call, an approval for each effect that needs one, a grant with limits, an expiry and a payer (DL-26) |
 
 **A tier is the caller's origin's, not its connection's** (DL-25). A call relayed onto
@@ -160,8 +160,8 @@ for narrowing what the call may do (DL-26).
 
 Three rules hold on **every** tier (DL-26):
 - **Money limits.** L0 — the estate's total across provider keys — the project's limit (L1)
-  and each provider key's own ceiling all bind (DL-26; fabric-workspace
-  `knowledge/authority.md` *Levels*).
+  and each provider key's own ceiling all bind (DL-26; the operator's authority record,
+  *Levels*).
 - **Human gates.** Five stay with a person: a sign-in, a consent, a payment, a top-up, and a
   secret typed into a hidden prompt (DL-26; ADR-0144 amendment 4).
 - **No borrowed keys.** A credential source is never another agent's key or vault slot
@@ -270,7 +270,7 @@ its §Trust tiers — DL-25 (three tiers, placed by origin) and DL-26 (no token,
 grant record required inside the boundary) — which entered the contract in `063a725`; the
 origin rule followed in `3cb03ab`. It implements Fabric ADR-0144 amendment 4 (`19ad05ca`, in
 Fabric's main since `5bf15e5c`); the operator's decision is recorded in
-`passioncode-ai/fabric-workspace` `knowledge/authority.md`, *Trust by machine*, at `714808ac`.
+the operator's private authority record, *Trust by machine*.
 A second implementation, `fabric-agent-adapter` 0.20.0
 (`building-fabric-services/references/delegation.md`, *Who must present a token*), places
 tiers the same way: its verifier takes the caller's tier and passes a T0 call that carries
