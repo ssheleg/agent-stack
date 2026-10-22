@@ -1,3 +1,8 @@
+## 0.30.2 released and pinned (2026-10-22)
+
+- **State.** agent-stack 0.30.2 is tagged, on npm and pinned by sshlg-skills 1.73.2; installed on the operator machine.
+- **Next task.** B-156: give the per-reply `degraded` / `human_steps` envelope a contract home.
+
 ## v0.30.2: the ledger records the shipped version (2026-10-22)
 
 - **Objective.** Record the shipped version in the verification ledger (the sshlg-skills validator reads it).
