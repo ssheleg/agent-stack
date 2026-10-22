@@ -10,6 +10,12 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Release candidate: v0.30.2 (2026-10-22)
+
+the ledger records the shipped version
+
+Evidence: `npm test` exit 0 on the candidate tree before the PR; the PR CI run and the tag release run are named in docs/HANDOFF.md.
+
 ## Release candidate: v0.30.0 (2026-10-20)
 
 Short descriptions, measured on branch `desc-budget-1020` before any tag.
