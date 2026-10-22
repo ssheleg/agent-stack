@@ -1,3 +1,9 @@
+## v0.30.2: the ledger records the shipped version (2026-10-22)
+
+- **Objective.** Record the shipped version in the verification ledger (the sshlg-skills validator reads it).
+- **Done.** Ledger entry v0.30.2.
+- **Next task.** After merge: tag `v0.30.2`, watch the release run, then the sshlg-skills pin bump.
+
 ## v0.30.1: no citations into a private repository (2026-10-22)
 
 - **Objective.** Remove citations into a private repository from shipped doctrine (operator, 2026-10-22).
