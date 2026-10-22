@@ -1,3 +1,7 @@
+## v0.30.1: no citations into a private repository
+
+- `agent-interop/references/gateway.md` cited files and a commit inside a private repository of the operator's workspace. The citations now name the record without its private path. The trust tiers, money limits and human gates are unchanged.
+
 ## 0.30.0: short descriptions, triggers in the body
 
 - **Every skill description is a router of 368 to 458 characters** (was 929 to
