@@ -1,3 +1,8 @@
+## v0.31.2: the member gate declares its divergence too
+
+- `test/family_gate.py` adds `# diverges: none` under `# shared-mechanism: family-gate`; the hub's
+  cross-repository check requires both lines. No behaviour change.
+
 ## v0.31.1: the member gate declares its shared mechanism
 
 - `test/family_gate.py` opens with `# shared-mechanism: family-gate`, as the hub's

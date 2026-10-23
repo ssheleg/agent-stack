@@ -1,3 +1,8 @@
+## v0.31.2: the member gate declares its divergence too (2026-10-24)
+
+- **Done.** `test/family_gate.py` carries `# shared-mechanism: family-gate` and `# diverges: none`.
+- **Next task.** After merge: tag `v0.31.2`, watch the release, then the sshlg-skills pin bump; then B-156.
+
 ## v0.31.1: the member gate declares its shared mechanism (2026-10-24)
 
 - **Done.** `test/family_gate.py` carries `# shared-mechanism: family-gate` (hub cross-repository check).
