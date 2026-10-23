@@ -1,10 +1,10 @@
-## Issue #56: the support quality standard v1 (2026-10-23)
+## v0.31.0: the support quality standard v1, issue #56 (2026-10-23)
 
 - **Objective.** Add the support quality standard for agents that answer people to `agent-evals` and point `agent-orchestrator` at it (issue #56 and its three comments).
-- **Done.** Branch `feat/support-quality-standard`, local commit, not pushed: `agent-evals/references/support-quality.md` (A1 to A7, per-channel first-reply targets, the weekly assessment loop, the checks that caught defects, one deployment's baseline labelled as a measurement); a row in the agent-evals references table; an agent-orchestrator checklist line; `check_support_standard_keeps_its_parts` in `test/validate.py` with four self-tests; README reference count 32; CHANGELOG `## Unreleased`.
+- **Done.** Branch `feat/support-quality-standard`: `agent-evals/references/support-quality.md` (A1 to A7, per-channel first-reply targets, the weekly assessment loop, the checks that caught defects, one deployment's baseline labelled as a measurement); a row in the agent-evals references table; an agent-orchestrator checklist line; `check_support_standard_keeps_its_parts` in `test/validate.py` with four self-tests; README reference count 32; CHANGELOG `## Unreleased`.
 - **Decisions.** No product, provider release or private repository named: the issue's comments name a private bot, its host release and its repository, and the reference says "a live support chat agent" and "the first deployment". The event schema itself stays out: A7 puts it in the agent contract, not in this pack. No version bump: the release is a separate step.
 - **Checks run.** `npm test` exit 0; the new check watched failing on a planted deletion of the `store-review` row, then restored.
-- **Next task.** Push the branch and open a PR that closes #56; after merge, release it with the next version. Then B-156.
+- **Next task.** After merge: tag `v0.31.0`, watch the release, then the sshlg-skills pin bump; then B-156.
 
 ## 0.30.2 released and pinned (2026-10-22)
 

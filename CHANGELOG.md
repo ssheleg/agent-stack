@@ -1,4 +1,4 @@
-## Unreleased
+## v0.31.0: a support quality standard for agents that answer people
 
 - `test/family_gate.py`, the family's canonical member gate (hub B-108, B-109): the board
   parses (every row as wide as its header, no id twice) and `release.yml` keeps the tag-ancestry
