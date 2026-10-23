@@ -1487,6 +1487,73 @@ if sourced_rows(_good.replace("a-b, c", "a-b"), {"a-b", "c"}) \
     fail("sourced-rows self-test: a dropped declaration id was not reported")
 check_sourced_safety_rows_keep_their_sources()
 
+# ------------------------- the support quality standard keeps its parts and its two rules
+#
+# Issue #56 added the support quality standard v1 to agent-evals. Two of its rules were
+# learned from false readings in the first deployment: a metric not computed read as 0 (a
+# perfect day), and one first-reply target across channels fired every day on store
+# reviews held by design. So the declared parts A1 to A7 must keep their headings, every
+# declared channel kind must keep a target row, and A2 and A5 must both still say
+# "never 0".
+SUPPORT_DOC = "agent-evals/references/support-quality.md"
+SUPPORT_DECL = re.compile(
+    r"<!--\s*support-standard:\s*([^|>]+?)\s*\|\s*channels:\s*([^>]+?)\s*-->"
+)
+SUPPORT_PARTS = {f"A{n}" for n in range(1, 8)}
+SUPPORT_CHANNELS = {"private-chat", "mail", "store-review", "group-chat"}
+
+
+def support_standard_problems(text):
+    """Problems with the support standard: lost parts, channel targets or never-0 rules."""
+    m = SUPPORT_DECL.search(text or "")
+    if not m:
+        return ["no `<!-- support-standard: … | channels: … -->` declaration"]
+    problems = []
+    parts = {x.strip() for x in m.group(1).split(",") if x.strip()}
+    channels = {x.strip() for x in m.group(2).split(",") if x.strip()}
+    for key in sorted(SUPPORT_PARTS - parts):
+        problems.append(f"declaration no longer names part {key}")
+    for key in sorted(SUPPORT_CHANNELS - channels):
+        problems.append(f"declaration no longer names channel {key!r}")
+    for key in sorted(parts, key=lambda p: int(p[1:]) if p[1:].isdigit() else 0):
+        if not re.search(rf"^## {re.escape(key)}\. ", text, re.M):
+            problems.append(f"part {key} is declared and has no `## {key}.` heading")
+    for key in sorted(channels):
+        if not re.search(rf"^\|\s*`{re.escape(key)}`\s*\|\s*\S", text, re.M):
+            problems.append(f"channel {key!r} is declared and has no target row")
+    for key in ("A2", "A5"):
+        sec = _section(text, f"## {key}.")
+        if sec is not None and "never 0" not in " ".join(sec.split()):
+            problems.append(f"{key} no longer says a metric not measured is never 0")
+    return problems
+
+
+def check_support_standard_keeps_its_parts():
+    path = os.path.join(SKILL_ROOT, *SUPPORT_DOC.split("/"))
+    text = open(path, encoding="utf-8").read() if os.path.isfile(path) else ""
+    for problem in support_standard_problems(text):
+        fail(f"{SUPPORT_DOC}: {problem}. The standard is what makes every agent that answers "
+             "people measured the same way; a part or a rule lost in an edit is a reader "
+             "measuring differently with nothing to tell it")
+
+
+_sgood = ("<!-- support-standard: " + ", ".join(sorted(SUPPORT_PARTS)) + " | channels: "
+          + ", ".join(sorted(SUPPORT_CHANNELS)) + " -->\n"
+          + "".join(f"## A{n}. x\nnever 0\n" for n in range(1, 8))
+          + "".join(f"| `{c}` | under 1 h |\n" for c in sorted(SUPPORT_CHANNELS)))
+if support_standard_problems(_sgood) != []:
+    fail("support-standard self-test: a complete standard was refused")
+if support_standard_problems(_sgood.replace("| `mail` | under 1 h |\n", "")) \
+        != ["channel 'mail' is declared and has no target row"]:
+    fail("support-standard self-test: a dropped channel target was not reported")
+if support_standard_problems(_sgood.replace("## A5. x\nnever 0\n", "## A5. x\nzero\n")) \
+        != ["A5 no longer says a metric not measured is never 0"]:
+    fail("support-standard self-test: a lost never-0 rule was not reported")
+if support_standard_problems(_sgood.replace("## A7. x\n", "")) \
+        != ["part A7 is declared and has no `## A7.` heading"]:
+    fail("support-standard self-test: a lost part heading was not reported")
+check_support_standard_keeps_its_parts()
+
 # Notes print on EVERY run, pass or fail. A budget warning that only appeared beside a
 # failure would be invisible on exactly the runs where it still had time to be acted on.
 if notes:

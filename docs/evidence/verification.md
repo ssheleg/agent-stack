@@ -10,6 +10,14 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Release candidate: v0.31.0 (2026-10-23)
+
+`agent-evals/references/support-quality.md`, the support quality standard v1 (issue #56),
+routed from `agent-evals` and `agent-orchestrator`; `test/validate.py`
+`check_support_standard_keeps_its_parts` with four self-tests; the family member gate in the
+gate. Evidence: `npm test` exit 0 on the candidate tree; the PR CI run and the tag release run
+are named in docs/HANDOFF.md.
+
 ## Release candidate: v0.30.2 (2026-10-22)
 
 the ledger records the shipped version
