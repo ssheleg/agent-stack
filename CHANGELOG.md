@@ -1,3 +1,8 @@
+## v0.31.1: the member gate declares its shared mechanism
+
+- `test/family_gate.py` opens with `# shared-mechanism: family-gate`, as the hub's
+  cross-repository check requires of every copy of a shared mechanism. No behaviour change.
+
 ## v0.31.0: a support quality standard for agents that answer people
 
 - `test/family_gate.py`, the family's canonical member gate (hub B-108, B-109): the board

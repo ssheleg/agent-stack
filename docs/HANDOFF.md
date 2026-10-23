@@ -1,3 +1,8 @@
+## v0.31.1: the member gate declares its shared mechanism (2026-10-24)
+
+- **Done.** `test/family_gate.py` carries `# shared-mechanism: family-gate` (hub cross-repository check).
+- **Next task.** After merge: tag `v0.31.1`, watch the release, then the sshlg-skills pin bump; then B-156.
+
 ## v0.31.0: the support quality standard v1, issue #56 (2026-10-23)
 
 - **Objective.** Add the support quality standard for agents that answer people to `agent-evals` and point `agent-orchestrator` at it (issue #56 and its three comments).
