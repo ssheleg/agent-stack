@@ -10,6 +10,11 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Release candidate: v0.31.1 (2026-10-24)
+
+The member gate copy declares its shared mechanism. Evidence: `npm test` exit 0 on the
+candidate tree; the PR CI run and the tag release run are named in docs/HANDOFF.md.
+
 ## Release candidate: v0.31.0 (2026-10-23)
 
 `agent-evals/references/support-quality.md`, the support quality standard v1 (issue #56),
