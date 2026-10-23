@@ -201,15 +201,15 @@ pack was installed, so both are written here rather than one promised.
 
 ### What loads on demand
 
-Twenty-seven reference files ship with the four skills, each with a load trigger in
+Thirty-two reference files ship with the four skills, each with a load trigger in
 its skill body. By skill:
 
 | Skill | References |
 |---|---|
 | `agent-orchestrator` | 12 — the tool-calling loop, memory and retrieval, context budgets, provider routing, the work graph, the resale wallet and the saga across database and provider API |
-| `agent-harness` | 7, plus `scripts/audit_agent.py` |
+| `agent-harness` | 10, plus `scripts/audit_agent.py` |
 | `agent-interop` | 6 — one per protocol surface, each pinning the revision it was read at |
-| `agent-evals` | 2 — `otel-genai.md` (the semantic conventions an eval reads) and `statistics.md` (when a difference is a difference) |
+| `agent-evals` | 4: `otel-genai.md` (the semantic conventions an eval reads), `statistics.md` (when a difference is a difference), `multi-agent.md` (the team as a system) and `support-quality.md` (the support quality standard for agents that answer people) |
 
 A file with no load trigger in a body is a defect, not a bonus: the skill audit
 refuses one.
@@ -226,7 +226,8 @@ audit row has to carry to prove a control was on.
 
 `agent-evals`: measuring whether the result behaves. Building a suite, judging a
 trajectory rather than a final answer, turning a production failure into a
-permanent fixture, calibrating a judge, gating a release on offline evals.
+permanent fixture, calibrating a judge, gating a release on offline evals, and
+measuring an agent that answers people by one support quality standard.
 
 `agent-harness`: writing or fixing a system prompt, shaping tools so the model picks the
 right one, choosing between ReAct, reflection, planning and voting — or auditing an agent

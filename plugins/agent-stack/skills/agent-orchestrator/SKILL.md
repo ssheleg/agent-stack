@@ -336,6 +336,8 @@ heading — the ones that were learned by getting them wrong:
       provider — never from a table of vendor ids in source
 - [ ] An observable before the implementation, an eval before the prompt is tuned, or the
       tuning is folklore — only the corpus waits for production
+- [ ] An agent that answers people is measured by `agent-evals/references/support-quality.md`:
+      record, metrics, rubric, judge and the daily event
 
 ## References
 

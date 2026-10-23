@@ -4,6 +4,23 @@
   parses (every row as wide as its header, no id twice) and `release.yml` keeps the tag-ancestry
   check (`fetch-depth: 0`, `git merge-base --is-ancestor`), each watched failing on a plant by
   `--self-test`. Wired into the gate; a byte-for-byte copy of the hub's `member-gate/family_gate.py`.
+- **agent-evals `references/support-quality.md`: the support quality standard v1** for agents
+  that answer people (issue #56). The per-turn record (A1); four metric families per channel
+  per closed UTC day, a metric not computed is "not measured", never 0 (A2); first-reply p90
+  targets per channel kind: private chat under 30 s, mail under 4 h, store reviews under 24 h,
+  group chats within the agent's come-back window; first reply measured from the person's
+  message to the sent reply; rubric v1 and why factual accuracy is not the judge's job (A3);
+  the judge, from another vendor, alerting on a check only after 80% human agreement (A4);
+  `support.quality_daily`, counts and codes only (A5); autonomy without blocking (A6);
+  portability (A7). Plus the weekly assessment loop (findings with cause class, owner,
+  action and priority, compared by finding id), the checks that caught real defects, and
+  one deployment's baseline labelled as a measurement, not a target. Routed from the
+  agent-evals references table and an agent-orchestrator checklist line.
+- **`test/validate.py`: `check_support_standard_keeps_its_parts`** (four self-tests) fails
+  when the standard loses a part heading A1 to A7, a channel kind's target row, or the
+  "never 0" rule in A2 or A5.
+- README: the reference count reads 32 (it read 27 while 31 shipped; `agent-harness` 10,
+  not 7).
 
 ## v0.30.2: the ledger records the shipped version
 
