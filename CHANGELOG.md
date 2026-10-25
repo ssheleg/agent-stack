@@ -1,3 +1,15 @@
+## v0.31.3: descriptions within a 300-character budget
+
+- Every skill description now fits a budget of about 300 characters (hub board row B-255 (a)):
+  Claude Code lists every installed skill's description each session against a shared budget of
+  about 30,000 characters, and the operator's listing measured 51,178, so less-used skills lost
+  their descriptions. Measured with whitespace collapsed: `agent-evals` 422 → 294, `agent-harness`
+  445 → 291, `agent-interop` 368 → 299, `agent-orchestrator` 458 → 299; total 1693 → 1183.
+- Each description keeps its router sentence, its boundary against sibling skills, the opt-out
+  phrase and a short English and Russian trigger list. Every quoted trigger the description
+  dropped is kept in the body's `## Triggers` section, so the family hook's words stay advertised
+  (`test/advertised_check.js` in the hub).
+
 ## v0.31.2: the member gate declares its divergence too
 
 - `test/family_gate.py` adds `# diverges: none` under `# shared-mechanism: family-gate`; the hub's

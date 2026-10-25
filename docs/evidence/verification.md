@@ -10,6 +10,11 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Release candidate: v0.31.3 (2026-10-25)
+
+descriptions within a 300-character budget. Evidence: the repository gate exits 0 on the candidate tree; the PR CI run
+and the tag release run are named in docs/HANDOFF.md.
+
 ## Release candidate: v0.31.2 (2026-10-24)
 
 The member gate copy declares its shared mechanism and divergence. Evidence: `npm test` exit 0

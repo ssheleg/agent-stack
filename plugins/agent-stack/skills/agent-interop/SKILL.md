@@ -1,11 +1,10 @@
 ---
 name: agent-interop
 description: >-
-  Use when an agent talks to anything outside its process: an MCP server or client, A2A
-  and agent cards, the MCP Registry, an agent gateway, calls on behalf of a person.
-  Triggers: "MCP server" / "MCP-сервер", "A2A", "agent card" / "карточка агента", "MCP
-  registry", "шлюз для агентов". Not for one server's tool design (agent-harness) or skill
-  construction (make-skill).
+  Use when an agent talks to anything outside its process: MCP server or client, A2A and
+  agent cards, MCP Registry, an agent gateway, delegated calls. Triggers: "MCP server" /
+  "MCP-сервер", "A2A", "шлюз для агентов". Not for one server's tool design
+  (agent-harness) or skill construction (make-skill).
 license: MIT
 ---
 
@@ -20,6 +19,8 @@ registry, and the gateway between them.
 ## Triggers
 
 "MCP client", "agent interoperability", "server.json", "agentgateway", "tool federation", "интероперабельность агентов", "реестр MCP", "delegation token", "токен делегирования".
+
+Moved here from the description in 0.31.3: "карточка агента".
 
 ## Rule zero — a protocol claim without a date is a guess
 
