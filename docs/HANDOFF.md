@@ -1,3 +1,11 @@
+## v0.31.3: descriptions within a 300-character budget (2026-10-25)
+
+- **Done.** Every skill description cut to at most 300 characters (hub B-255 (a)); total 1693 → 1183
+  characters, whitespace collapsed. Dropped quoted triggers moved to each body's `## Triggers`.
+  Per-skill numbers are in CHANGELOG.md.
+- **Next task.** After merge: tag `v0.31.3`, watch the release, then the sshlg-skills pin bump; then
+  the highest open board row.
+
 ## v0.31.2: the member gate declares its divergence too (2026-10-24)
 
 - **Done.** `test/family_gate.py` carries `# shared-mechanism: family-gate` and `# diverges: none`.

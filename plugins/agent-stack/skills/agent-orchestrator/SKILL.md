@@ -1,12 +1,10 @@
 ---
 name: agent-orchestrator
 description: >-
-  Use when building an agent system (orchestrator, tool-using chatbot, AI pipeline) or
-  metering the LLM access it burns. Triggers: "agent system" / "агентная система",
-  "orchestrator" / "оркестратор", "sub-agent" / "суб-агент", "human in the loop" /
-  "человек в цикле", "LLM billing" / "биллинг LLM". Not for one LLM call or prompt wording
-  (agent-harness), evals (agent-evals) or protocols (agent-interop). Refusal phrase "no
-  agent layer" / «без агентного слоя».
+  Use when building an agent system (orchestrator, pipeline) or metering LLM spend.
+  Triggers: "agent system" / "агентная система", "LLM billing". Not for one LLM call or
+  prompt wording (agent-harness), evals (agent-evals) or protocols (agent-interop). Opt
+  out: "no agent layer" / «без агентного слоя».
 license: MIT
 ---
 
@@ -21,6 +19,9 @@ layer that should have been split, and this one did until 2026-08-16.
 "tool calling", "LLM router", "fallback chain", "memory layer", "token wallet", "роутер моделей", "слой памяти", "граф задач".
 
 Also routed here by scope, the list the description carried until 0.30.0: tool-calling loops, human-checkpoint pipelines, provider routing, fallback/retry, memory architecture, retrieval and decay, context budgets, sub-agent coordination, error hierarchies; the work as a graph (parallel layers, fake edges, a checker before convergence); for resale: tiered wallets, one markup boundary, the saga across database and provider API, spend-delta polling, budget and loop guards, per-tenant keys.
+
+Moved here from the description in 0.31.3: "оркестратор", "суб-агент", "human in the
+loop", "человек в цикле", "биллинг LLM".
 
 ## Architecture Overview
 
