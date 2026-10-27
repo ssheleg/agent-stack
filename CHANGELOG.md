@@ -1,3 +1,15 @@
+## Unreleased
+
+- `agent-evals/references/support-practices.md`: what an audit of five production agents that answer
+  people found working and failing (P1 to P8): small closed rule sets in the prompt whole, one relevance
+  threshold at the knowledge service, the whole conversation, false-state gates, a checker that sees the
+  material before the instructions, repair then research then a hold that comes back, hand-offs never
+  counted or judged as answers, a commitments ledger, model lanes with measured reasoning budgets and
+  counted fallback recoveries, four supervisors at four granularities, ten measurement traps, and an
+  improvement loop gated and measured in code. Linked from the `agent-evals` references table and from
+  `support-quality.md`; README reference count 33. `agent-evals/SKILL.md` body is 4762 tokens, past
+  the 4750 working limit and inside the 5000 budget.
+
 ## v0.31.3: descriptions within a 300-character budget
 
 - Every skill description now fits a budget of about 300 characters (hub board row B-255 (a)):

@@ -201,7 +201,7 @@ pack was installed, so both are written here rather than one promised.
 
 ### What loads on demand
 
-Thirty-two reference files ship with the four skills, each with a load trigger in
+Thirty-three reference files ship with the four skills, each with a load trigger in
 its skill body. By skill:
 
 | Skill | References |
@@ -209,7 +209,7 @@ its skill body. By skill:
 | `agent-orchestrator` | 12 — the tool-calling loop, memory and retrieval, context budgets, provider routing, the work graph, the resale wallet and the saga across database and provider API |
 | `agent-harness` | 10, plus `scripts/audit_agent.py` |
 | `agent-interop` | 6 — one per protocol surface, each pinning the revision it was read at |
-| `agent-evals` | 4: `otel-genai.md` (the semantic conventions an eval reads), `statistics.md` (when a difference is a difference), `multi-agent.md` (the team as a system) and `support-quality.md` (the support quality standard for agents that answer people) |
+| `agent-evals` | 5: `otel-genai.md` (the semantic conventions an eval reads), `statistics.md` (when a difference is a difference), `multi-agent.md` (the team as a system), `support-quality.md` (the support quality standard for agents that answer people) and `support-practices.md` (what an audit of five such agents found: pipeline, model lanes, supervisors, measurement traps, the improvement loop) |
 
 A file with no load trigger in a body is a defect, not a bonus: the skill audit
 refuses one.

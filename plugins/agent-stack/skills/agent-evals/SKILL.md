@@ -362,7 +362,8 @@ None of the above runs without these, and they are the part people skip:
 |---|---|
 | [`references/multi-agent.md`](references/multi-agent.md) | roles, shared memory or delegation change — evaluate the combined objective, retained concerns, source independence and authority across the team |
 | [`references/statistics.md`](references/statistics.md) | a number is about to change a decision — how many runs before a difference is real, `pass@k` vs `pass^k` and why trials are not independent, paired comparison, the harness as a variable, and what a given piece of evidence authorises next |
-| [`references/support-quality.md`](references/support-quality.md) | the agent **answers people** (chat, mail, reviews, groups): the per-turn record, four metric families with per-channel targets, the rubric, the judge, `support.quality_daily` and the weekly findings loop |
+| [`references/support-quality.md`](references/support-quality.md) | the agent **answers people** (chat, mail, reviews, groups): the turn record, four metric families, rubric, judge, `support.quality_daily`, the weekly loop |
+| [`references/support-practices.md`](references/support-practices.md) | building or auditing one: pipeline, model lanes, supervisors, traps |
 | [`references/otel-genai.md`](references/otel-genai.md) | you are **instrumenting an agent for someone else to read** — span-name formulas and the closed operation enum, the evaluation event that has no field for who scored, the three content tiers and the upload hook that runs even on dropped spans, the eleven token attributes and why cost is a join you can get wrong in both directions, and why "OpenTelemetry-based" is not one vocabulary |
 
 ---
