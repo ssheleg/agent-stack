@@ -359,11 +359,12 @@ None of the above runs without these, and they are the part people skip:
 
 | Load | When |
 |---|---|
-| [`references/multi-agent.md`](references/multi-agent.md) | roles, shared memory or delegation change — evaluate the combined objective, retained concerns, source independence and authority across the team |
-| [`references/statistics.md`](references/statistics.md) | a number is about to change a decision — how many runs before a difference is real, `pass@k` vs `pass^k` and why trials are not independent, paired comparison, the harness as a variable, and what a given piece of evidence authorises next |
+| [`references/multi-agent.md`](references/multi-agent.md) | roles, shared memory or delegation change: the combined objective, retained concerns, source independence, authority |
+| [`references/statistics.md`](references/statistics.md) | a number is about to change a decision: how many runs before a difference is real, `pass@k` vs `pass^k`, dependent trials, pairing, the harness as a variable, what evidence authorises next |
 | [`references/operability.md`](references/operability.md) | proving an agent completes a **product's** stories through its tools (AN-9): proving call, contract tests, cold-agent `pass^k` |
-| [`references/production-metrics.md`](references/production-metrics.md) | the agent is **deployed**: metric registry, measurements, change verdicts, failures into fixtures |
-| [`references/support-quality.md`](references/support-quality.md) | the agent **answers people** (chat, mail, reviews, groups): the per-turn record, four metric families with per-channel targets, the rubric, the judge, `support.quality_daily` and the weekly findings loop |
+| [`references/production-metrics.md`](references/production-metrics.md) | the agent is **deployed**: metric registry, change verdicts, failures into fixtures |
+| [`references/support-quality.md`](references/support-quality.md) | the agent **answers people** (chat, mail, reviews, groups): the turn record, four metric families, rubric, judge, `support.quality_daily`, the weekly loop |
+| [`references/support-practices.md`](references/support-practices.md) | building or auditing one: pipeline, model lanes, supervisors, traps |
 | [`references/otel-genai.md`](references/otel-genai.md) | you are **instrumenting an agent for someone else to read**: span names and the operation enum, the evaluation event with no field for who scored, content tiers, token attributes and the cost join |
 
 ---

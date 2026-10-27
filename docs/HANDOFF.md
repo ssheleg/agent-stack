@@ -5,7 +5,9 @@
   fixture), part of the cross-agent metrics standard proposed 2026-11-10.
 - **Done.** Branch `feat/agent-evals-prod-metrics-1111`:
   `plugins/agent-stack/skills/agent-evals/references/production-metrics.md`, SKILL.md routing,
-  `test/audit_regressions/production-metrics.py`, version 0.33.0.
+  `test/audit_regressions/production-metrics.py`, version 0.33.0. Also carries PR #70
+  (`support-practices.md`, board request 752acc3b, which expired unanswered on 2026-11-03) by
+  cherry-pick with its author kept; #70 can close once this merges.
 - **Open.** Merge and the `v0.33.0` tag were not done: the run was started by the board with no
   person present, and merging to public main and tagging publish. Then the sshlg-skills pin bump
   (hub owner). The schema names follow the host's agent contract once it records them; if its

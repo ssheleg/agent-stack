@@ -213,6 +213,8 @@ The review found two defects, both fixed: a paragraph in another language append
 replies (the `language` check), and the same reply sent again after a bare "?" (the
 `continuity` check and agent-repeat).
 
+What an audit of five such agents found working and failing (the pipeline, model lanes, supervisors, measurement traps, the improvement loop) is in `support-practices.md`.
+
 ## Checklist
 
 - [ ] Every inbound message is a turn with one trace id on the row, its model calls, its
