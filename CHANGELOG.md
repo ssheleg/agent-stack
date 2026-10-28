@@ -1,3 +1,13 @@
+## v0.31.4: descriptions name their subject first
+
+- **agent-interop and agent-harness name their subject within the first 57 characters** (hub
+  board row B-285; Hermes shows only that many). agent-interop was "Use when an agent talks to
+  anything outside its process: MCP server or client, A2A " and is now "Use when an agent speaks
+  MCP, A2A or a gateway beyond its"; agent-harness was "Use when the question is what the agent
+  is told, not how its loop is wired: system" and is now "Use when deciding an agent's system
+  prompt and tools, not". Lengths 283 and 296; the quoted triggers and the Not-for boundaries are
+  unchanged.
+
 ## v0.31.3: descriptions within a 300-character budget
 
 - Every skill description now fits a budget of about 300 characters (hub board row B-255 (a)):
