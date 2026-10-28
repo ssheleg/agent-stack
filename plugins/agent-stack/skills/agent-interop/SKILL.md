@@ -1,8 +1,8 @@
 ---
 name: agent-interop
 description: >-
-  Use when an agent talks to anything outside its process: MCP server or client, A2A and
-  agent cards, MCP Registry, an agent gateway, delegated calls. Triggers: "MCP server" /
+  Use when an agent speaks MCP, A2A or a gateway beyond its process: MCP server or
+  client, agent cards, MCP Registry, delegated calls. Triggers: "MCP server" /
   "MCP-сервер", "A2A", "шлюз для агентов". Not for one server's tool design
   (agent-harness) or skill construction (make-skill).
 license: MIT

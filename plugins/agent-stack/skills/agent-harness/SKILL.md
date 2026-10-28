@@ -1,8 +1,8 @@
 ---
 name: agent-harness
 description: >-
-  Use when the question is what the agent is told, not how its loop is wired: system
-  prompt, tool choice, workflow or agent, harness audits. Triggers: "system prompt" /
+  Use when deciding an agent's system prompt and tools, not how its loop is wired:
+  system prompt, tool choice, workflow or agent, harness audits. Triggers: "system prompt" /
   "системный промпт", "аудит агента". Not for the loop (agent-orchestrator), evals
   (agent-evals) or protocols (agent-interop).
 license: MIT
