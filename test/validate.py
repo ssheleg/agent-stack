@@ -1281,7 +1281,8 @@ def check_shipped_front_matter_survives_a_real_reader():
     nothing would have looked: the shared checker used to exit early here. It does not any
     more, and the table it reads is not copied into this repository.
     """
-    script = os.path.join(str(ROOT), "..", "..", "test", "advertised_check.js")
+    # B-304: a standalone CI clone points SSHLG_HUB_ROOT at a checkout of the hub.
+    script = os.path.join(os.environ.get("SSHLG_HUB_ROOT") or os.path.join(str(ROOT), "..", ".."), "test", "advertised_check.js")
     if not os.path.isfile(script):
         _disclose_routing("front matter vs a strict reader — no sshlg-skills umbrella above this checkout")
         return
