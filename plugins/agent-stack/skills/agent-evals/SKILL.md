@@ -28,7 +28,7 @@ Three claims follow, and they are what makes this different from testing ordinar
 
 ## Triggers
 
-"trajectory eval", "checker node", "is the agent getting better", "оценка агента", "как проверить агента", "operability eval", "агент проходит сценарий".
+"trajectory eval", "checker node", "is the agent getting better", "оценка агента", "как проверить агента".
 
 Moved here from the description in 0.31.3: "регрессионный набор".
 

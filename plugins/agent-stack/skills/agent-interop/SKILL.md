@@ -23,7 +23,7 @@ call instead of its screens).
 
 Moved here from the description in 0.31.3: "карточка агента". Moved in 0.32.0: "шлюз для агентов".
 
-A product's agent surface (0.32.0): "agent surface", "агентная поверхность", "AI-native", "API для агентов", "MCP для продукта", "доступно агентам".
+A product's agent surface (0.32.0): "agent surface", "агентная поверхность", "AI-native", "API для агентов".
 
 ## Rule zero — a protocol claim without a date is a guess
 

@@ -25,8 +25,8 @@
   `mcp-ship.md` agrees. Description 283 → 281 characters (whitespace collapsed); it now names
   a product's agent surface.
 - Triggers: agent-interop "agent surface", "агентная поверхность", "AI-native", "API для
-  агентов", "MCP для продукта", "доступно агентам" ("шлюз для агентов" moved from the
-  description to the body); agent-evals "operability eval", "агент проходит сценарий".
+  агентов" ("шлюз для агентов" moved from the description to the body). Four, because the
+  hub routes a member's new words ahead of its release under a cap of four `PENDING` words.
 - agent-evals body 4742 → 4734 tokens (cl100k): two rows and a closing paragraph shortened to
   pay for the new reference row.
 - Outcome cases written before the prose: `AI-OUT-006` to `AI-OUT-008` (billing exposed to
