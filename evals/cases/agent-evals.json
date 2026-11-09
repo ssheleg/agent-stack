@@ -1,6 +1,6 @@
 {
  "contract": "outcome-case/1 (schemas/outcome-case.schema.json + test/outcome_harness.py in ssheleg/sshlg-skills)",
- "note": "Outcome corpus for agent-evals (FIX-EV-01.23), anchored to the audit's own findings AS-06..AS-10. Judged on ARTIFACTS via the family harness: the runner records the actual output oracle verdict AND the raw result per case; with/without-skill arms are the harness's baseline contract. Nothing in the production skill was changed for grader convenience.",
+ "note": "Outcome corpus for agent-evals (FIX-EV-01.23), anchored to the audit's own findings AS-06..AS-10. Judged on ARTIFACTS via the family harness: the runner records the actual output oracle verdict AND the raw result per case; with/without-skill arms are the harness's baseline contract. Nothing in the production skill was changed for grader convenience. Case 006 (2026-11-09, plan 2026-11-09-ai-native packet P-AS) tests references/operability.md; each FAILED on the baseline arm, installed 0.31.4 without these references (test/evals/RESULTS.md).",
  "arms": {
   "baseline": "same prompts, skill absent",
   "current": "same prompts, skill installed"
@@ -193,6 +193,58 @@
       "kind": "artifact-contains",
       "target": "regrade-note.md",
       "expect": "regrade"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "outcome-case/1",
+   "id": "AE-OUT-006-operability-proving-call-and-pass-k",
+   "skill": "agent-evals",
+   "prompt": {
+    "text": "We exposed our product's capabilities to agents over MCP. Design how we prove that an agent can actually complete our users' main stories through those tools, which part blocks a release and which part is judgment, and how gated steps such as a payment or an approval are handled in that proof. Write operability-plan.md."
+   },
+   "environment": {
+    "model": "inherit",
+    "host": "any",
+    "case_digest": "89596603a02b645942582c868b3d99a04900a977a87441084702392123847c06"
+   },
+   "checks": {
+    "tool": [
+     {
+      "name": "python3 present",
+      "command": "python3 -c 'pass'"
+     }
+    ],
+    "load_trace": {
+     "expect_loaded": [
+      "agent-evals"
+     ],
+     "expect_not_loaded": []
+    },
+    "outcome": [
+     {
+      "name": "operability-plan.md exists",
+      "kind": "artifact-exists",
+      "target": "operability-plan.md"
+     },
+     {
+      "name": "the deterministic gate is a proving call (AN-9)",
+      "kind": "artifact-contains",
+      "target": "operability-plan.md",
+      "expect": "proving call"
+     },
+     {
+      "name": "contract tests per capability gate the release (AN-9)",
+      "kind": "artifact-contains",
+      "target": "operability-plan.md",
+      "expect": "contract test"
+     },
+     {
+      "name": "the cold-agent judgment reports pass^k (AN-9)",
+      "kind": "artifact-contains",
+      "target": "operability-plan.md",
+      "expect": "pass^k"
      }
     ]
    }

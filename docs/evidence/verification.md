@@ -10,6 +10,15 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Release candidate: v0.32.0 (2026-11-09)
+
+A product's agent surface: `agent-interop/references/agent-surface.md` and
+`agent-evals/references/operability.md` (sshlg-skills plan `2026-11-09-ai-native`, packet P-AS);
+the tool-shape ownership contradiction closed; four outcome cases and
+`test/audit_regressions/ai-native-agent-surface.py`. Evidence: the repository gate on the
+candidate tree and the baseline/current runs in `test/evals/RESULTS.md`; the PR CI run and the
+tag release run are named in docs/HANDOFF.md.
+
 ## Release candidate: v0.31.4 (2026-10-28)
 
 descriptions name their subject first. Evidence: the repository gate exits 0 on the candidate tree; the PR CI run

@@ -1,10 +1,10 @@
 ---
 name: agent-interop
 description: >-
-  Use when an agent speaks MCP, A2A or a gateway beyond its process: MCP server or
-  client, agent cards, MCP Registry, delegated calls. Triggers: "MCP server" /
-  "MCP-сервер", "A2A", "шлюз для агентов". Not for one server's tool design
-  (agent-harness) or skill construction (make-skill).
+  Use when an agent speaks MCP, A2A or a gateway, or a product exposes an agent
+  surface: MCP server or client, agent cards, registry, delegation. Triggers:
+  "MCP server" / "MCP-сервер", "A2A", "агентная поверхность". Not for tool shape
+  (agent-harness) or building skills (make-skill).
 license: MIT
 ---
 
@@ -12,7 +12,8 @@ license: MIT
 
 `agent-orchestrator` builds the loop. `agent-evals` proves it behaves. This skill covers
 everything the loop reaches that is **not in its process**: a tool server, a peer agent, a
-registry, and the gateway between them.
+registry, the gateway between them, and a product's **agent surface** (the contract agents
+call instead of its screens).
 
 ---
 
@@ -20,7 +21,9 @@ registry, and the gateway between them.
 
 "MCP client", "agent interoperability", "server.json", "agentgateway", "tool federation", "интероперабельность агентов", "реестр MCP", "delegation token", "токен делегирования".
 
-Moved here from the description in 0.31.3: "карточка агента".
+Moved here from the description in 0.31.3: "карточка агента". Moved in 0.32.0: "шлюз для агентов".
+
+A product's agent surface (0.32.0): "agent surface", "агентная поверхность", "AI-native", "API для агентов", "MCP для продукта", "доступно агентам".
 
 ## Rule zero — a protocol claim without a date is a guess
 
@@ -62,6 +65,7 @@ then check whether a newer one exists. Every entry in the link map below is fetc
 | I want my agent discoverable and callable by other agents | **A2A agent card** | `references/a2a.md` |
 | I want people to find and install my MCP server | **MCP Registry** | `references/registry.md` |
 | I have many servers, many clients, and a security team | **a gateway** | `references/gateway.md` |
+| My product's functions must be usable by agents, not only through its screens | **an agent surface** | `references/agent-surface.md` |
 
 **The one-line rule between the two big ones.** MCP connects a model to a *capability* you
 control the shape of; A2A connects you to a *peer* whose insides you deliberately cannot
@@ -108,6 +112,7 @@ an index; the trigger lives in the file, so the two cannot drift apart.
 | [`references/mcp-scale.md`](references/mcp-scale.md) | the host has **more servers and tools than context** — progressive discovery, programmatic tool calling, cache interaction, and the security surface each one opens |
 | [`references/a2a.md`](references/a2a.md) | the other side is **another agent, not a tool** — agent cards and discovery, the task lifecycle and its terminal states, three protocol bindings, streaming versus push |
 | [`references/registry.md`](references/registry.md) | you are **publishing a server** or building something that consumes the registry — `server.json`, reverse-DNS namespaces and how ownership is proved, the publish flow, and the registry's three refusals |
+| [`references/agent-surface.md`](references/agent-surface.md) | a **product** must be usable by agents: the canon index AN-1 to AN-10, one contract for the UI and the agents, the contract snapshot and its diff, the gate protocol (`human_steps`, `input_required`), credentials and safety for outside agents, outbound events, discovery, CLI readiness |
 | [`references/gateway.md`](references/gateway.md) | agent traffic needs **one controlled seam** — what a gateway must do that an API gateway does not, federation and name collisions, where authorization actually belongs, and **delegation** — a token that says which agent acts for which person, and whether a call needs one at all (trust by machine: T0/T1/T2) |
 
 ---
@@ -139,9 +144,11 @@ that fronts them with a proxy is subject to `references/gateway.md`.
 boundary may be crossed and what an audit row must carry to prove a control was applied. This
 skill describes *how* the crossing is spoken. Permission there, protocol here.
 
-**Not covered at all:** designing the tool set of one server (what tools, what schemas, what
-descriptions — that is a design problem, and Anthropic's `mcp-server-dev` plugin is built for
-it); prompt wording; a single LLM call in a script.
+**Against `agent-harness`.** The shape of a tool (which tools, names, descriptions, schemas,
+error wording) is `agent-harness/references/tools.md`. The wire, and a product's agent surface
+built from those tools, are here.
+
+**Not covered at all:** prompt wording; a single LLM call in a script.
 
 ---
 
@@ -201,3 +208,4 @@ find the page that exists rather than the page you remember.
 - [ ] If you federate: name collisions are resolved deliberately, not by load order
 - [ ] If you publish: the namespace is one you can prove you own
 - [ ] Authorization is enforced per hop, not only at the entrance
+- [ ] A product's surface: the UI calls the agents' contract, and a gated call returns `human_steps` (`references/agent-surface.md`)

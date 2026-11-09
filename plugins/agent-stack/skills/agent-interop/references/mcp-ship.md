@@ -7,9 +7,9 @@ an existing web app, or fixing a client that will not connect.
 
 `mcp.md` is the protocol. This file starts where that one stops, and covers the part that
 is not in any specification: where the endpoint actually lands, and why the client says 404.
-For **publishing** to the registry, see `registry.md`. For designing the tool set in the
-first place, Anthropic's `mcp-server-dev` plugin is built for it and this file does not
-repeat it.
+For **publishing** to the registry, see `registry.md`. The tool set itself (which tools, names,
+descriptions, schemas) is `agent-harness/references/tools.md`; a product's whole agent
+surface is `agent-surface.md`. This file repeats neither.
 
 ## Contents
 

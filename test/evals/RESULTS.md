@@ -44,3 +44,25 @@ Wave-3 eval protocol, executed from a Claude Code harness rather than a chat UI:
   its adversarial-cases line on haiku; s01's *"Names provider failure and
   context-pressure behavior"* failed on sonnet. s03 passed 4/4 on both models.
 
+## Outcome cases for a product's agent surface (2026-11-09, 0.32.0 candidate)
+
+Four frozen outcome cases (`evals/cases/agent-interop.json` `AI-OUT-006` to `AI-OUT-008`,
+`evals/cases/agent-evals.json` `AE-OUT-006`), written before the two references. One run per
+arm, model `claude-sonnet` (Agent tool `sonnet`), each in a fresh subagent; the artifact was
+scored by the cases' own `artifact-contains` checks, read by a script, not by a judge.
+
+- **Baseline arm:** the installed agent-stack 0.31.4, told to use any installed skill and not
+  to read the candidate tree.
+- **Current arm:** told to read the candidate tree's `SKILL.md` first and follow its load
+  triggers (a simulation of the installed candidate, not a real install).
+
+| Case | Baseline | Current | Checks failed |
+|---|---|---|---|
+| AI-OUT-006 billing exposed to agents | FAIL 1/4 | FAIL 3/4 | baseline: `subset`, `snapshot`, `Client ID Metadata`; current: `subset` (the artifact states the AN-3 proxy and the `internal: <reason>` marker without the word) |
+| AI-OUT-007 gated refund | FAIL 2/4 | PASS 4/4 | baseline: `human_steps`, `confirm: true` |
+| AI-OUT-008 CLI made agent-ready | FAIL 2/4 | PASS 4/4 | baseline: `--json`, `--help --json` |
+| AE-OUT-006 operability proof | FAIL 2/4 | PASS 4/4 | baseline: `proving call`, `contract test` |
+
+Limits: n = 1 per arm, no `pass^k`; the checks are literal strings, so AI-OUT-006's current
+miss is a wording miss the check cannot tell from a doctrine miss. The checks were not changed
+after the current arm ran.
