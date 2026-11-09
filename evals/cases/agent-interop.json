@@ -1,6 +1,6 @@
 {
  "contract": "outcome-case/1 (schemas/outcome-case.schema.json + test/outcome_harness.py in ssheleg/sshlg-skills)",
- "note": "Outcome corpus for agent-interop (FIX-EV-01.25), anchored to the audit's own findings AS-12/AS-13. Judged on ARTIFACTS via the family harness: the runner records the actual output oracle verdict AND the raw result per case; with/without-skill arms are the harness's baseline contract. The pinned-SDK run is probe-gated on a network/venv build — absent, it is NOT_RUN, never PASS. Nothing in the production skill was changed for grader convenience.",
+ "note": "Outcome corpus for agent-interop (FIX-EV-01.25), anchored to the audit's own findings AS-12/AS-13. Judged on ARTIFACTS via the family harness: the runner records the actual output oracle verdict AND the raw result per case; with/without-skill arms are the harness's baseline contract. The pinned-SDK run is probe-gated on a network/venv build; absent, it is NOT_RUN, never PASS. Nothing in the production skill was changed for grader convenience. Cases 006-008 (2026-11-09, plan 2026-11-09-ai-native packet P-AS) test references/agent-surface.md: a product's billing exposed to agents, a gated refund, a CLI made agent-ready; each FAILED on the baseline arm, installed 0.31.4 without these references (test/evals/RESULTS.md).",
  "arms": {
   "baseline": "same prompts, skill absent",
   "current": "same prompts, skill installed"
@@ -198,6 +198,162 @@
       "name": "the pinned example builds and answers (probe-gated)",
       "kind": "artifact-exists",
       "target": "live-health.md"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "outcome-case/1",
+   "id": "AI-OUT-006-product-billing-agent-surface",
+   "skill": "agent-interop",
+   "prompt": {
+    "text": "Our SaaS has a billing area people use through screens: view invoices, change plan, cancel a subscription, refund a charge. Make billing available to our customers' own agents as well as to our web app. Write agent-surface-plan.md with five sections: the operations exposed and over which protocol; how an outside agent obtains credentials; what every call carries for safety; how the web app relates to the agent surface; how a change is classified as breaking or additive before release."
+   },
+   "environment": {
+    "model": "inherit",
+    "host": "any",
+    "case_digest": "7abc08e008d581d31988d3f86c8f4e4b916b8382d0e92d1c546244001d22ee59"
+   },
+   "checks": {
+    "tool": [
+     {
+      "name": "python3 present",
+      "command": "python3 -c 'pass'"
+     }
+    ],
+    "load_trace": {
+     "expect_loaded": [
+      "agent-interop"
+     ],
+     "expect_not_loaded": []
+    },
+    "outcome": [
+     {
+      "name": "agent-surface-plan.md exists",
+      "kind": "artifact-exists",
+      "target": "agent-surface-plan.md"
+     },
+     {
+      "name": "the web app's operations are a subset of the agent surface (AN-3)",
+      "kind": "artifact-contains",
+      "target": "agent-surface-plan.md",
+      "expect": "subset"
+     },
+     {
+      "name": "a generated contract snapshot classifies the change",
+      "kind": "artifact-contains",
+      "target": "agent-surface-plan.md",
+      "expect": "snapshot"
+     },
+     {
+      "name": "outside agents register through Client ID Metadata Documents, not DCR (AN-8)",
+      "kind": "artifact-contains",
+      "target": "agent-surface-plan.md",
+      "expect": "Client ID Metadata"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "outcome-case/1",
+   "id": "AI-OUT-007-gated-refund-human-steps",
+   "skill": "agent-interop",
+   "prompt": {
+    "text": "Our policy says a refund above 200 EUR needs a person's approval. A customer's agent calls the tool billing_refund_create for 500 EUR. Specify the exact response the agent receives, what the person does and where, how the agent continues afterwards, and how the server knows the approval is genuine rather than asserted by the agent. Write refund-gate.md."
+   },
+   "environment": {
+    "model": "inherit",
+    "host": "any",
+    "case_digest": "4c2667da4fa076a4bb5e044c5d5ade030c5640419a1997300615d0bd785b2bf2"
+   },
+   "checks": {
+    "tool": [
+     {
+      "name": "python3 present",
+      "command": "python3 -c 'pass'"
+     }
+    ],
+    "load_trace": {
+     "expect_loaded": [
+      "agent-interop"
+     ],
+     "expect_not_loaded": []
+    },
+    "outcome": [
+     {
+      "name": "refund-gate.md exists",
+      "kind": "artifact-exists",
+      "target": "refund-gate.md"
+     },
+     {
+      "name": "the refusal carries human_steps (AN-7)",
+      "kind": "artifact-contains",
+      "target": "refund-gate.md",
+      "expect": "human_steps"
+     },
+     {
+      "name": "confirm: true is named and rejected as approval (AN-7)",
+      "kind": "artifact-contains",
+      "target": "refund-gate.md",
+      "expect": "confirm: true"
+     },
+     {
+      "name": "the approval is bound to the action digest",
+      "kind": "artifact-contains",
+      "target": "refund-gate.md",
+      "expect": "digest"
+     }
+    ]
+   }
+  },
+  {
+   "schema_version": "outcome-case/1",
+   "id": "AI-OUT-008-cli-made-agent-ready",
+   "skill": "agent-interop",
+   "prompt": {
+    "text": "Our product ships a CLI that people run by hand: it asks for confirmation interactively and prints colored tables. Coding agents and automation must be able to use it too. Write cli-readiness.md: a readiness checklist and the concrete list of changes to the CLI, including how the CLI's agent-facing contract is captured so a release can detect that it changed."
+   },
+   "environment": {
+    "model": "inherit",
+    "host": "any",
+    "case_digest": "529418e2e187ae23848c15d9e6d6b1841bf46984385494e857be36707db61438"
+   },
+   "checks": {
+    "tool": [
+     {
+      "name": "python3 present",
+      "command": "python3 -c 'pass'"
+     }
+    ],
+    "load_trace": {
+     "expect_loaded": [
+      "agent-interop"
+     ],
+     "expect_not_loaded": []
+    },
+    "outcome": [
+     {
+      "name": "cli-readiness.md exists",
+      "kind": "artifact-exists",
+      "target": "cli-readiness.md"
+     },
+     {
+      "name": "machine output flag",
+      "kind": "artifact-contains",
+      "target": "cli-readiness.md",
+      "expect": "--json"
+     },
+     {
+      "name": "the contract snapshot is the help as JSON",
+      "kind": "artifact-contains",
+      "target": "cli-readiness.md",
+      "expect": "--help --json"
+     },
+     {
+      "name": "confirmations are skipped by a flag, not a prompt",
+      "kind": "artifact-contains",
+      "target": "cli-readiness.md",
+      "expect": "--yes"
      }
     ]
    }

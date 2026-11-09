@@ -1,3 +1,26 @@
+## v0.32.0: a product's agent surface (2026-11-09)
+
+- **Objective.** Packet P-AS of the sshlg-skills plan `2026-11-09-ai-native`
+  ([plan](https://github.com/ssheleg/sshlg-skills/blob/feat/ai-native-1109/docs/evidence/plans/2026-11-09-ai-native.md),
+  [design](https://github.com/ssheleg/sshlg-skills/blob/feat/ai-native-1109/docs/evidence/specs/2026-11-09-ai-native-pipeline.md)):
+  a doctrine home for a product's agent surface without a new skill, and operability evals.
+- **Done.** Branch `feat/ai-native-1109`: `agent-interop/references/agent-surface.md` (canon
+  index AN-1 to AN-10; AN-3, AN-7, AN-8; snapshot diff; outbound events; discovery; CLI
+  readiness; profiles), `agent-evals/references/operability.md` (AN-9), the ownership fix (tool
+  shape: agent-harness; wire and product surface: agent-interop), triggers, four outcome cases,
+  `test/audit_regressions/ai-native-agent-surface.py`, version 0.32.0.
+- **Decisions.** The agent-interop description is 281 characters (was 283); "шлюз для агентов"
+  moved to the body to make room. agent-evals paid for its new row by shortening two rows and a
+  paragraph (body 4742 → 4734 tokens). The eval checks were frozen before the current arm ran
+  and were not changed after it (AI-OUT-006 fails on the word `subset`; recorded, not tuned).
+- **Open.** The hub's routed-trigger check (`advertised_check.js`, run in this repository's CI
+  against hub main) reports the eight new trigger phrases as advertised but routed nowhere: the
+  hub must route them in `lib/triggers.js` or allow-list them in `test/advertised_phrases.js`
+  before this PR's CI can pass. Routing is the plan's wave 3; the hub's W1 node is the earliest
+  place to allow-list them.
+- **Next task.** After the hub accepts the eight phrases: merge, tag `v0.32.0`, watch the
+  release, then the sshlg-skills pin bump.
+
 ## v0.31.4: descriptions name their subject first (2026-10-28)
 
 - **Done.** descriptions name their subject first: the family member gate (`test/family_gate.py`, with its shared-mechanism

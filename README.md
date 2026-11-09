@@ -79,14 +79,17 @@ handshake with `server/discover` and went **stateless**, deprecated **sampling, 
 and logging**; A2A renamed its wire surface between v0.x and 1.0; agentgateway
 deprecated `binds` while its own overview page still teaches it. So every reference
 carries a `**Spec pinned:** … · read <date>` line, and the validator fails the build
-without one. Six references: `mcp.md` (the wire and the full deprecation register),
+without one. Seven references: `mcp.md` (the wire and the full deprecation register),
 `mcp-scale.md` (progressive discovery, code mode, and the prompt-cache interaction that
 undoes both), `mcp-ship.md` (mounting, and the 404 that is really a double path),
 `registry.md` (`server.json`, namespace proof, the registry's three refusals),
 `a2a.md` (cards, task states, three bindings), `gateway.md` (what a gateway must do that
 an API gateway does not; delegation — which agent acts for which person — and trust by
-machine: whether a caller needs a token at all, T0/T1/T2). Plus a link map, and a verdict on each neighbouring standard —
-ACP, AGNTCY, AP2, Agent Skills — so an agent stops guessing.
+machine: whether a caller needs a token at all, T0/T1/T2), `agent-surface.md` (a product's
+agent surface: the canon index AN-1 to AN-10, one contract for the UI and the agents, the
+gate protocol with `human_steps`, credentials for outside agents, CLI readiness). Plus a link
+map, and a verdict on each neighbouring standard (ACP, AGNTCY, AP2, Agent Skills), so an
+agent stops guessing.
 
 **The harness skill** (`agent-harness/SKILL.md`) — the layer between the loop and the
 model. It checks prompt and tool-description defects while keeping deterministic
@@ -201,15 +204,15 @@ pack was installed, so both are written here rather than one promised.
 
 ### What loads on demand
 
-Thirty-two reference files ship with the four skills, each with a load trigger in
+Thirty-four reference files ship with the four skills, each with a load trigger in
 its skill body. By skill:
 
 | Skill | References |
 |---|---|
 | `agent-orchestrator` | 12 — the tool-calling loop, memory and retrieval, context budgets, provider routing, the work graph, the resale wallet and the saga across database and provider API |
 | `agent-harness` | 10, plus `scripts/audit_agent.py` |
-| `agent-interop` | 6 — one per protocol surface, each pinning the revision it was read at |
-| `agent-evals` | 4: `otel-genai.md` (the semantic conventions an eval reads), `statistics.md` (when a difference is a difference), `multi-agent.md` (the team as a system) and `support-quality.md` (the support quality standard for agents that answer people) |
+| `agent-interop` | 7: one per protocol surface plus a product's agent surface, each pinning the revision it was read at |
+| `agent-evals` | 5: `otel-genai.md` (the semantic conventions an eval reads), `statistics.md` (when a difference is a difference), `multi-agent.md` (the team as a system), `support-quality.md` (the support quality standard for agents that answer people) and `operability.md` (proving an agent completes a product's stories through its tools) |
 
 A file with no load trigger in a body is a defect, not a bonus: the skill audit
 refuses one.

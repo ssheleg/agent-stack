@@ -194,8 +194,7 @@ depends on **it** rather than on the branches — otherwise the gate has a bypas
 harness-design guidance (`anthropic.com/engineering/harness-design-long-running-apps`,
 read 2026-08-30) reports that *tuning a standalone evaluator to be skeptical is more
 tractable than making a generator self-critical* — the same reason the verdict belongs to
-a separate node rather than to the branches grading themselves. Dated and cited so a
-reader can tell doctrine that converged with the field from doctrine invented here.
+a separate node rather than to the branches grading themselves.
 
 It matters here because it is the same machinery as §5, positioned differently:
 
@@ -362,14 +361,14 @@ None of the above runs without these, and they are the part people skip:
 |---|---|
 | [`references/multi-agent.md`](references/multi-agent.md) | roles, shared memory or delegation change — evaluate the combined objective, retained concerns, source independence and authority across the team |
 | [`references/statistics.md`](references/statistics.md) | a number is about to change a decision — how many runs before a difference is real, `pass@k` vs `pass^k` and why trials are not independent, paired comparison, the harness as a variable, and what a given piece of evidence authorises next |
+| [`references/operability.md`](references/operability.md) | proving an agent completes a **product's** stories through its tools (AN-9): proving call, contract tests, cold-agent `pass^k` |
 | [`references/support-quality.md`](references/support-quality.md) | the agent **answers people** (chat, mail, reviews, groups): the per-turn record, four metric families with per-channel targets, the rubric, the judge, `support.quality_daily` and the weekly findings loop |
-| [`references/otel-genai.md`](references/otel-genai.md) | you are **instrumenting an agent for someone else to read** — span-name formulas and the closed operation enum, the evaluation event that has no field for who scored, the three content tiers and the upload hook that runs even on dropped spans, the eleven token attributes and why cost is a join you can get wrong in both directions, and why "OpenTelemetry-based" is not one vocabulary |
+| [`references/otel-genai.md`](references/otel-genai.md) | you are **instrumenting an agent for someone else to read**: span names and the operation enum, the evaluation event with no field for who scored, content tiers, token attributes and the cost join |
 
 ---
 
 ## Related
 
-Building the agent this measures is the **`agent-orchestrator`** skill, shipped in the
-same plugin — named rather than linked, because a packager may ship either directory
-alone. Its context-engineering reference covers the context-pressure behaviour that
-trajectory assertions most often catch drifting.
+Building the agent this measures is **`agent-orchestrator`** (named, not linked: a packager
+may ship either directory alone); its context-engineering reference covers the context
+pressure that trajectory assertions most often catch drifting.

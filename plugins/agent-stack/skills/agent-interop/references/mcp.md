@@ -257,7 +257,8 @@ Opt-in, negotiated, and worth checking before inventing an equivalent:
   and opens no outage alert. An entry without `setup` is a failure. `status: ready` with a
   non-empty list is inconsistent (`FAC-SEM-011`). Some of the estate's tools also carry
   `degraded`, `human_steps` and `sources` on every reply; that per-reply envelope is an estate
-  convention with no contract home yet, so it is not taught here as a contract.
+  convention with no contract home yet, so it is not taught here as a contract. A gate
+  refusal's `human_steps` is a contract: `agent-surface.md`, AN-7.
 - **MCP Apps** — interactive UI rendered inline in the conversation.
 - **Skills over MCP** — structured instruction sets discovered and consumed through MCP,
   which is how a server ships Agent Skills rather than only tools.

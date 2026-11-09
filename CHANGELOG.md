@@ -1,3 +1,40 @@
+## v0.32.0: a product's agent surface, and proving agents can use it
+
+- **agent-interop `references/agent-surface.md`** (sshlg-skills plan `2026-11-09-ai-native`,
+  packet P-AS): the canon index AN-1 to AN-10 with each rule's home and raw URL; AN-3 one
+  contract for the UI and the agents, with its mechanical proxy and the `internal: <reason>`
+  marker; the schema-first contract source, the generated snapshot (MCP `tools/list`, OpenAPI,
+  `--help --json`) and the diff classes `none`, `additive`, `breaking`; AN-7 the gate protocol
+  (typed refusal naming the gate, `human_steps` with URL and action digest, MCP `2026-07-28`
+  `input_required` for values the caller can supply, `confirm: true` is not approval); AN-8 a
+  safe surface (OAuth 2.1 / MCP authorization with per-client consent and Client ID Metadata
+  Documents, the `iss` check, Fabric T0/T1/T2 as one binding, principal ceiling, effect
+  classes, idempotency keys, dry-run, audit row pseudonymised on erasure, untrusted marking,
+  limits naming their window, deprecation with sunset instead of renaming); outbound events and
+  webhooks; discovery (`AGENTS.md`, a proving call run with a real client); a CLI readiness
+  checklist; profiles `public`, `internal`, `library`; notes for feature flags, LLM features,
+  offline sync, SSO consent.
+- **agent-evals `references/operability.md`** (AN-9): the proving call and per-capability
+  contract tests as the deterministic gate; the cold-agent run as judgment (one task per
+  agent-channel scenario of a `must` story, panel personas, `pass^k` with k = 3, sandbox gate
+  fixtures, state-change asserts, authorization before effect, transcripts as fixtures, spend
+  cited); the eight per-step checks task-pipeline's agent-tester reports.
+- **agent-interop owns the wire and a product's surface; agent-harness owns tool shape.** The
+  description said tool design was agent-harness's while the body said it was not covered and
+  sent readers to another plugin; both now name `agent-harness/references/tools.md`, and
+  `mcp-ship.md` agrees. Description 283 → 281 characters (whitespace collapsed); it now names
+  a product's agent surface.
+- Triggers: agent-interop "agent surface", "агентная поверхность", "AI-native", "API для
+  агентов" ("шлюз для агентов" moved from the description to the body). Four, because the
+  hub routes a member's new words ahead of its release under a cap of four `PENDING` words.
+- agent-evals body 4742 → 4734 tokens (cl100k): two rows and a closing paragraph shortened to
+  pay for the new reference row.
+- Outcome cases written before the prose: `AI-OUT-006` to `AI-OUT-008` (billing exposed to
+  agents, a gated refund, a CLI made agent-ready) and `AE-OUT-006` (operability); each failed
+  on the installed 0.31.4 baseline (`test/evals/RESULTS.md`). `test/audit_regressions/ai-native-agent-surface.py`
+  holds the canon index, the citations (each `file:line` resolves and the load-bearing ones
+  still hold their text), the description budget and the cases.
+
 ## v0.31.4: descriptions name their subject first
 
 - **agent-interop and agent-harness name their subject within the first 57 characters** (hub
