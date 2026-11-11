@@ -3,7 +3,7 @@
 **Load this when:** you are writing an MCP server or client, debugging a handshake, or
 deciding which primitive a capability belongs in.
 
-**Spec pinned:** MCP revision `2026-07-28` from `modelcontextprotocol.io/specification/latest` · read 2026-08-13
+**Spec pinned:** MCP revision `2026-07-28` from `modelcontextprotocol.io/specification/latest` (unchanged since the 2026-08-13 reading) · read 2026-11-11
 
 **Re-verify before locking a contract.** Fetch the URL above and check which revision it
 serves now. The rest of this file tells you *what to look for*; it is not the document.

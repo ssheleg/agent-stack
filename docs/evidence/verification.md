@@ -10,6 +10,14 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Release candidate: v0.32.1 (2026-11-11)
+
+Family audit fixes: the host's model map and per-agent budget default (agent-harness,
+agent-orchestrator), agent-interop `compatibility`, interop source dates re-read, a stale-eval
+note. Evidence: the repository gate exits 0 on the candidate tree; the routed-triggers check
+against hub main `16e1a555` prints ok; the PR CI run and the tag release run are named in
+docs/HANDOFF.md.
+
 ## Release candidate: v0.32.0 (2026-11-09)
 
 A product's agent surface: `agent-interop/references/agent-surface.md` and

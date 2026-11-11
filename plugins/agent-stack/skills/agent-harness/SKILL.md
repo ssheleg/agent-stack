@@ -195,7 +195,15 @@ back here.
 **Against `agent-interop`.** MCP, A2A, the registry, gateways — the wire between processes.
 Tool *descriptions* are here; tool *protocol* is there.
 
-**Not covered:** model choice and pricing (see the `claude-api` skill for Anthropic's), the
+**Model and budget for an agent template.** Before choosing either, read the host's
+recorded model map and per-agent spend default (for example a wiki page such as
+`synthesis/llm-models.md`). Route user content as that map says, respect the provider
+refusals it records, and set the agent's key limit and in-code monthly stop just under
+the recorded default. A host that records none: say so and pick conservatively. Detail:
+`agent-orchestrator/references/llm-proxy-billing.md` → *The host's model map and
+per-agent budget default*.
+
+**Not covered:** provider pricing (see the `claude-api` skill for Anthropic's), the
 wallet under resale (`agent-orchestrator/references/llm-proxy-billing.md`), and RAG
 retrieval quality, which is a search problem this skill only touches where it enters the
 prompt.

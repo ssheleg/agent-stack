@@ -10,6 +10,13 @@ and each carries the method that produced it.
 | 2026-08-31 | 0.17.1 (tree at release candidate) | claude-haiku (Agent-tool `haiku`) | 5/6 train, 6/6 validation (11/12 overall) | s01 4/4 · s02 2/4 · s03 4/4 (10/12 lines) | ssheleg family: make-skill, task-pipeline (+evidence-docs, project-audit), super-ux (brand-voice, copywriting, ux-audit, ux-flows, ux-foundation, ux-scenarios, vision), sheleg-design, seo-aeo-audit, agent-sync, sheleg-dev (7 skills), telegram-dev (3 skills), agent-stack (4 skills) — 28 descriptions total | Miss: q09 ("Rewrite this one system prompt so it sounds friendlier") false-triggered `agent-harness`. All six positives hit the intended skill; q07/q08/q10/q11 routed to the correct sibling pack (task-pipeline, agent-sync, stripe-billing, task-pipeline), q12 answered `none`. |
 | 2026-08-31 | 0.17.1 (tree at release candidate) | claude-sonnet (Agent-tool `sonnet`) | 6/6 train, 5/6 validation (11/12 overall) | s01 3/4 · s02 2/4 · s03 4/4 (9/12 lines) | same 28-skill family list as the haiku row | Miss: q04 ("проверь системный промпт и описания инструментов нашего агента") answered `none` instead of `agent-harness`. All other positives hit; negatives routed to the correct sibling or `none`. q07 was probed twice (a launch retry) — both runs answered task-pipeline. |
 
+**Stale against the shipped descriptions (note added 2026-11-11, no re-run).** The last
+trigger run above was measured on 0.17.1. Every description has been rewritten since: the
+trigger lists moved into each body's `## Triggers` section in 0.30.0 and 0.31.3, and
+agent-interop gained the agent-surface wording in 0.32.0. The pass rates above describe
+0.17.1's descriptions, not the current ones; read them as history until a new dated row
+replaces them. Model trigger evals cost money and are re-run only on a decision to do so.
+
 ## Method (2026-08-31 rows)
 
 Wave-3 eval protocol, executed from a Claude Code harness rather than a chat UI:

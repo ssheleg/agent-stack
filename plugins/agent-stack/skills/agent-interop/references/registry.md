@@ -3,7 +3,7 @@
 **Load this when:** you are publishing an MCP server, building something that consumes the
 registry, or deciding whether to run a private one.
 
-**Spec pinned:** MCP Registry (preview), `server.json` schema `2025-12-11`, API `v0.1` · read 2026-08-13
+**Spec pinned:** MCP Registry (preview), `server.json` schema `2025-12-11`, API `v0.1` (schema still the newest released, README still says preview with the v0.1 freeze; unchanged since 2026-08-13) · read 2026-11-11
 
 Schema: `https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json`.
 API: `https://registry.modelcontextprotocol.io`.
@@ -11,6 +11,11 @@ API: `https://registry.modelcontextprotocol.io`.
 **It says preview and means it.** The documentation warns of breaking changes and data resets
 before general availability. The API is under a declared freeze at **v0.1** with no breaking
 changes expected during stabilization — that is a promise about a window, not about forever.
+
+**Unreleased as of 2026-11-11** (registry `docs/reference/api/CHANGELOG.md`, marked breaking):
+one remote URL may be shared by several server names on both `/v0` and `/v0.1`. A consumer
+that indexes by remote URL must accept several matches; identify a record by server name and
+version, and do not read a shared URL as ownership.
 
 ## Contents
 
