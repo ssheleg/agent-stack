@@ -1,3 +1,18 @@
+## v0.33.0: production metrics for agent-evals (2026-11-11)
+
+- **Objective.** Fabric board request 86cb0a08 (thread 160c147f, 2026-11-10): a production
+  metrics section in `agent-evals` (registry, measurements, change verdicts, failing unit into a
+  fixture), part of the cross-agent metrics standard proposed 2026-11-10.
+- **Done.** Branch `feat/agent-evals-prod-metrics-1111`:
+  `plugins/agent-stack/skills/agent-evals/references/production-metrics.md`, SKILL.md routing,
+  `test/audit_regressions/production-metrics.py`, version 0.33.0.
+- **Open.** Merge and the `v0.33.0` tag were not done: the run was started by the board with no
+  person present, and merging to public main and tagging publish. Then the sshlg-skills pin bump
+  (hub owner). The schema names follow the host's agent contract once it records them; if its
+  field names differ, this reference follows the host.
+- **Checks run.** `npm test` exit 0; body measured with tiktoken cl100k.
+- **Next task.** Review and merge the PR, tag `v0.33.0`, watch the release run, then B-162.
+
 ## v0.32.1: family audit fixes (2026-11-11)
 
 - **Objective.** Findings A1 to A5 of the family audit ordered in the sshlg-skills session on

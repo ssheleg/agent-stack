@@ -1,3 +1,21 @@
+## v0.33.0: production metrics for deployed agents
+
+- **agent-evals `references/production-metrics.md`** (closes Fabric board request 86cb0a08 to
+  agent-stack, 2026-11-10): the online tier gets a contract. `agent-metrics/1`, a per-agent
+  registry where every agent declares at least one outcome, one quality and one reliability
+  metric, each with a named population, unit, direction, window, source, measured baseline with
+  `n`, target and owner, versioned instead of edited; `agent-measurement/1` over closed UTC
+  periods, aggregate only, `null` and `notMeasured` instead of 0, the write read back and a
+  stale series raised as a finding; `agent-change-measure/1` with the method chosen by the
+  design (`statistics.md`), a prediction written before the change, and four verdicts decided
+  by Wilson intervals, small `n` always `inconclusive`. Every unit that failed a metric becomes
+  a permanent offline fixture. The motivating case: a money path dead for over three months
+  behind an optional call to a missing method while unit tests stayed green.
+- SKILL.md §3 routes to it, the checklist gains one line, the references table one row. The
+  body paid with two trims (§1 precondition, §2 vendor anecdote): 4717 to 4744 of 4750
+  tokens (cl100k).
+- `test/audit_regressions/production-metrics.py`: the clauses and verdict rows, with plants.
+
 ## v0.32.1: the host's model map, a pinned interop revision, fresh source dates
 
 Family audit of 2026-11-11 (findings A1, A2, A4, A5; A3 filed as board row B-162).
