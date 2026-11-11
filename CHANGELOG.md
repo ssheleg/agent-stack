@@ -1,3 +1,31 @@
+## v0.33.0: production metrics for deployed agents
+
+- **agent-evals `references/production-metrics.md`** (closes Fabric board request 86cb0a08 to
+  agent-stack, 2026-11-10): the online tier gets a contract. `agent-metrics/1`, a per-agent
+  registry where every agent declares at least one outcome, one quality and one reliability
+  metric, each with a named population, unit, direction, window, source, measured baseline with
+  `n`, target and owner, versioned instead of edited; `agent-measurement/1` over closed UTC
+  periods, aggregate only, `null` and `notMeasured` instead of 0, the write read back and a
+  stale series raised as a finding; `agent-change-measure/1` with the method chosen by the
+  design (`statistics.md`), a prediction written before the change, and four verdicts decided
+  by Wilson intervals, small `n` always `inconclusive`. Every unit that failed a metric becomes
+  a permanent offline fixture. The motivating case: a money path dead for over three months
+  behind an optional call to a missing method while unit tests stayed green.
+- SKILL.md §3 routes to it, the checklist gains one line, the references table two rows
+  (production metrics, support practices). The body paid with two trims (§1 precondition, §2
+  vendor anecdote) and shorter references rows: 4717 to 4748 of 4750 tokens (cl100k). README
+  counts 36 reference files, 7 in agent-evals.
+- **agent-evals `references/support-practices.md`** (Fabric board request 752acc3b, PR #70,
+  carried here): what an audit of five production agents that answer people found working and
+  failing (P1 to P8): small closed rule sets in the prompt whole, one relevance threshold at the
+  knowledge service, the whole conversation, false-state gates, a checker that sees the material
+  before the instructions, repair then research then a hold that comes back, hand-offs never
+  counted or judged as answers, a commitments ledger, model lanes with measured reasoning budgets
+  and counted fallback recoveries, four supervisors at four granularities, ten measurement traps,
+  and an improvement loop gated and measured in code. Linked from the references table and from
+  `support-quality.md`.
+- `test/audit_regressions/production-metrics.py`: the clauses and verdict rows, with plants.
+
 ## v0.32.1: the host's model map, a pinned interop revision, fresh source dates
 
 Family audit of 2026-11-11 (findings A1, A2, A4, A5; A3 filed as board row B-162).

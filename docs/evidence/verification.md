@@ -10,6 +10,12 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Release candidate: v0.33.0 (2026-11-11)
+
+Production metrics for deployed agents: `agent-evals/references/production-metrics.md` and
+`test/audit_regressions/production-metrics.py`; `support-practices.md` carried from PR #70. Evidence: the repository gate exits 0 on the
+candidate tree (branch `feat/agent-evals-prod-metrics-1111`); not yet merged or tagged.
+
 ## Release candidate: v0.32.1 (2026-11-11)
 
 Family audit fixes: the host's model map and per-agent budget default (agent-harness,
