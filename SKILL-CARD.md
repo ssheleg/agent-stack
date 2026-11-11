@@ -5,7 +5,7 @@
 | Field | Value |
 |---|---|
 | Pack | `agent-stack` |
-| Version | `0.32.0` |
+| Version | `0.32.1` |
 | Skills | `agent-orchestrator`, `agent-evals`, `agent-interop`, `agent-harness` |
 | License | MIT |
 | Source | https://github.com/ssheleg/agent-stack |

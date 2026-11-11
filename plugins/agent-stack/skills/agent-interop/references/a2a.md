@@ -3,11 +3,13 @@
 **Load this when:** you are delegating an outcome to somebody else's autonomous agent,
 publishing your own as callable, or choosing between A2A and MCP.
 
-**Spec pinned:** A2A **v1.0**, `https://a2a-protocol.org/latest/specification/` · read 2026-08-13
+**Spec pinned:** A2A **v1.0**, `https://a2a-protocol.org/latest/specification/` (page: latest released 1.0.0; GitHub `a2aproject/A2A` release v1.0.1, 2026-05-28) · read 2026-11-11
 
 Governance: created by Google, transferred to the **Linux Foundation**, Apache-2.0, run by a
 Technical Steering Committee with AWS, Cisco, Google, IBM Research, Microsoft, Salesforce,
-SAP and ServiceNow.
+SAP and ServiceNow. **Update (checked 2026-11-11):** on 2026-08-27 A2A was accepted as a
+Growth Stage project of the Agentic AI Foundation (AAIF), which operates under the Linux
+Foundation (`a2a-protocol.org/latest/blog/2026/08/27/`); the spec stayed at v1.0.
 
 **The v0.x → v1.0 rename is the trap here.** The wire surface changed names between them, and
 plenty of SDKs, tutorials and blog posts still document v0.3. A document that mixes the two

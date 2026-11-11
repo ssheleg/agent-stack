@@ -6,6 +6,9 @@ description: >-
   "MCP server" / "MCP-сервер", "A2A", "агентная поверхность". Not for tool shape
   (agent-harness) or building skills (make-skill).
 license: MIT
+compatibility: >-
+  Written against MCP revision 2026-07-28 and A2A v1.0 (spec 1.0.0, release v1.0.1),
+  both checked live 2026-11-11. References need no runtime dependencies.
 ---
 
 # Agent interop — the protocols an agent speaks outside its own process

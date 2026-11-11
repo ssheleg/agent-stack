@@ -356,6 +356,30 @@ choice → the tenant's configured default → the application default. Resolve 
 in that order in one place, and log which level won — "why did it use that
 model" is otherwise unanswerable.
 
+### The host's model map and per-agent budget default
+
+Before choosing a model or a budget for an agent, read what the host has recorded: its
+model map (which model serves planning, verification, volume and user content) and its
+per-agent monthly spend default. It usually lives in the operator's knowledge base, for
+example a wiki page such as `synthesis/llm-models.md`. This skill carries no map of its
+own: a public default goes stale, and the choice is the host's.
+
+- **Route user content per that map.** If the map sends user requests and user content
+  to particular models, the agent's router does too; a model the map excludes is not an
+  upgrade.
+- **Respect the provider refusals it records.** A model or vendor the map marks as
+  refused (a policy block on the account, a model that declines a content class) never
+  becomes a default or a fallback, even when a direct call happens to succeed today.
+- **Set the budget just under the recorded default.** The agent's provider key carries
+  the recorded monthly limit and its in-code monthly stop sits just under it, so the code
+  stops first and the stop is the agent's own typed error, not an upstream refusal. More
+  only for agents the host names.
+- **No record: say so and pick conservatively.** Write in the agent's docs that the host
+  records no map or default, choose the cheapest model that passes the agent's evals, and
+  set a low monthly stop. Never invent a host default.
+
+The three levels of model selection above resolve inside the map, not around it.
+
 See `patterns.md` for the retry, health-check and error-hierarchy patterns these
 routing calls sit inside.
 

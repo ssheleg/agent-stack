@@ -51,7 +51,6 @@ orchestrator's shared context and sub-agent protocol*.
 
 **Key principles:**
 - Sub-agents never modify context — they return typed results
-- Provider/model preferences flow down from user → project defaults → app defaults
 - `extra` dict carries pipeline state, flags like `_skip_complexity`, session IDs
 
 ### Sub-Agent Protocol
@@ -172,7 +171,9 @@ upward so the caller cannot tell which vendor answered.
 
 Read `references/llm-proxy-billing.md` → **Model routing and fallbacks** for the
 fallback chain and per-provider retry with exponential backoff, and its
-**Guardrails** section for budgets, loop detection and auto-pause.
+**Guardrails** section for budgets, loop detection and auto-pause. Before choosing a
+model or a budget for an agent, its **host's model map** subsection: the recorded map and
+per-agent default decide, not this file.
 
 **Three traps that cost real money:**
 
@@ -335,6 +336,8 @@ heading — the ones that were learned by getting them wrong:
       to the input is a function call wearing a costume
 - [ ] Model, window and price are resolved at one boundary from configuration or the
       provider — never from a table of vendor ids in source
+- [ ] Model and monthly stop follow the host's recorded model map and per-agent default,
+      or the docs say the host records none
 - [ ] An observable before the implementation, an eval before the prompt is tuned, or the
       tuning is folklore — only the corpus waits for production
 - [ ] An agent that answers people is measured by `agent-evals/references/support-quality.md`:

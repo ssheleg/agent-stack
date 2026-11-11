@@ -5,7 +5,7 @@ somebody has asked who is allowed to call what and you cannot answer from one pl
 agent calls another **on someone's behalf** and the callee has to know for whom — or whether
 that caller needs a token at all.
 
-**Spec pinned:** agentgateway `1.4.x` from `agentgateway.dev/docs/standalone/latest` · read 2026-08-13
+**Spec pinned:** agentgateway `1.7.x` from `agentgateway.dev/docs/standalone/latest` (release v1.7.0, 2026-10-27; was `1.4.x` when read 2026-08-13) · read 2026-11-11
 
 **Delegation pinned:** RFC 8693 §4.1–4.2, RFC 8725 §3.11, RFC 8785; worked example Fabric
 `fabric-delegation/0.1` (`passioncode-ai/fabric-agent-contract@3cb03ab`, whose trust tiers
@@ -289,8 +289,9 @@ Linux Foundation, Apache-2.0. It covers three planes at once:
 
 **Local configuration — and read this before copying an example.** The current top-level keys
 are `config`, `gateways`, `routes` / `tcpRoutes`, `llm`, `mcp`, `ui`, plus `services` /
-`workloads` for advanced backends. **`binds` is the deprecated predecessor to `gateways`** —
-and the project's own overview page still introduces it, which is exactly the kind of drift
+`workloads`, `backends`, `policies` / `frontendPolicies` and `routeGroups` for advanced use
+(`schema/config.json` on `main`, checked 2026-11-11). **`binds` is the deprecated predecessor to `gateways`**
+(the schema still marks it deprecated), and the project's own overview page still introduces it, which is exactly the kind of drift
 this skill's rule zero exists for. A minimal MCP config:
 
 ```yaml
@@ -301,6 +302,13 @@ mcp:
       stdio:
         cmd: npx
 ```
+
+**Changed between 1.4 and 1.7 (release notes, checked 2026-11-11).** 1.5: JWT auth requires
+an `iss` matching the configured issuer, and an `aud` match when audiences are set; LLM input
+token counts include prompt-cache tokens. 1.7: standalone always encrypts MCP session ids
+(`config.session.key`; sessions from before the upgrade are rejected), prompt guards inspect
+tool outputs by default, and dynamic backends can no longer reach loopback or link-local
+addresses. Read the release notes of every version you skip.
 
 **Security policies** available as first-class config: JWT authentication, API-key
 authentication, HTTP authorization, external authorization, and **MCP-specific

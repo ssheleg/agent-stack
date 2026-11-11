@@ -1,3 +1,29 @@
+## v0.32.1: the host's model map, a pinned interop revision, fresh source dates
+
+Family audit of 2026-11-11 (findings A1, A2, A4, A5; A3 filed as board row B-162).
+
+- **The host's model map and per-agent budget default** (closes Fabric board request
+  f7155442). `agent-orchestrator/references/llm-proxy-billing.md` gains a subsection: before
+  choosing a model or a budget for an agent, read the host's recorded model map and per-agent
+  spend default (for example a wiki page such as `synthesis/llm-models.md`), route user content
+  per that map, respect the provider refusals it records, set the key limit and the in-code
+  monthly stop just under the recorded default, and when the host records none, say so and pick
+  conservatively. agent-harness replaces "Not covered: model choice" with the same rule in
+  short; agent-orchestrator §6 points to it and its checklist gains one line. The orchestrator
+  body paid by dropping §1's duplicate of the three-level model precedence (body 4670 to 4719
+  of 4750 tokens, cl100k); agent-harness 3055 to 3183.
+- **agent-interop declares its revision in `compatibility`**, as its own checklist asks: MCP
+  `2026-07-28` and A2A v1.0 (spec 1.0.0, release v1.0.1), both checked live 2026-11-11.
+- **Source dates re-read 2026-11-11.** MCP still serves `2026-07-28`. A2A: spec 1.0.0 unchanged;
+  it joined the Agentic AI Foundation (under the Linux Foundation) on 2026-08-27. MCP Registry:
+  schema `2025-12-11` still the newest released, still preview under the v0.1 freeze; an
+  unreleased breaking change (one remote URL shared by several server names) is noted.
+  agentgateway: pin moved from 1.4.x to 1.7.x, with the 1.5 and 1.7 breaking changes that touch
+  this file (JWT `iss`/`aud`, encrypted MCP sessions, tool-output guards, no loopback for dynamic
+  backends) and the current top-level config keys.
+- **`test/evals/RESULTS.md`** carries a dated note: the last trigger run measured 0.17.1's
+  descriptions, which have all changed since. Not re-run.
+
 ## v0.32.0: a product's agent surface, and proving agents can use it
 
 - **agent-interop `references/agent-surface.md`** (sshlg-skills plan `2026-11-09-ai-native`,

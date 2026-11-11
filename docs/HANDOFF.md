@@ -1,3 +1,18 @@
+## v0.32.1: family audit fixes (2026-11-11)
+
+- **Objective.** Findings A1 to A5 of the family audit ordered in the sshlg-skills session on
+  2026-11-11.
+- **Done.** A1 (closes Fabric board request f7155442): the host's model map and per-agent budget
+  rule in `agent-orchestrator/references/llm-proxy-billing.md`, agent-harness and
+  agent-orchestrator §6. A4: agent-interop `compatibility`. A5: MCP, A2A, registry and
+  agentgateway sources re-read 2026-11-11 (agentgateway 1.4.x to 1.7.x). A2: dated stale note in
+  `test/evals/RESULTS.md`, no re-run.
+- **Open.** A3 is board row B-162: the agent-harness trigger swap waits on the hub routing the
+  new phrase and retiring «аудит агента» in `lib/triggers.js`.
+- **Checks run.** `npm test` and the routed-triggers check against hub main.
+- **Next task.** After release: the sshlg-skills pin bump (hub owner), then B-162 once the hub
+  route changes.
+
 ## v0.32.0: a product's agent surface (2026-11-09)
 
 - **Objective.** Packet P-AS of the sshlg-skills plan `2026-11-09-ai-native`
