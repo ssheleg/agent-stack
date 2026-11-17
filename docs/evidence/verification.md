@@ -10,6 +10,15 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Release candidate: v0.32.2 (2026-11-17)
+
+B-162: the agent-harness description advertises «аудит промпта и инструментов агента» in place
+of the bare «аудит агента»; a Boundaries paragraph against `fabric-agents:assessing-agents`;
+trigger cases q13 and q14. Evidence: `npm test` with `SSHLG_HUB_ROOT` at hub main `202a1bf5`
+exits 0 on the candidate tree, which runs the routed-triggers check (`advertised_check.js`)
+in both directions. The PR CI run and the tag release run are named in docs/HANDOFF.md once
+they exist.
+
 ## Release candidate: v0.32.1 (2026-11-11)
 
 Family audit fixes: the host's model map and per-agent budget default (agent-harness,

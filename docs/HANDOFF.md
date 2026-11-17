@@ -1,3 +1,24 @@
+## v0.32.2: B-162, the agent-harness audit phrase (2026-11-17)
+
+- **Objective.** Board row B-162 (family audit 2026-11-11, finding A3), unblocked by the hub's
+  Fabric board message `6684f801` (2026-11-17): sshlg-skills 1.89.0 (PR #308) routes «аудит
+  промпта и инструментов агента» and «аудит системного промпта агента» to agent-harness.
+- **Done.** Branch `b162-harness-audit-phrase`: the description swap, «аудит системного промпта
+  агента» in `## Triggers`, a Boundaries paragraph against `fabric-agents:assessing-agents`,
+  trigger cases q13 and q14, version 0.32.2 in the four version files.
+- **Decisions.** The bare «аудит агента» stays in the file, in Boundaries and outside `##
+  Triggers`: the hub's agent-harness route still lists it (`lib/triggers.js` line 564 at
+  `202a1bf5`), and the forward half of `advertised_check.js` fails a member whose file no longer
+  carries a routed word (measured: removing it entirely printed that failure). Outside `##
+  Triggers` it is not an advertised phrase, so the hub can retire the route without a member
+  change.
+- **Open.** Merge, tag `v0.32.2` and watch the release: publication, left to a session with
+  the operator (this branch was made by a board run with no person present). Then the hub pins
+  0.32.2, deletes both PENDING entries (`lib/triggers.js` lines 829 to 836) and retires the bare
+  «аудит агента» from the agent-harness route.
+- **Checks run.** `SSHLG_HUB_ROOT=<hub main 202a1bf5 worktree> npm test`.
+- **Next task.** Open the PR's CI result, merge, tag `v0.32.2`, then tell the hub on the board.
+
 ## v0.32.1: family audit fixes (2026-11-11)
 
 - **Objective.** Findings A1 to A5 of the family audit ordered in the sshlg-skills session on

@@ -3,8 +3,8 @@ name: agent-harness
 description: >-
   Use when deciding an agent's system prompt and tools, not how its loop is wired:
   system prompt, tool choice, workflow or agent, harness audits. Triggers: "system prompt" /
-  "системный промпт", "аудит агента". Not for the loop (agent-orchestrator), evals
-  (agent-evals) or protocols (agent-interop).
+  "системный промпт", "аудит промпта и инструментов агента". Not for the loop
+  (agent-orchestrator), evals (agent-evals) or protocols (agent-interop).
 license: MIT
 compatibility: >-
   The bundled scripts run with python3 (standard library only); no network or
@@ -26,7 +26,7 @@ forwards and backwards, which is why they live together here.
 
 ## Triggers
 
-"tool description", "agent loops forever", "prompt engineering", "harness engineering", "ReAct loop", "react pattern", "static or dynamic", "embed an agent", "agent SDK", "Pi harness", "встроить агента".
+"tool description", "agent loops forever", "prompt engineering", "harness engineering", "ReAct loop", "react pattern", "static or dynamic", "embed an agent", "agent SDK", "Pi harness", "встроить агента", "аудит системного промпта агента".
 
 Moved here from the description in 0.31.3: "agent picks the wrong tool", "агент не
 вызывает тул", "audit this agent".
@@ -194,6 +194,11 @@ back here.
 
 **Against `agent-interop`.** MCP, A2A, the registry, gateways — the wire between processes.
 Tool *descriptions* are here; tool *protocol* is there.
+
+**Against `fabric-agents:assessing-agents`.** A bare «аудит агента» names two jobs.
+Assessing a whole agent against the private agents database (its modules, the base's
+matching templates and patterns) is that skill's. Auditing what an agent is told and the
+tools it holds, the seven tracks above, is this one: «аудит промпта и инструментов агента».
 
 **Model and budget for an agent template.** Before choosing either, read the host's
 recorded model map and per-agent spend default (for example a wiki page such as

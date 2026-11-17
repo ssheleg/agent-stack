@@ -1,3 +1,18 @@
+## v0.32.2: agent-harness advertises the prompt-and-tool audit, not the bare «аудит агента»
+
+Board row B-162 (family audit of 2026-11-11, finding A3), after the hub routed the new phrases
+(sshlg-skills 1.89.0, PR #308).
+
+- **The description's trigger is now «аудит промпта и инструментов агента».** The bare «аудит
+  агента» also names `fabric-agents:assessing-agents`, a whole-agent assessment against the
+  private agents database, so a listing that offered it here sent that job to the wrong skill.
+  «аудит системного промпта агента» joins the body's `## Triggers`.
+- **Boundaries gain a paragraph against `fabric-agents:assessing-agents`** that says which of
+  the two jobs a bare «аудит агента» means. The hub's route still lists that phrase for this
+  skill; this paragraph keeps the hook's forward check true until the hub retires it.
+- **Two trigger cases:** q13 (positive, the new phrase) and q14 (near miss, an agents-database
+  assessment). Not run against a model: trigger evals are re-run only on a decision to.
+
 ## v0.32.1: the host's model map, a pinned interop revision, fresh source dates
 
 Family audit of 2026-11-11 (findings A1, A2, A4, A5; A3 filed as board row B-162).
