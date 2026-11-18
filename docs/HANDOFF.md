@@ -1,3 +1,10 @@
+## v0.33.2: old tool names stay callable (2026-11-18)
+
+- **Done.** `mcp-two-doors.md` step 3 and the checklist follow the agents database's R28
+  decision (board thread 1c1524e4); the `Mcp-Name` header trap; SKILL.md Rule one; regression
+  test; the ledger row in the same release.
+- **Next task.** After release: the sshlg-skills pin to 0.33.2.
+
 ## v0.33.1: ledger records the shipped version (2026-11-18)
 
 - **Done.** The v0.33.1 row in `docs/evidence/verification.md`; versions 0.33.1. The hub's pin of

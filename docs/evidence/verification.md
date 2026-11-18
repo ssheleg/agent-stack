@@ -10,6 +10,15 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Release candidate: v0.33.2 (2026-11-18)
+
+The two-door doctrine follows the agents database's decision on R28 (shipped names are only
+added): an old tool name leaves `tools/list` as `retired` and stays callable as an alias, not
+removed after one release; and a new trap, `execute` forwarding its own `Mcp-Name` header
+(seo-content-agent TRAP-587). Evidence: the repository gate exits 0 on the candidate tree,
+`test/audit_regressions/mcp-two-doors.py` included; the PR CI run and the tag release run are
+named in docs/HANDOFF.md.
+
 ## Release candidate: v0.33.1 (2026-11-18)
 
 Records the shipped version in this ledger, which the sshlg-skills validator's member-ledger
