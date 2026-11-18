@@ -1,3 +1,31 @@
+## v0.33.0: every MCP server we build has two doors, `search` and `execute`
+
+The operator's rule of 2026-11-18 (fabric-agents-database session b590fc74): an MCP server we
+build or run lists only `search` and `execute`, best practice for every MCP design, data rooms
+first.
+
+- **agent-interop `references/mcp-two-doors.md`** (new): the rule and its scope; why (context,
+  selection, one gated path, a stable surface); the `search` catalogue (operation name,
+  `purpose`, `inputSchema`, `effect`, `gate`, `example`, deprecation; paged, ranked, filtered
+  by the caller's scope); `execute` (one path through the interface's gate, idempotency key
+  for effects, typed refusals `unknown-operation`, `invalid-arguments`,
+  `idempotency-required`, `idempotency-conflict`, AN-7 gates; not a shell or code mode); at
+  most three direct tools, each with a recorded measurement, protocol-required tools such as
+  the Fabric kit's `fabric.job.get` counted among them; moving an existing server (inventory,
+  both doors, one release of aliases for the old names, callers moved); the contract
+  snapshot (the whole catalogue); conformance tests; traps.
+- **agent-interop SKILL.md** gains "Rule one" with the rule in short, a dispatch row and the
+  index row.
+- **agent-surface.md**: AN-3's capability owes an operation in the catalogue; the MCP snapshot
+  of a two-door server includes the whole `search` catalogue. Its `tools.md` citations moved
+  by five lines with the new paragraph there (anchors in
+  `test/audit_regressions/ai-native-agent-surface.py` updated).
+- **agent-harness `references/tools.md`**: "Fewer tools than you think" points at the two
+  doors; its advice now applies to each operation.
+- **mcp.md**: the tools paragraph points at the rule (same line, no citation moved).
+- **`test/audit_regressions/mcp-two-doors.py`** holds the contract parts, the pointers and
+  the no-em-dash rule.
+
 ## v0.32.1: the host's model map, a pinned interop revision, fresh source dates
 
 Family audit of 2026-11-11 (findings A1, A2, A4, A5; A3 filed as board row B-162).

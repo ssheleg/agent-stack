@@ -109,9 +109,9 @@ ANCHORS = (
     ("agent-interop/references/mcp.md", 108, 110, "isError"),
     ("agent-interop/references/mcp.md", 166, 191, "subscriptions/listen"),
     ("agent-interop/references/mcp.md", 216, 249, "Tasks"),
-    ("agent-harness/references/tools.md", 127, 133, "confirm: true"),
-    ("agent-harness/references/tools.md", 135, 153, "readOnlyHint"),
-    ("agent-harness/references/tools.md", 155, 178, "lethal trifecta"),
+    ("agent-harness/references/tools.md", 132, 138, "confirm: true"),
+    ("agent-harness/references/tools.md", 140, 158, "readOnlyHint"),
+    ("agent-harness/references/tools.md", 160, 183, "lethal trifecta"),
     ("agent-orchestrator/references/governance.md", 115, 131, "The audit row"),
 )
 

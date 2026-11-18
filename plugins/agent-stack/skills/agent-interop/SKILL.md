@@ -54,6 +54,15 @@ because nothing on the page says otherwise.
 for and what changed; they are not a substitute for the document. Read the pinned revision,
 then check whether a newer one exists. Every entry in the link map below is fetchable.
 
+## Rule one: every MCP server we build has two doors, `search` and `execute`
+
+`tools/list` of a server the estate builds or runs answers `search` (find operations by
+words, each with its schema, effect and gate) and `execute` (run one by name through the same
+gate, idempotency and audit as the interface). Nothing else, unless a measured case needs a
+call to skip `search`: at most three such tools, each recorded with its measurement. Old tool
+names keep working for one release while callers move. Data rooms first. Contract, migration
+and tests: `references/mcp-two-doors.md`.
+
 ---
 
 ## Which protocol answers which question
@@ -61,6 +70,7 @@ then check whether a newer one exists. Every entry in the link map below is fetc
 | The question you actually have | The answer | Where |
 |---|---|---|
 | I want to give a model a capability against a live system | **MCP server** | `references/mcp.md` |
+| What tools does my server list? | **`search` and `execute`** | `references/mcp-two-doors.md` |
 | My server is written and the client cannot connect to it | mounting and transports | `references/mcp-ship.md` |
 | I want my application to consume other people's tool servers | **MCP client** | `references/mcp.md`, then `references/mcp-scale.md` |
 | I have more servers than fit in a context window | client scaling patterns | `references/mcp-scale.md` |
@@ -111,6 +121,7 @@ an index; the trigger lives in the file, so the two cannot drift apart.
 | File | Read it when |
 |---|---|
 | [`references/mcp.md`](references/mcp.md) | you are **building or calling an MCP server** — the layers, per-request `_meta`, `server/discover`, the three server primitives and the one surviving client primitive, notifications, caching, transports, and the full deprecation register |
+| [`references/mcp-two-doors.md`](references/mcp-two-doors.md) | you **build, adapt or review a server we run**: the two doors `search` and `execute`, the operation catalogue, the gated path, at most three measured exceptions, moving an existing server, the snapshot and conformance tests |
 | [`references/mcp-ship.md`](references/mcp-ship.md) | the server is written and **cannot be reached** — mounting inside an existing web app, transport-level auth, client config, and the 404 that is really a double path |
 | [`references/mcp-scale.md`](references/mcp-scale.md) | the host has **more servers and tools than context** — progressive discovery, programmatic tool calling, cache interaction, and the security surface each one opens |
 | [`references/a2a.md`](references/a2a.md) | the other side is **another agent, not a tool** — agent cards and discovery, the task lifecycle and its terminal states, three protocol bindings, streaming versus push |
