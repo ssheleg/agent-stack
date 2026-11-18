@@ -60,7 +60,7 @@ then check whether a newer one exists. Every entry in the link map below is fetc
 words, each with its schema, effect and gate) and `execute` (run one by name through the same
 gate, idempotency and audit as the interface). Nothing else, unless a measured case needs a
 call to skip `search`: at most three such tools, each recorded with its measurement. Old tool
-names keep working for one release while callers move. Data rooms first. Contract, migration
+names leave `tools/list` as `retired` and stay callable as aliases. Data rooms first. Contract, migration
 and tests: `references/mcp-two-doors.md`.
 
 ---

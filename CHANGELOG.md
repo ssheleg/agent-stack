@@ -1,3 +1,15 @@
+## v0.33.2: old tool names stay callable; the `Mcp-Name` trap
+
+- **agent-interop `mcp-two-doors.md`**, "Moving an existing server": an old tool name leaves
+  `tools/list` in the same release, recorded `retired` with its date, and stays callable through
+  `tools/call` as a deprecated alias; it is no longer removed after one release. The agents
+  database decided this under its R28 (shipped names are only added), board thread 1c1524e4,
+  2026-11-18. Rule one in SKILL.md and the conformance checklist follow.
+- **A new trap**: `execute` forwarding its own `Mcp-Name: execute` header to the operation's
+  handler is refused 400 by an MCP `2026-07-28` transport check; test the doors over HTTP with
+  real headers (seo-content-agent TRAP-587).
+- `docs/evidence/verification.md` heads with v0.33.2 in the same release, so the hub can pin it.
+
 ## v0.33.1: the verification ledger names the shipped version
 
 - `docs/evidence/verification.md` gains the v0.33.1 candidate, which carries v0.33.0's two-door

@@ -3,7 +3,7 @@
 
 `agent-interop/references/mcp-two-doors.md` owns the rule: `tools/list` of a server the
 estate builds or runs answers `search` and `execute`, at most three measured exceptions,
-old tool names alias for one release. What this file holds the pack to:
+old tool names leave tools/list and stay callable (R28). What this file holds the pack to:
 
   * the reference exists, carries its load line and pin, and states the contract parts
     (the two tool names, the catalogue fields, the typed refusals, the exception cap, the
@@ -55,7 +55,7 @@ def t_reference_states_the_contract():
     assert re.search(r"^\*\*Spec pinned:\*\*.+· read \d{4}-\d{2}-\d{2}\s*$", text, re.M), "no pin"
     for part in ("`search`", "`execute`", '"inputSchema"', '"gate"', '"effect"', '"example"',
                  "`unknown-operation`", "`invalid-arguments`", "`idempotency-required`",
-                 "at most three", "One release of aliases", "## The contract snapshot",
+                 "at most three", "Old names leave the list, never the wire", "`retired`", "Mcp-Name: execute", "## The contract snapshot",
                  "## Conformance tests", "fabric.job.get"):
         assert part in text, f"missing {part}"
 

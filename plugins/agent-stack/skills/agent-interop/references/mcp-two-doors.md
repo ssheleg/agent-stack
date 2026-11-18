@@ -125,9 +125,12 @@ with that contract recorded as the reason, until the contract lets them fold int
    inventory is the catalogue. Add the interface's actions missing from it (AN-3).
 2. **Serve both doors** from that catalogue; `tools/list` answers only `search`, `execute`
    and recorded exceptions.
-3. **One release of aliases.** A `tools/call` by an old tool name still runs its operation
-   through `execute`'s path and marks the result deprecated (`_meta` and a `deprecated`
-   field naming `execute` and the sunset date). The next release removes the aliases.
+3. **Old names leave the list, never the wire.** In the same release an old tool name leaves
+   `tools/list` and is recorded as `retired` with its date (shipped names are only added,
+   agents database R28); a `tools/call` by it still runs its operation through `execute`'s
+   path and marks the result deprecated (`_meta` and a `deprecated` field naming `execute`
+   and the sunset date). The alias costs no context and breaks no caller, so it stays; the
+   sunset date only tells callers to move.
 4. **Move the callers.** Grep skills, prompts, docs, evals and other agents' code for the old
    tool names; change them in the same release or file a row with each owner.
 5. **Snapshot and tests** below; the change is `breaking` for `tools/list` and `none` for the
@@ -152,7 +155,8 @@ In the server's own suite, against a real client over the shipped transport:
 - [ ] `search` pages (`limit`, `nextCursor`) and hides operations outside the caller's scope.
 - [ ] `execute` answers `unknown-operation`, `invalid-arguments` and `idempotency-required`
   typed; a gated operation refuses with the same gate the interface shows.
-- [ ] In the migration release, every old tool name still runs and is marked deprecated.
+- [ ] Every old tool name is absent from `tools/list`, still runs through `tools/call` and is
+  marked deprecated and `retired` with its date.
 
 ## Traps
 
@@ -164,5 +168,10 @@ In the server's own suite, against a real client over the shipped transport:
   bypass, not parity.
 - **Renaming while migrating.** Keep names and schemas; change the shape of the surface and
   the vocabulary in two different releases.
+- **`execute` forwarding its own transport headers.** An `execute` that calls the operation's
+  handler with its own request headers sends `Mcp-Name: execute`, and a transport check under
+  MCP `2026-07-28` refuses the operation with 400. The internal call carries the operation's
+  name. Tests without headers do not see it; test the doors over HTTP with real headers
+  (seo-content-agent TRAP-587, 2026-11-18).
 - **Exceptions that grow.** A fourth "just this one" direct tool, or one without its
   measurement, is the drift the rule exists to stop.
