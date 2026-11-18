@@ -10,6 +10,16 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Release candidate: v0.33.1 (2026-11-18)
+
+Records the shipped version in this ledger, which the sshlg-skills validator's member-ledger
+ratchet requires before the hub pins it; no skill changes. It carries v0.33.0 (PR #77, release
+run 44356954501): every MCP server we build has two doors, `search` and `execute`
+(`agent-interop/references/mcp-two-doors.md`, Rule one, pointers in agent-harness `tools.md`,
+`mcp.md` and `agent-surface.md`, `test/audit_regressions/mcp-two-doors.py`). Evidence: the
+repository gate exits 0 on the candidate tree; the PR CI run and the tag release run are named
+in docs/HANDOFF.md.
+
 ## Release candidate: v0.32.1 (2026-11-11)
 
 Family audit fixes: the host's model map and per-agent budget default (agent-harness,
