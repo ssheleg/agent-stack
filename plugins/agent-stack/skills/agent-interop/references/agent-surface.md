@@ -69,7 +69,8 @@ surface, or each extra one is marked `internal` with a reason.
   definition: `internal: <reason>`. Accepted reasons: a sync transport (offline replication),
   a render-only endpoint (thumbnails, layout data), a session-plumbing call (token refresh).
 - [ ] A marker whose reason is a user action is not accepted: that action is a capability and
-  owes a tool.
+  owes an operation (on a server we build, an operation in the `search` catalogue behind the
+  two doors, `mcp-two-doors.md`).
 
 ## The contract source, its snapshot, and the diff that classifies a change
 
@@ -81,7 +82,7 @@ the source or is generated from it.
 
 | Surface | Snapshot |
 |---|---|
-| MCP | the `tools/list` result (plus `resources/templates/list` and `prompts/list` where used) from a local stdio build, sorted by name, caching fields (`ttlMs`, `cacheScope`) removed |
+| MCP | the `tools/list` result (plus `resources/templates/list` and `prompts/list` where used) from a local stdio build, sorted by name, caching fields (`ttlMs`, `cacheScope`) removed; for a two-door server also the whole `search` catalogue, sorted by operation name (`mcp-two-doors.md`) |
 | HTTP | the served OpenAPI document |
 | CLI | `<cli> --help --json` for every command |
 
@@ -94,7 +95,7 @@ the source or is generated from it.
 | `breaking` | a tool removed or renamed; input narrowed (a new required field, an enum value removed, a type tightened); an output field removed or its meaning changed; an effect class widened; an auth scope or effect ceiling changed; an error code renamed | a new contract version and the deprecation path in AN-8; risk and stage gates are task-pipeline's (`references/agent-surface.md`) |
 
 A description or an agent-facing error body that changed is a contract change too: agents read
-it (`tools.md:48-76`). The diff names it `additive` unless it changes what a call means.
+it (`tools.md:53-81`). The diff names it `additive` unless it changes what a call means.
 
 ## AN-7: the gate protocol
 
@@ -140,14 +141,14 @@ continues. Gates and their evidence come from the capability row (AN-4).
 - [ ] `human_steps[].url` opens the exact step, not a dashboard; the text a person reads goes
   through the product's copywriting route.
 - [ ] `digest` binds the approval to the exact arguments (`gateway.md:240-249`); changed
-  arguments need a new approval (`tools.md:130-133`).
+  arguments need a new approval (`tools.md:135-138`).
 - [ ] The agent continues by polling the named read or receiving the `Emits` event, then
   repeats the original call with the same idempotency key; the server consumes the approval
   once.
 - [ ] **How the server knows the approval is genuine:** it reads its own approval record,
   written by the authenticated approver through the human surface, bound to digest, principal,
   callee and expiry. Nothing the agent sends proves an approval. `confirm: true` is a syntax
-  guard, never an approval (`tools.md:127-133`).
+  guard, never an approval (`tools.md:132-138`).
 - [ ] On an `internal` product, `approval` exists only with a recorded operator decision
   (AN-4); otherwise the delegated agent acts.
 
@@ -163,7 +164,7 @@ continues. Gates and their evidence come from the capability row (AN-4).
   (`Roles` on the capability row); the server checks the principal's role on every call, not
   only at consent.
 - [ ] **Effect classes declared** in the contract (annotations and `_meta`), using the effect
-  vocabulary of `gateway.md:191`; annotations alone decide nothing (`tools.md:135-153`).
+  vocabulary of `gateway.md:191`; annotations alone decide nothing (`tools.md:140-158`).
 - [ ] **Idempotency key on every write.** A repeat with the same key returns the first result
   and causes no second effect; a repeat with the same key and other arguments is refused.
 - [ ] **Dry-run or sandbox** for every write: `dry_run: true` returns the planned effect
@@ -174,7 +175,7 @@ continues. Gates and their evidence come from the capability row (AN-4).
   pseudonymised, the chain's shape is kept, and the person's agent grants are revoked.
 - [ ] **Untrusted content marked.** Text written by third parties sits in fields the tool
   description names as untrusted (for example `untrusted_text`); the lethal trifecta is a
-  session property (`tools.md:155-178`).
+  session property (`tools.md:160-183`).
 - [ ] **Limits name their window.** Rate and spend refusals say which window ran out
   (`gateway.md:231-238`).
 - [ ] **A tool is never renamed.** Deprecate it: mark it in the description and `_meta` with a

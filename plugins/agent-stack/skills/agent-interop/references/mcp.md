@@ -103,7 +103,7 @@ is supposed to decide about is a **tool**.
 **Tools.** `name` (unique within the server; prefer `calculator_arithmetic` over
 `calculate`), `title` (human-readable), `description`, `inputSchema` (JSON Schema), and an
 optional **`outputSchema`** — which is worth providing, because it is what lets a host
-generate typed stubs for programmatic calling (`mcp-scale.md`).
+generate typed stubs for programmatic calling (`mcp-scale.md`). A server we build lists only two tools, `search` and `execute` (`mcp-two-doors.md`).
 
 **Tool errors do not arrive as transport failures.** A failed tool returns a *successful*
 JSON-RPC response carrying `isError: true`. Client code that only catches transport

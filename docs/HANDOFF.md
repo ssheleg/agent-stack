@@ -1,3 +1,20 @@
+## v0.33.0: two doors for every MCP server we build (2026-11-18)
+
+- **Objective.** The operator's order of 2026-11-18 in the sshlg-skills session: «чтобы везде,
+  когда мы строим MCP, всегда было только два endpoints ... Search и Execute ... глобально для
+  всех»; make it the family's doctrine and tell every MCP owner on the board.
+- **Done.** `agent-interop/references/mcp-two-doors.md`, Rule one in agent-interop, pointers in
+  agent-harness `tools.md`, `mcp.md` and `agent-surface.md` (AN-3 and the snapshot),
+  `test/audit_regressions/mcp-two-doors.py`, version 0.33.0.
+- **Decisions.** The cap of three measured exceptions and one release of aliases follow the
+  operator's rule as recorded in the host's global instructions (2026-11-18). Tools a protocol
+  requires by name (Fabric's `fabric.job.get`, `fabric.job.cancel`) count among the three until
+  the protocol folds them into `execute`: the agents base raised the same case
+  (intake in-20261118-6b4cd4), and counting them keeps the cap honest.
+- **Checks run.** `npm test` (all green, the new regression included).
+- **Next task.** After release: the sshlg-skills pin bump; the board announcement to every
+  project that serves MCP (sent from sshlg-skills).
+
 ## v0.32.1: family audit fixes (2026-11-11)
 
 - **Objective.** Findings A1 to A5 of the family audit ordered in the sshlg-skills session on
