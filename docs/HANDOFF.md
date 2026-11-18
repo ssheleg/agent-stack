@@ -1,3 +1,11 @@
+## v0.33.1: ledger records the shipped version (2026-11-18)
+
+- **Done.** The v0.33.1 row in `docs/evidence/verification.md`; versions 0.33.1. The hub's pin of
+  0.33.0 was refused by its member-ledger ratchet (`1 member ledger(s) describe a version older
+  than they ship (agent-stack)`), the same shape as sheleg-design 1.66.2 and 1.67.1.
+- **Next task.** After release: the sshlg-skills pin to 0.33.1 (branch
+  `release/pin-agent-stack-0.33.0` there).
+
 ## v0.33.0: two doors for every MCP server we build (2026-11-18)
 
 - **Objective.** The operator's order of 2026-11-18 in the sshlg-skills session: «чтобы везде,

@@ -1,3 +1,9 @@
+## v0.33.1: the verification ledger names the shipped version
+
+- `docs/evidence/verification.md` gains the v0.33.1 candidate, which carries v0.33.0's two-door
+  doctrine; the sshlg-skills validator refuses to pin a member whose ledger describes an older
+  version than it ships. No skill changes.
+
 ## v0.33.0: every MCP server we build has two doors, `search` and `execute`
 
 The operator's rule of 2026-11-18 (fabric-agents-database session b590fc74): an MCP server we
