@@ -8,7 +8,8 @@
       "q03",
       "q07",
       "q08",
-      "q09"
+      "q09",
+      "q13"
     ],
     "validation": [
       "q04",
@@ -16,7 +17,8 @@
       "q06",
       "q10",
       "q11",
-      "q12"
+      "q12",
+      "q14"
     ]
   },
   "queries": [
@@ -103,7 +105,20 @@
       "query": "Explain what MCP means in two paragraphs",
       "should_trigger": false,
       "why": "informational request, no agent system is being built"
+    },
+    {
+      "id": "q13",
+      "lang": "ru",
+      "query": "аудит промпта и инструментов агента поддержки: почему он выбирает не тот тул",
+      "should_trigger": true,
+      "why": "agent-harness owns prompt and tool audits; the phrase its description advertises since B-162"
+    },
+    {
+      "id": "q14",
+      "lang": "ru",
+      "query": "аудит агента по базе агентов: какие шаблоны и модули у него есть",
+      "should_trigger": false,
+      "why": "near miss (B-162): a whole-agent assessment against the agents database belongs to fabric-agents assessing-agents, and the bare «аудит агента» is no longer advertised here"
     }
   ]
 }
-

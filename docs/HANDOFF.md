@@ -1,3 +1,27 @@
+## v0.33.4: B-162, the agent-harness audit phrase (2026-11-17, carried onto main 2026-11-19)
+
+- **Objective.** Board row B-162 (family audit 2026-11-11, finding A3), unblocked by the hub's
+  Fabric board message `6684f801` (2026-11-17): sshlg-skills 1.89.0 (PR #308) routes «аудит
+  промпта и инструментов агента» and «аудит системного промпта агента» to agent-harness.
+- **Done.** Branch `b162-harness-audit-phrase`: the description swap, «аудит системного промпта
+  агента» in `## Triggers`, a Boundaries paragraph against `fabric-agents:assessing-agents`,
+  trigger cases q13 and q14, version 0.32.2 in the four version files. On 2026-11-19 a board
+  run merged `main` (0.33.3, `01e180c`) into the branch without force-push and renumbered the
+  release 0.33.4, after the hub's board message `6e203dad` reported the PR stale.
+- **Decisions.** The bare «аудит агента» stays in the file, in Boundaries and outside `##
+  Triggers`: the hub's agent-harness route still lists it (`lib/triggers.js` line 564 at
+  `202a1bf5`), and the forward half of `advertised_check.js` fails a member whose file no longer
+  carries a routed word (measured: removing it entirely printed that failure). Outside `##
+  Triggers` it is not an advertised phrase, so the hub can retire the route without a member
+  change.
+- **Open.** Merge, tag `v0.33.4` and watch the release: publication, left to a session with
+  the operator (this branch was made by a board run with no person present). Then the hub pins
+  0.33.4, deletes both PENDING entries (`lib/triggers.js` lines 829 to 836) and retires the bare
+  «аудит агента» from the agent-harness route.
+- **Checks run.** `SSHLG_HUB_ROOT=<hub main 202a1bf5 worktree> npm test` (2026-11-17); on the
+  merged 0.33.4 tree, `npm test` with `SSHLG_HUB_ROOT` at the hub checkout (2026-11-19).
+- **Next task.** Open the PR's CI result, merge, tag `v0.33.4`, then tell the hub on the board.
+
 ## v0.33.3: ledger guard, contract DEC-0182 (2026-11-19)
 
 - **Done.** The ledger-version guard (grade-1 fix for the v0.33.1 detour, retro in the
