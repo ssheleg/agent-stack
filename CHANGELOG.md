@@ -1,3 +1,15 @@
+## v0.33.3: the ledger guard, and what the Fabric contract accepts
+
+- **`test/audit_regressions/ledger-names-shipped-version.py`**: the first release candidate in
+  `docs/evidence/verification.md` must equal `package.json`'s version. v0.33.0 shipped without
+  its row and the hub's member-ledger ratchet refused the pin, which cost v0.33.1; the refusal
+  now happens in this gate, before the tag.
+- **agent-interop `mcp-two-doors.md`**: fabric-agent-contract `v0.1.0+2026-11-19` (DEC-0182)
+  checks a capability missing from a compact `tools/list` against the same-named `search`
+  operation, so FAC-SEM-017 no longer forces old names back into the list; folding
+  `fabric.job.*` into `execute` is the contract's row CT-345; the service kit's
+  `serve_compact(domain)` (fabric-agent-adapter 0.98.0). Spec pin and read date updated.
+
 ## v0.33.2: old tool names stay callable; the `Mcp-Name` trap
 
 - **agent-interop `mcp-two-doors.md`**, "Moving an existing server": an old tool name leaves

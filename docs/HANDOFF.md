@@ -1,3 +1,9 @@
+## v0.33.3: ledger guard, contract DEC-0182 (2026-11-19)
+
+- **Done.** The ledger-version guard (grade-1 fix for the v0.33.1 detour, retro in the
+  sshlg-skills hub); `mcp-two-doors.md` cites the Fabric contract tag `v0.1.0+2026-11-19`.
+- **Next task.** After release: the sshlg-skills pin to 0.33.3.
+
 ## v0.33.2: old tool names stay callable (2026-11-18)
 
 - **Done.** `mcp-two-doors.md` step 3 and the checklist follow the agents database's R28

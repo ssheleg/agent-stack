@@ -4,7 +4,7 @@
 agent's server, a product's agent surface, a data room, a gateway's own tools); or a
 server's `tools/list` shows more than two tools.
 
-**Spec pinned:** MCP revision `2026-07-28` (`tools/list`, `tools/call`, `outputSchema`, `isError`); the operator's rule of 2026-11-18 (fabric-agents-database session b590fc74: «два входа только поиски и экзекьюция ... best practice всегда для проектирования mcp ... особенно на датарумы») · read 2026-11-18
+**Spec pinned:** MCP revision `2026-07-28` (`tools/list`, `tools/call`, `outputSchema`, `isError`); fabric-agent-contract `v0.1.0+2026-11-19` (DEC-0182); the operator's rule of 2026-11-18 (fabric-agents-database session b590fc74: «два входа только поиски и экзекьюция ... best practice всегда для проектирования mcp ... особенно на датарумы») · read 2026-11-19
 
 ## Contents
 
@@ -118,6 +118,14 @@ decided. No measurement, no exception: "it is used a lot" is a reason to measure
 Tools that a protocol outside the server requires by name (for example the Fabric kit's
 `fabric.job.get` and `fabric.job.cancel` under `fabric-interop/0.1`) count against the three,
 with that contract recorded as the reason, until the contract lets them fold into `execute`.
+
+**What the Fabric contract accepts (tag `v0.1.0+2026-11-19`, DEC-0182).** A declared
+capability that is absent from a compact `tools/list` is checked against the operation of the
+same name in the `search` catalogue (name, `inputSchema`, `outputSchema` when present), so the
+conformance rule FAC-SEM-017 no longer forces old names back into the list; a service is read as
+compact when it lists `search` and `execute`. Folding `fabric.job.get` and `fabric.job.cancel`
+into `execute` is the contract's open row CT-345. The Fabric service kit serves this shape with
+`McpToolServer.serve_compact(domain)` (fabric-agent-adapter 0.98.0), opt-in until its services move.
 
 ## Moving an existing server to two doors
 

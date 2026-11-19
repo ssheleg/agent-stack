@@ -10,6 +10,14 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Release candidate: v0.33.3 (2026-11-19)
+
+The member gate refuses a tree whose ledger does not name the version it ships
+(`test/audit_regressions/ledger-names-shipped-version.py`, seen failing on this tree before
+this row was written); `mcp-two-doors.md` records what the Fabric contract accepts from
+`v0.1.0+2026-11-19` (DEC-0182). Evidence: the repository gate exits 0 on the candidate tree;
+the PR CI run and the tag release run are named in docs/HANDOFF.md.
+
 ## Release candidate: v0.33.2 (2026-11-18)
 
 The two-door doctrine follows the agents database's decision on R28 (shipped names are only
