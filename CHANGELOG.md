@@ -1,4 +1,4 @@
-## v0.32.2: agent-harness advertises the prompt-and-tool audit, not the bare «аудит агента»
+## v0.33.4: agent-harness advertises the prompt-and-tool audit, not the bare «аудит агента»
 
 Board row B-162 (family audit of 2026-11-11, finding A3), after the hub routed the new phrases
 (sshlg-skills 1.89.0, PR #308).
@@ -12,6 +12,64 @@ Board row B-162 (family audit of 2026-11-11, finding A3), after the hub routed t
   skill; this paragraph keeps the hook's forward check true until the hub retires it.
 - **Two trigger cases:** q13 (positive, the new phrase) and q14 (near miss, an agents-database
   assessment). Not run against a model: trigger evals are re-run only on a decision to.
+
+## v0.33.3: the ledger guard, and what the Fabric contract accepts
+
+- **`test/audit_regressions/ledger-names-shipped-version.py`**: the first release candidate in
+  `docs/evidence/verification.md` must equal `package.json`'s version. v0.33.0 shipped without
+  its row and the hub's member-ledger ratchet refused the pin, which cost v0.33.1; the refusal
+  now happens in this gate, before the tag.
+- **agent-interop `mcp-two-doors.md`**: fabric-agent-contract `v0.1.0+2026-11-19` (DEC-0182)
+  checks a capability missing from a compact `tools/list` against the same-named `search`
+  operation, so FAC-SEM-017 no longer forces old names back into the list; folding
+  `fabric.job.*` into `execute` is the contract's row CT-345; the service kit's
+  `serve_compact(domain)` (fabric-agent-adapter 0.98.0). Spec pin and read date updated.
+
+## v0.33.2: old tool names stay callable; the `Mcp-Name` trap
+
+- **agent-interop `mcp-two-doors.md`**, "Moving an existing server": an old tool name leaves
+  `tools/list` in the same release, recorded `retired` with its date, and stays callable through
+  `tools/call` as a deprecated alias; it is no longer removed after one release. The agents
+  database decided this under its R28 (shipped names are only added), board thread 1c1524e4,
+  2026-11-18. Rule one in SKILL.md and the conformance checklist follow.
+- **A new trap**: `execute` forwarding its own `Mcp-Name: execute` header to the operation's
+  handler is refused 400 by an MCP `2026-07-28` transport check; test the doors over HTTP with
+  real headers (seo-content-agent TRAP-587).
+- `docs/evidence/verification.md` heads with v0.33.2 in the same release, so the hub can pin it.
+
+## v0.33.1: the verification ledger names the shipped version
+
+- `docs/evidence/verification.md` gains the v0.33.1 candidate, which carries v0.33.0's two-door
+  doctrine; the sshlg-skills validator refuses to pin a member whose ledger describes an older
+  version than it ships. No skill changes.
+
+## v0.33.0: every MCP server we build has two doors, `search` and `execute`
+
+The operator's rule of 2026-11-18 (fabric-agents-database session b590fc74): an MCP server we
+build or run lists only `search` and `execute`, best practice for every MCP design, data rooms
+first.
+
+- **agent-interop `references/mcp-two-doors.md`** (new): the rule and its scope; why (context,
+  selection, one gated path, a stable surface); the `search` catalogue (operation name,
+  `purpose`, `inputSchema`, `effect`, `gate`, `example`, deprecation; paged, ranked, filtered
+  by the caller's scope); `execute` (one path through the interface's gate, idempotency key
+  for effects, typed refusals `unknown-operation`, `invalid-arguments`,
+  `idempotency-required`, `idempotency-conflict`, AN-7 gates; not a shell or code mode); at
+  most three direct tools, each with a recorded measurement, protocol-required tools such as
+  the Fabric kit's `fabric.job.get` counted among them; moving an existing server (inventory,
+  both doors, one release of aliases for the old names, callers moved); the contract
+  snapshot (the whole catalogue); conformance tests; traps.
+- **agent-interop SKILL.md** gains "Rule one" with the rule in short, a dispatch row and the
+  index row.
+- **agent-surface.md**: AN-3's capability owes an operation in the catalogue; the MCP snapshot
+  of a two-door server includes the whole `search` catalogue. Its `tools.md` citations moved
+  by five lines with the new paragraph there (anchors in
+  `test/audit_regressions/ai-native-agent-surface.py` updated).
+- **agent-harness `references/tools.md`**: "Fewer tools than you think" points at the two
+  doors; its advice now applies to each operation.
+- **mcp.md**: the tools paragraph points at the rule (same line, no citation moved).
+- **`test/audit_regressions/mcp-two-doors.py`** holds the contract parts, the pointers and
+  the no-em-dash rule.
 
 ## v0.32.1: the host's model map, a pinned interop revision, fresh source dates
 

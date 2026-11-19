@@ -36,6 +36,11 @@ two round trips.
 tool applies to a case, the model cannot either.* Ambiguity between two tools is a design
 defect, not a prompting problem.
 
+**An MCP server we build lists two tools: `search` and `execute`.** The functions become
+operations in a catalogue `search` returns on demand; `execute` runs one by name through one
+gated path. At most three measured exceptions. Everything in this file still applies, to each
+operation's name, `purpose`, schema and errors: `agent-interop/references/mcp-two-doors.md`.
+
 ## Namespacing
 
 Group related tools under a common prefix — `asana_search`, `asana_create_task`,

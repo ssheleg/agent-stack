@@ -10,14 +10,42 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
-## Release candidate: v0.32.2 (2026-11-17)
+## Release candidate: v0.33.4 (2026-11-19)
 
 B-162: the agent-harness description advertises «аудит промпта и инструментов агента» in place
 of the bare «аудит агента»; a Boundaries paragraph against `fabric-agents:assessing-agents`;
 trigger cases q13 and q14. Evidence: `npm test` with `SSHLG_HUB_ROOT` at hub main `202a1bf5`
-exits 0 on the candidate tree, which runs the routed-triggers check (`advertised_check.js`)
+exited 0 on the 0.32.2 tree (2026-11-17), and `npm test` exits 0 on this tree after `main`
+(0.33.3) was merged in, which runs the routed-triggers check (`advertised_check.js`)
 in both directions. The PR CI run and the tag release run are named in docs/HANDOFF.md once
 they exist.
+
+## Release candidate: v0.33.3 (2026-11-19)
+
+The member gate refuses a tree whose ledger does not name the version it ships
+(`test/audit_regressions/ledger-names-shipped-version.py`, seen failing on this tree before
+this row was written); `mcp-two-doors.md` records what the Fabric contract accepts from
+`v0.1.0+2026-11-19` (DEC-0182). Evidence: the repository gate exits 0 on the candidate tree;
+the PR CI run and the tag release run are named in docs/HANDOFF.md.
+
+## Release candidate: v0.33.2 (2026-11-18)
+
+The two-door doctrine follows the agents database's decision on R28 (shipped names are only
+added): an old tool name leaves `tools/list` as `retired` and stays callable as an alias, not
+removed after one release; and a new trap, `execute` forwarding its own `Mcp-Name` header
+(seo-content-agent TRAP-587). Evidence: the repository gate exits 0 on the candidate tree,
+`test/audit_regressions/mcp-two-doors.py` included; the PR CI run and the tag release run are
+named in docs/HANDOFF.md.
+
+## Release candidate: v0.33.1 (2026-11-18)
+
+Records the shipped version in this ledger, which the sshlg-skills validator's member-ledger
+ratchet requires before the hub pins it; no skill changes. It carries v0.33.0 (PR #77, release
+run 44356954501): every MCP server we build has two doors, `search` and `execute`
+(`agent-interop/references/mcp-two-doors.md`, Rule one, pointers in agent-harness `tools.md`,
+`mcp.md` and `agent-surface.md`, `test/audit_regressions/mcp-two-doors.py`). Evidence: the
+repository gate exits 0 on the candidate tree; the PR CI run and the tag release run are named
+in docs/HANDOFF.md.
 
 ## Release candidate: v0.32.1 (2026-11-11)
 
