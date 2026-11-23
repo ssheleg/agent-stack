@@ -10,6 +10,16 @@ This file exists because its absence read as zero exposure. `sshlg-skills` board
 
 ---
 
+## Release candidate: v0.33.4 (2026-11-19)
+
+B-162: the agent-harness description advertises «аудит промпта и инструментов агента» in place
+of the bare «аудит агента»; a Boundaries paragraph against `fabric-agents:assessing-agents`;
+trigger cases q13 and q14. Evidence: `npm test` with `SSHLG_HUB_ROOT` at hub main `202a1bf5`
+exited 0 on the 0.32.2 tree (2026-11-17), and `npm test` exits 0 on this tree after `main`
+(0.33.3) was merged in, which runs the routed-triggers check (`advertised_check.js`)
+in both directions. The PR CI run and the tag release run are named in docs/HANDOFF.md once
+they exist.
+
 ## Release candidate: v0.33.3 (2026-11-19)
 
 The member gate refuses a tree whose ledger does not name the version it ships
