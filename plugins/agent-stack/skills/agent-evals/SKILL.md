@@ -3,7 +3,7 @@ name: agent-evals
 description: >-
   Use when measuring whether an agent works: eval suites, trajectory judging, traces as
   regression fixtures, a calibrated LLM judge, release gates. Triggers: "agent eval" /
-  "эвалы агента", "LLM judge" / "LLM-судья". Not for ordinary unit tests or model
+  «эвалы агента», "LLM judge" / «LLM-судья». Not for ordinary unit tests or model
   benchmarks; the loop is agent-orchestrator.
 license: MIT
 ---
@@ -28,9 +28,9 @@ Three claims follow, and they are what makes this different from testing ordinar
 
 ## Triggers
 
-"trajectory eval", "checker node", "is the agent getting better", "оценка агента", "как проверить агента".
+"trajectory eval", "checker node", "is the agent getting better", «оценка агента», «как проверить агента».
 
-Moved here from the description in 0.31.3: "регрессионный набор".
+Moved here from the description in 0.31.3: «регрессионный набор».
 
 ## 1. Three primitives
 
