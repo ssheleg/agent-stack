@@ -86,7 +86,7 @@
   readiness; profiles), `agent-evals/references/operability.md` (AN-9), the ownership fix (tool
   shape: agent-harness; wire and product surface: agent-interop), triggers, four outcome cases,
   `test/audit_regressions/ai-native-agent-surface.py`, version 0.32.0.
-- **Decisions.** The agent-interop description is 281 characters (was 283); "шлюз для агентов"
+- **Decisions.** The agent-interop description is 281 characters (was 283); «шлюз для агентов»
   moved to the body to make room. agent-evals paid for its new row by shortening two rows and a
   paragraph (body 4742 → 4734 tokens). The eval checks were frozen before the current arm ran
   and were not changed after it (AI-OUT-006 fails on the word `subset`; recorded, not tuned).

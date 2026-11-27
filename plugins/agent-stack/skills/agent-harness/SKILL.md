@@ -3,7 +3,7 @@ name: agent-harness
 description: >-
   Use when deciding an agent's system prompt and tools, not how its loop is wired:
   system prompt, tool choice, workflow or agent, harness audits. Triggers: "system prompt" /
-  "системный промпт", "аудит промпта и инструментов агента". Not for the loop
+  «системный промпт», «аудит промпта и инструментов агента». Not for the loop
   (agent-orchestrator), evals (agent-evals) or protocols (agent-interop).
 license: MIT
 compatibility: >-
@@ -26,10 +26,10 @@ forwards and backwards, which is why they live together here.
 
 ## Triggers
 
-"tool description", "agent loops forever", "prompt engineering", "harness engineering", "ReAct loop", "react pattern", "static or dynamic", "embed an agent", "agent SDK", "Pi harness", "встроить агента", "аудит системного промпта агента".
+"tool description", "agent loops forever", "prompt engineering", "harness engineering", "ReAct loop", "react pattern", "static or dynamic", "embed an agent", "agent SDK", "Pi harness", «встроить агента», «аудит системного промпта агента».
 
-Moved here from the description in 0.31.3: "agent picks the wrong tool", "агент не
-вызывает тул", "audit this agent".
+Moved here from the description in 0.31.3: "agent picks the wrong tool", «агент не
+вызывает тул», "audit this agent".
 
 ## Rule zero — check the prompt first (a diagnostic heuristic, with exceptions)
 

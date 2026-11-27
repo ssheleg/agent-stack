@@ -143,7 +143,7 @@ def t_interop_description_and_ownership():
         "the body still names a second owner of one server's tool design"
     assert "agent-harness/references/tools.md" in body, "the body does not name the tool-shape home"
     for t in ("agent surface", "агентная поверхность", "AI-native", "API для агентов"):
-        assert f'"{t}"' in body, f"## Triggers lost {t!r}"
+        assert f'"{t}"' in body or f'«{t}»' in body, f"## Triggers lost {t!r}"
 
 
 def t_cases_written_before_the_prose():

@@ -3,7 +3,7 @@ name: agent-interop
 description: >-
   Use when an agent speaks MCP, A2A or a gateway, or a product exposes an agent
   surface: MCP server or client, agent cards, registry, delegation. Triggers:
-  "MCP server" / "MCP-сервер", "A2A", "агентная поверхность". Not for tool shape
+  "MCP server" / «MCP-сервер», "A2A", «агентная поверхность». Not for tool shape
   (agent-harness) or building skills (make-skill).
 license: MIT
 compatibility: >-
@@ -22,11 +22,11 @@ call instead of its screens).
 
 ## Triggers
 
-"MCP client", "agent interoperability", "server.json", "agentgateway", "tool federation", "интероперабельность агентов", "реестр MCP", "delegation token", "токен делегирования".
+"MCP client", "agent interoperability", "server.json", "agentgateway", "tool federation", «интероперабельность агентов», «реестр MCP», "delegation token", «токен делегирования».
 
-Moved here from the description in 0.31.3: "карточка агента". Moved in 0.32.0: "шлюз для агентов".
+Moved here from the description in 0.31.3: «карточка агента». Moved in 0.32.0: «шлюз для агентов».
 
-A product's agent surface (0.32.0): "agent surface", "агентная поверхность", "AI-native", "API для агентов".
+A product's agent surface (0.32.0): "agent surface", «агентная поверхность», "AI-native", «API для агентов».
 
 ## Rule zero — a protocol claim without a date is a guess
 
